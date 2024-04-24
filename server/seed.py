@@ -7,8 +7,10 @@ from random import randint, choice as rc
 from faker import Faker
 
 # Local imports
-from app import app
-from models import db
+from config import app
+from models.__init__ import db
+
+#! IMPORT MODELS HERE AS NEEDED FOR SEEDING! 
 
 if __name__ == '__main__':
     fake = Faker()
