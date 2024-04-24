@@ -39,7 +39,7 @@ class Course(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     # Define relationship with topics
 
     course_topics = db.relationship('CourseTopic', back_populates='course')
@@ -52,7 +52,7 @@ class Topic(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     # Define relationship with notes
     notes = db.relationship('Note', back_populates='topic', lazy=True)
     course_topics = db.relationship('CourseTopic', back_populates='topic')
@@ -84,7 +84,7 @@ class Reference(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     author = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', back_populates='references')
 
     note_references = db.relationship("NoteReference", back_populates="reference")
@@ -92,22 +92,22 @@ class Reference(db.Model):
 class NoteReference(db.Model):
     __tablename__ = 'note_references'
 
-    note_id = db.Column(db.Integer, db.ForeignKey('note.id'), primary_key=True)
-    reference_id = db.Column(db.Integer, db.ForeignKey('reference.id'), primary_key=True)
+    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), primary_key=True)
+    reference_id = db.Column(db.Integer, db.ForeignKey('references.id'), primary_key=True)
     note = db.relationship("User", back_populates="note_references")
     reference = db.relationship('Reference', back_populates='note_references')
 
 class UserCourse(db.Model):
     __tablename__ = 'user_courses'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), primary_key=True)
     user = db.relationship('User', back_populates='user_courses')
     course = db.relationship('Course', back_populates='user_courses')
 
 class CourseTopic(db.Model):
     __tablename__ = 'course_topics'
-    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), primary_key=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'), primary_key=True)
     course = db.relationship('Course', back_populates='course_topics')
     topic = db.relationship('Topic', back_populates='course_topics')

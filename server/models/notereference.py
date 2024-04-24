@@ -12,9 +12,9 @@ from . import (
 class NoteReference(db.Model):
     __tablename__ = "note_references"
 
-    note_id = db.Column(db.Integer, db.ForeignKey("note.id"), primary_key=True)
+    note_id = db.Column(db.Integer, db.ForeignKey("notes.id"), primary_key=True)
     reference_id = db.Column(
-        db.Integer, db.ForeignKey("reference.id"), primary_key=True
+        db.Integer, db.ForeignKey("references.id"), primary_key=True
     )
-    note = db.relationship("User", back_populates="note_references")
+    note = db.relationship("Note", back_populates="note_references")
     reference = db.relationship("Reference", back_populates="note_references")

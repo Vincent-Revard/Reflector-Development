@@ -14,7 +14,7 @@ class Topic(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     # Define relationship with notes
     notes = db.relationship("Note", back_populates="topic", lazy=True)
     course_topics = db.relationship("CourseTopic", back_populates="topic")

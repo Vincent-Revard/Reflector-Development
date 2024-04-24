@@ -9,6 +9,8 @@ from . import (
 )
 
 class User(db.Model):
+    __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
@@ -18,6 +20,7 @@ class User(db.Model):
     notes = db.relationship("Note", back_populates="user", lazy=True)
     # Define relationship with courses through association table
     user_courses = db.relationship("UserCourse", back_populates="user", lazy=True)
+    references = db.relationship("Reference", back_populates="user", lazy=True)
     courses = association_proxy("user_courses", "course")
 
     # seriailze_rules = ('-_password_hash')

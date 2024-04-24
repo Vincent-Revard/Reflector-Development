@@ -15,15 +15,16 @@ from functools import wraps
 # Local imports
 from config import app, db, api
 # Add your model imports
-from models.course import Course
-from models.coursetopic import CourseTopic
-from models.reference import Reference
-from models.notereference import NoteReference
-from models.note import Note
-from models.topic import Topic
-from models.user import User
-from models.usercourse import UserCourse
-
+from models import (
+    User,
+    Course,
+    CourseTopic,
+    Reference,
+    NoteReference,
+    Note,
+    Topic,
+    UserCourse,
+)
 
 # from models import course, coursetopic, reference, notereference, note, topic, user, usercourse
 #! need to import both models and schema's here as necessary
@@ -121,34 +122,32 @@ def after_request(response):  #! notice the response argument automatically pass
 
 # Views go here!
 
- ? User Account Signup/Login/Logout/Session Resources
+# ? User Account Signup/Login/Logout/Session Resources
 class Signup(Resource):
     model = User
     schema = UserSchema()
 
     def post(self):
-        self.schema.context = {"is_signup": True}
-        data = request.get_json()
-
         try:
+            self.schema.context = {"is_signup": True}
+
             data = self.schema.load(data)
-        except ValidationError as err:
-            return err.messages, 422
 
-        password = data.pop("password_hash")
+            password = data.pop("password_hash")
 
-        user = User(**data)
-        user.password_hash = password
+            user = User(**data)
+            user.password_hash = password
 
-        db.session.add(user)
+            db.session.add(user)
+            db.session.commit()
+            # Log the user in
+            session["user_id"] = user.id
+            session["username"] = user.username
+            g.user = user
 
-        db.session.commit()
-        # Log the user in
-        session["user_id"] = user.id
-        session["username"] = user.username
-        g.user = user
-
-        return self.schema.dump(user), 201
+            return self.schema.dump(user), 201
+        except Exception as e:
+            return {"message": str(e)}, 422
 class CheckSession(Resource):
 
     def get(self):
@@ -164,11 +163,9 @@ class Login(Resource):
     schema = UserSchema()
 
     def post(self):
-        data = request.get_json()
-        try:
-            data = self.schema.load(data)
-        except ValidationError as err:
-            return err.messages, 422
+
+        data = self.schema.load(data)
+
         username = data.get("username")
         password = data.get("password_hash")
         user = get_one_by_condition(User, User.username == username)
@@ -181,12 +178,19 @@ class Login(Resource):
 
 class Logout(Resource):
     def delete(self):
-        if (user_id := session.get("user_id")) is None:
-            return {"message": "Unauthorized"}, 401
-        session["user_id"] = None
-        session["username"] = None
-        return {}, 204
+        try:
+            if (user_id := session.get("user_id")) is None:
+                return {"message": "Unauthorized"}, 401
+            session["user_id"] = None
+            session["username"] = None
+            return {}, 204
+        except Exception as e:
+            raise e
 
+api.add_resource(Signup, "/signup")
+api.add_resource(CheckSession, "/checksession")
+api.add_resource(Login, "/login")
+api.add_resource(Logout, "/logout")
 
 
 if __name__ == '__main__':
