@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from "yup";
@@ -7,26 +7,27 @@ import { useAuth } from '../../context/AuthContext';
 
 function Registration() {
     const { user, updateUser } = useAuth()
-    const location = useLocation();
+    // const location = useLocation();
     const navigate = useNavigate();
+
     
-    const signUp = location.pathname === '/signup';
+    const [isLogin, setIsLogin] = useState(true);
 
     const validationSchema = yup.object().shape({
         username: yup.string().required("Please enter a username"),
-        password_hash: yup.string().required("Please enter a password"),
-        email: signUp ? yup.string().email().required("Please enter an email") : yup.mixed().notRequired(),
+        password: yup.string().required("Please enter a password"),
+        email: !isLogin ? yup.string().email().required("Please enter an email") : yup.mixed().notRequired(),
     });
 
     const initialValues = {
         username: '',
         email: '',
-        password_hash: '',
+        password: '',
     };
 
     const onSubmit = (values) => {
-        const dataToSend = signUp ? values : { username: values.username, password_hash: values.password_hash };
-        fetch(signUp ? '/api/v1/signup' : '/api/v1/login', {
+        const requestUrl = isLogin ? "/login" : "/signup"
+        const dataToSend = isLogin ? { username: values.username, password: values.password } : values;        fetch(requestUrl ? '/api/v1/login' : '/api/v1/signup', {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -64,16 +65,17 @@ function Registration() {
             <Field type='text' name='username' />
             <ErrorMessage name='username' component='div' />
             <label>Password:</label>
-            <Field type='password' name='password_hash' />
-            <ErrorMessage name='password_hash' component='div' />
-            {signUp && (
+            <Field type='password' name='password' />
+            <ErrorMessage name='password' component='div' />
+            {!isLogin && (
                 <>
                 <label>Email:</label>
                 <Field type='text' name='email' />
                 <ErrorMessage name='email' component='div' />
                 </>
             )}
-            <button type='submit'>{signUp ? 'Sign Up!' : 'Log In!'}</button>
+            <button type='submit'>{isLogin ? 'Log In!' : 'Sign Up!'}</button>
+            <button type='button' onClick={() => setIsLogin(!isLogin)}>{isLogin ? 'Register Now!' : 'Login!'}</button>
             </Form>
         </Formik>
         </div>

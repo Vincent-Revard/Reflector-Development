@@ -9,6 +9,7 @@ from time import time
 from flask_restful import Resource
 from werkzeug.exceptions import NotFound, BadRequest
 from sqlalchemy import select
+import ipdb
 
 from functools import wraps
 
@@ -100,7 +101,11 @@ def handle_bad_request(error):
 #             return {"message": "Access Denied, please log in!"}, 422
 #         return func(*args, **kwargs)
 
+
 #     return decorated_function
+@app.before_request
+def start_timer():
+    g.time = time()
 
 @app.before_request
 def load_logged_in_user():
@@ -131,18 +136,17 @@ class Signup(Resource):
         try:
             self.schema.context = {"is_signup": True}
 
-            data = self.schema.load(data)
+            data = self.schema.load(request.get_json())
 
-            password = data.pop("password_hash")
+            # password = data.pop("password_hash")
 
             user = User(**data)
-            user.password_hash = password
+            user.password_hash = data["password_hash"]
 
             db.session.add(user)
             db.session.commit()
             # Log the user in
             session["user_id"] = user.id
-            session["username"] = user.username
             g.user = user
 
             return self.schema.dump(user), 201
@@ -163,18 +167,22 @@ class Login(Resource):
     schema = UserSchema()
 
     def post(self):
-
-        data = self.schema.load(data)
-
-        username = data.get("username")
-        password = data.get("password_hash")
-        user = get_one_by_condition(User, User.username == username)
-        if user is None or not user.authenticate(password):
-            return {"message": "Invalid credentials"}, 401
-        session["user_id"] = user.id
-        session["username"] = user.username
-        g.user = user
-        return {"id": user.id, "username": user.username}, 200
+        try:
+            ipdb.set_trace()
+            self.schema.context = {"is_signup": False}
+            request_data = request.get_json()
+            data = self.schema.load(request_data)
+            username = data.username            
+            ipdb.set_trace()
+            password = request_data.get("password")
+            user = get_one_by_condition(User, User.username == username)
+            if user is None or not user.authenticate(password):
+                return {"message": "Invalid credentials"}, 401
+            session["user_id"] = user.id
+            g.user = user
+            return {"id": user.id}, 200
+        except Exception as e:
+            return {"message": str(e)}, 422
 
 class Logout(Resource):
     def delete(self):
@@ -188,7 +196,7 @@ class Logout(Resource):
             raise e
 
 api.add_resource(Signup, "/signup")
-api.add_resource(CheckSession, "/checksession")
+api.add_resource(CheckSession, "/check_session")
 api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 

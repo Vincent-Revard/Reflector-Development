@@ -12,7 +12,7 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), nullable=False)
+    username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     _password_hash = db.Column(db.String(100), nullable=False)
     # Define relationship with notes
@@ -26,11 +26,11 @@ class User(db.Model):
     # seriailze_rules = ('-_password_hash')
 
     @hybrid_property
-    def password_hash(self):
+    def password(self):
         raise AttributeError("Passwords cannot be inspected after being setup!")
 
-    @password_hash.setter
-    def password_hash(self, new_password):
+    @password.setter
+    def password(self, new_password):
         hashed_password = flask_bcrypt.generate_password_hash(new_password).decode(
             "utf-8"
         )
