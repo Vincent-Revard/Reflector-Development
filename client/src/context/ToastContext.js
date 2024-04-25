@@ -14,12 +14,12 @@ export const ToastProvider = ({ children }) => {
     setTimeout(() => {
       setToast({ type: '', message: null });
       setIsVisible(false);
-    }, 3000); // auto-hide after 3 seconds
+    }, 5000); // auto-hide after 3 seconds
   }, []);
 
   return (
     <ToastContext.Provider value={{
-      error: (msg) => showToast('error', msg),
+      showToast,
     }}>
       {children}
       {isVisible && <div className={`toast ${toast.type}`}>{toast.message}</div>}

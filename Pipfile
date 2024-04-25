@@ -21,6 +21,7 @@ python-dotenv = "*"
 marshmallow-sqlalchemy = "*"
 email-validator = "*"
 flask-jwt-extended = "*"
+flask-redis = "*"
 
 [requires]
 python_full_version = "3.8.13"

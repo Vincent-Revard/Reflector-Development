@@ -5,13 +5,13 @@ import Footer from "./components/navigation/footer";
 import { useAuth } from "./context/AuthContext";
 
 function App() {
-  const { user, updateUser } = useAuth()
+  const { user, updateUser, logout } = useAuth()
 
   return (
     <>
-      <Header user={user} updateUser={updateUser}/>
+      <Header user={user} updateUser={updateUser} logout={logout} />
       <h1>This is my container location for home</h1>;
-      <Outlet user={user} updateUser={updateUser} />
+      <Outlet user={user} updateUser={updateUser} logout={logout}/>
       <Footer />
     </>
   );

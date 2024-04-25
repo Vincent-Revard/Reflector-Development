@@ -12,6 +12,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from os import environ
 from datetime import timedelta
+from flask_redis import FlaskRedis
 
 # from flask_cors import CORS
 # from sqlalchemy import MetaData
@@ -62,3 +63,5 @@ jwt = JWTManager(app)
 
 # Instantiate CORS if not using proxy
 # CORS(app)
+app.config["REDIS_URL"] = "redis://localhost:6379/0"  # Update with your Redis URL
+redis_client = FlaskRedis(app)

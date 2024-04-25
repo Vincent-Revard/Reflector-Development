@@ -1,17 +1,5 @@
 from .. import Resource, db, User, user_schema,users_schema, jwt_required, current_user
 
-
-# class CheckSession(Resource):
-
-#     def get(self):
-#         if g.user is None:
-#             return {"message": "Unauthorized"}, 401
-#         return {
-#             "id": g.user.id,
-#             "username": g.user.username,
-#         }, 200
-
-
 class CheckSession(Resource):
     @jwt_required()
     def get(self):

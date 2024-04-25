@@ -3,11 +3,13 @@ from .. import (
     Resource,
     User,
     user_schema,
+    app,
     create_access_token,
     make_response,
     set_access_cookies,
     create_refresh_token,
     set_refresh_cookies,
+    redis_client,
 )
 import ipdb
 
@@ -19,11 +21,12 @@ class Login(Resource):
         try:
             self.schema.context = {"is_signup": False}
             request_data = request.get_json()
+            password = request_data.get("password")
             ipdb.set_trace()
             data = self.schema.load(request_data)
             ipdb.set_trace()
             username = data.username
-            password = request_data.get("password")
+            # password = request_data.get("password")
             ipdb.set_trace()
 
             user = User.query.filter_by(username=username).first()
@@ -31,6 +34,8 @@ class Login(Resource):
                 return {"message": "Invalid credentials"}, 401
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(identity=user.id)
+            redis_client.set(access_token, '', ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"])
+            redis_client.set(refresh_token, '', ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"])
             response = make_response(self.schema.dump(user), 200)
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)

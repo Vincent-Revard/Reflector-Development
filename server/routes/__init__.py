@@ -10,7 +10,7 @@ from werkzeug.exceptions import NotFound
 from schemas.userSchema import user_schema, users_schema
 import ipdb
 from models.user import User
-from config import db, app, jwt
+from config import db, app, jwt, redis_client
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -25,6 +25,7 @@ from flask_jwt_extended import (
     get_jwt,
     verify_jwt_in_request,
     decode_token,
+    get_jwt,
 )
 
 #! ==================

@@ -3,12 +3,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from "yup";
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 // import '../styles/Authentication.scss';
 import styled from 'styled-components';
 
 
+
 function Registration() {
     const { user, updateUser } = useAuth()
+    const { showToast } = useToast();
     // const location = useLocation();
     const navigate = useNavigate();
 
@@ -45,11 +48,10 @@ function Registration() {
                 console.log(user);
                 updateUser(user);
                 navigate('/');
-            });
+                showToast('success', 'Successfully logged in!');            });
             } else {
             res.json().then(error => {
-                console.error(error);
-            });
+            showToast('error', error.message);            });
             }
         });
     };

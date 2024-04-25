@@ -3,21 +3,9 @@ import {Link, useNavigate} from 'react-router-dom'
 import styled from 'styled-components'
 import { GiHamburgerMenu } from 'react-icons/gi'
 
-function Header({ handleEdit, user, updateUser }) {
+function Header({ user , logout}) {
   const [menu, setMenu] = useState(false)
-  const navigate = useNavigate()
 
-  const handleDelete = () => {
-    fetch("/api/v1/logout", {method: "DELETE"})
-    .then(resp => {
-      if (resp.ok) {
-              document.cookie = 'access_token_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        updateUser(null)
-        navigate('/registration')
-      }
-    })
-    .catch(err => console.log(err))
-  }
   return (
   <StyledHeader> 
     <NavH1>Reflector</NavH1>
@@ -31,7 +19,7 @@ function Header({ handleEdit, user, updateUser }) {
         <XButton onClick={() => setMenu(!menu)}>X</XButton>
         {user ? (
           <>
-            <StyledButtonLink onClick={handleDelete}>Logout</StyledButtonLink>
+            <StyledButton onClick={logout}>Logout</StyledButton>
             <StyledButtonLink to='/courses/new'>New Course</StyledButtonLink>
           </>
         ) : (
@@ -116,8 +104,28 @@ const XButton = styled.div`
     background-color: #fff; /* New hover color */
   }
 `;
+const StyledButton = styled.button`
+  display: block;
+  cursor: pointer;
+  background-color: var(--link);
+  color: var(--bg);
+  font-family: Arial, sans-serif;
+  font-weight: normal;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+  outline: none;
+  margin-top: 10px;
+  &:hover, &:focus {
+    background-color: darken(var(--link), 10%);
+    color: var(--bg);
+  }
+`
 
-const StyledButtonLink = styled.button`
+const StyledButtonLink = styled(Link)`
   display: block;
   cursor: pointer;
   background-color: var(--link);

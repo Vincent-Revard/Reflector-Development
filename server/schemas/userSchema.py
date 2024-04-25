@@ -62,6 +62,8 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
             else:
                 # During login, store the password as is for authentication
                 loaded_instance._password_hash = password
+            # Put the password back into the data
+            data["password"] = password
 
         # Set attributes manually, triggering property setters
         for key, value in data.items():

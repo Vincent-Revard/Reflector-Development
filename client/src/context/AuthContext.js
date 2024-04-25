@@ -56,7 +56,27 @@ export const AuthProvider = ({ children }) => {
           console.error('Error:', error);
         }
       });
-  }, [toast ,onUnauthorized]);
+  }, [toast, onUnauthorized]);
+  
+  const logout = () => {
+    const csrfToken = getCookie('CSRF-TOKEN')
+    fetch("/api/v1/logout", {
+      method: "DELETE",
+      headers: {
+        'X-CSRF-Token': csrfToken,
+      },
+    })
+    .then(resp => {
+      if (resp.ok) {
+        document.cookie = 'access_token_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        setUser(null)
+        onUnauthorized()
+      } else {
+        throw new Error('Logout failed');
+      }
+    })
+    .catch(err => console.log(err))
+  }
 
   const value = useMemo(() => ({
     user,
@@ -64,7 +84,7 @@ export const AuthProvider = ({ children }) => {
   }), [user, setUser]);
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={value} logout={logout}>
       {children}
     </AuthContext.Provider>
   )
