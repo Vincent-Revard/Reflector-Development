@@ -39,7 +39,8 @@ class Signup(Resource):
             if existing_user_username is not None:
                 return {"message": "A user with this username already exists"}, 400
             db.session.add(user)
-            db.session.commit()
+            db.session.flush()
+
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(identity=user.id)
             csrf_token = generate_csrf_token()
@@ -65,9 +66,15 @@ class Signup(Resource):
 
             # Store the token in Redis
             redis_client.set(user.id, token)
-
+            verification_link = "http://localhost:3000/verify?token=" + token
             # Send an email with the token
-            send_email(user.email, "Confirm Your Email", "email/confirm", token=token)
+            send_email(
+                user.email,
+                "Confirm Your Email",
+                user.username,
+                verification_link,
+            )
+            db.session.commit()
 
             return response
         except Exception as e:
@@ -75,11 +82,28 @@ class Signup(Resource):
             return {"message": str(e)}, 422
 
 
-def send_email(to, subject, template, **kwargs):
+def send_email(to, subject, user_name, verification_link):
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Email Verification</title>
+    </head>
+    <body>
+        <h2>Welcome to Our Website, {user_name}</h2>
+        <p>Thank you for signing up. Please verify your email address to activate your account.</p>
+        <p><a href="{verification_link}">Click here to verify your email</a></p>
+        <p>If the link doesn't work, please copy and paste the following URL into your browser:</p>
+        <p>{verification_link}</p>
+        <p>Thank you,</p>
+        <p>The Reflector Team</p>
+    </body>
+    </html>
+    """
     msg = Message(
         subject,
         recipients=[to],
-        html=render_template(template + ".html", **kwargs),
+        html=html_content,
         sender=app.config["MAIL_DEFAULT_SENDER"],
     )
     mail.send(msg)

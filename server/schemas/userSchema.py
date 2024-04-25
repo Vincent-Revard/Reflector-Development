@@ -1,14 +1,9 @@
 from email_validator import validate_email, EmailNotValidError
-from marshmallow import fields, validates, ValidationError
+from marshmallow import fields, validates, ValidationError, post_load
 from marshmallow.validate import Length
 from config import ma
 from models.user import User
 import ipdb
-
-
-from .noteSchema import NoteSchema
-from .referenceSchema import ReferenceSchema
-from .usercourseSchema import UserCourseSchema
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     ipdb.set_trace()
@@ -76,9 +71,10 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
         return loaded_instance
 
-UserSchema.notes = fields.Nested(NoteSchema, many=True)
-UserSchema.user_courses = fields.Nested(UserCourseSchema, many=True)
-UserSchema.references = fields.Nested(ReferenceSchema, many=True)
+
+UserSchema.notes = fields.Nested("NoteSchema", many=True)
+UserSchema.user_courses = fields.Nested('UserCourseSchema', many=True)
+UserSchema.references = fields.Nested('ReferenceSchema', many=True)
 
 #! Create schema for a single crew_member
 user_schema = UserSchema()
