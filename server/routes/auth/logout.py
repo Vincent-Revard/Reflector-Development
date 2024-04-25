@@ -6,6 +6,8 @@ from .. import (
     Resource,
     make_response,
     unset_jwt_cookies,
+    unset_refresh_cookies,
+    unset_access_cookies,
 )
 
 class Logout(Resource):
@@ -13,6 +15,8 @@ class Logout(Resource):
         try:
             response = make_response({"message": "Logout successful"}, 200)
             unset_jwt_cookies(response)
+            unset_refresh_cookies(response)
+            unset_access_cookies(response)
             return response
         except Exception as e:
             return {"message": str(e)}, 422

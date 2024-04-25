@@ -1,16 +1,19 @@
 import { useState } from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import styled from 'styled-components'
 import { GiHamburgerMenu } from 'react-icons/gi'
 
 function Header({ handleEdit, user, updateUser }) {
   const [menu, setMenu] = useState(false)
+  const navigate = useNavigate()
 
   const handleDelete = () => {
     fetch("/api/v1/logout", {method: "DELETE"})
     .then(resp => {
-      if (resp.status === 204) {
+      if (resp.ok) {
+              document.cookie = 'access_token_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         updateUser(null)
+        navigate('/registration')
       }
     })
     .catch(err => console.log(err))
