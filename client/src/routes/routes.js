@@ -18,11 +18,14 @@ import Registration from '../components/auth/Registration';
 // import NotFound from '../components/NotFound'; 
 // import ErrorPage from '../components/ErrorPage'; 
 import VerifiyPage from '../components/pages/VerifyPage';
+import Error from '../components/errors/Error';
+import NotFound from '../components/errors/NotFound';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <Error />,
     children: [
       {
         path: "/",
@@ -91,10 +94,10 @@ const router = createBrowserRouter([
     //     path: "courses/:courseId/topics/:topicId/quizzes/:quizId",
     //     element: <QuizDetail />
     //   },
-    //   {
-    //     path: "profile",
-    //     element: <ProfileDetail />
-    //   },
+      {
+        path: "profile",
+        element: <ProfileDetail />
+      },
       // {
       //   path: "profile/edit",
       //   element: <ProfileDetailForm />
@@ -110,19 +113,15 @@ const router = createBrowserRouter([
         {
             path: "registration",
             element: <Registration />
-      },
-                {
-            path: "verify/:token",
-            element: <VerifiyPage />
         },
-      // {
-      //   path: "*",
-      //   element: <NotFound />
-      // },
-      // {
-      //   path: "/error",
-      //   element: <ErrorPage />
-      // }
+        {
+          path: "verify/:token",
+          element: <VerifiyPage />
+        },
+        {
+          path: "*",
+          element: <NotFound />
+        }
     ]
   }
 ]);
