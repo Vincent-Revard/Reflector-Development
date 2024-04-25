@@ -42,7 +42,7 @@ if __name__ == '__main__':
         users = []
         for _ in range(10):
             user = User(username=fake.user_name(), email=fake.email())
-            user.password_hash = "password"
+            user.password = "password"
             db.session.add(user)
             users.append(user)
         db.session.commit()

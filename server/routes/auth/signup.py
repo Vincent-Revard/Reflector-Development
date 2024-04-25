@@ -65,8 +65,11 @@ class Signup(Resource):
             token = s.dumps(user.email, salt="email-confirm")
 
             # Store the token in Redis
-            redis_client.set(user.id, token)
-            verification_link = "http://localhost:3000/verify?token=" + token
+            redis_client.set(
+                token,
+                user.id,
+            )
+            verification_link = f"http://localhost:3000/verify/{token}"
             # Send an email with the token
             send_email(
                 user.email,

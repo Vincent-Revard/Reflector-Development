@@ -12,6 +12,7 @@ from routes.auth.logout import Logout
 from routes.auth.check_session import CheckSession
 from routes.auth.refresh import Refresh
 from routes.auth.signup import Signup
+from routes.auth.verify import Verify
 
 
 
@@ -20,6 +21,7 @@ api.add_resource(CheckSession, "/check_session")
 api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(Refresh, "/refresh")
+api.add_resource(Verify, "/verify/<token>")
 
 
 if __name__ == "__main__":

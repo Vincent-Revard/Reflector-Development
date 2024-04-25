@@ -17,6 +17,7 @@ import Home from '../components/pages/home';
 import Registration from '../components/auth/Registration';
 // import NotFound from '../components/NotFound'; 
 // import ErrorPage from '../components/ErrorPage'; 
+import VerifiyPage from '../components/pages/VerifyPage';
 
 const router = createBrowserRouter([
   {
@@ -109,6 +110,10 @@ const router = createBrowserRouter([
         {
             path: "registration",
             element: <Registration />
+      },
+                {
+            path: "verify/:token",
+            element: <VerifiyPage />
         },
       // {
       //   path: "*",
