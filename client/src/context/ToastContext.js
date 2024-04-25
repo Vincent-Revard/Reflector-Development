@@ -6,10 +6,15 @@ export const useToast = () => useContext(ToastContext);
 
 export const ToastProvider = ({ children }) => {
   const [toast, setToast] = useState({ type: '', message: null });
+  const [isVisible, setIsVisible] = useState(false);
 
   const showToast = useCallback((type, message) => {
     setToast({ type, message });
-    setTimeout(() => setToast({ type: '', message: null }), 3000); // auto-hide after 3 seconds
+    setIsVisible(true);
+    setTimeout(() => {
+      setToast({ type: '', message: null });
+      setIsVisible(false);
+    }, 3000); // auto-hide after 3 seconds
   }, []);
 
   return (
@@ -17,6 +22,7 @@ export const ToastProvider = ({ children }) => {
       error: (msg) => showToast('error', msg),
     }}>
       {children}
-      {toast.message && <div className={`toast ${toast.type}`}>{toast.message}</div>}    </ToastContext.Provider>
+      {isVisible && <div className={`toast ${toast.type}`}>{toast.message}</div>}
+    </ToastContext.Provider>
   );
 };
