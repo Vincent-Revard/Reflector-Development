@@ -11,6 +11,7 @@ from .. import (
     create_refresh_token,
     set_refresh_cookies,
     redis_client,
+    generate_csrf_token,
 )
 import ipdb
 
@@ -37,12 +38,19 @@ class Signup(Resource):
             ipdb.set_trace()
 
             access_token = create_access_token(identity=user.id, fresh=True)
-            ipdb.set_trace()
             refresh_token = create_refresh_token(identity=user.id)
-            ipdb.set_trace()
-            redis_client.set(access_token, '', ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"])
-            redis_client.set(refresh_token, '', ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"])
+            csrf_token = generate_csrf_token()  # You'll need to implement this function
+            user_session = {
+                "user_id": user.id,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "csrf_token": csrf_token,
+            }
+            redis_client.set(
+                access_token, user_session, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+            )
             response = make_response(user_schema.dump(user), 201)
+            # response.set_cookie("CSRF-TOKEN", csrf_token)
             ipdb.set_trace()
             set_access_cookies(response, access_token)
             ipdb.set_trace()

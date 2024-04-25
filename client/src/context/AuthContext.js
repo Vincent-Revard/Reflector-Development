@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useMemo} from 'react'
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback} from 'react'
 import { useToast } from './ToastContext'
 import { useUnauthorized } from '..'
 
@@ -15,11 +15,13 @@ export const AuthProvider = ({ children }) => {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
   }
+  const csrfToken = getCookie('CSRF-TOKEN')
+  console.log(csrfToken)
 
   useEffect(() => {
     fetch('api/v1/check_session', {
       headers: {
-        'X-CSRF-TOKEN': getCookie('CSRF-TOKEN'),
+        'X-CSRF-TOKEN': csrfToken,
       },
     })
       .then(response => {
@@ -56,15 +58,20 @@ export const AuthProvider = ({ children }) => {
           console.error('Error:', error);
         }
       });
-  }, [toast, onUnauthorized]);
+  }, [toast, onUnauthorized, csrfToken]);
   
-  const logout = () => {
-    const csrfToken = getCookie('CSRF-TOKEN')
+  const logout = useCallback(() => {
+// const csrfToken = document.cookie
+//   .split('; ')
+//   .find(row => row.startsWith('csrf_access_token='))
+//   .split('=')[1];    const jwtToken = getCookie('access_token')
+//     console.log(jwtToken)
+    const headers = {
+      'X-CSRF-TOKEN': getCookie('csrf_access_token'),
+    }
     fetch("/api/v1/logout", {
       method: "DELETE",
-      headers: {
-        'X-CSRF-Token': csrfToken,
-      },
+      headers: headers,
     })
     .then(resp => {
       if (resp.ok) {
@@ -76,15 +83,16 @@ export const AuthProvider = ({ children }) => {
       }
     })
     .catch(err => console.log(err))
-  }
+  }, [setUser, onUnauthorized]);
 
   const value = useMemo(() => ({
     user,
     updateUser: setUser,
-  }), [user, setUser]);
+    logout
+  }), [user, setUser, logout]);
 
   return (
-    <AuthContext.Provider value={value} logout={logout}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

@@ -10,8 +10,11 @@ from .. import (
     create_refresh_token,
     set_refresh_cookies,
     redis_client,
+    generate_csrf_token,
+    json,
 )
 import ipdb
+
 
 class Login(Resource):
     model = User
@@ -33,10 +36,22 @@ class Login(Resource):
             if user is None or not user.authenticate(password):
                 return {"message": "Invalid credentials"}, 401
             access_token = create_access_token(identity=user.id, fresh=True)
+            ipdb.set_trace()
             refresh_token = create_refresh_token(identity=user.id)
-            redis_client.set(access_token, '', ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"])
-            redis_client.set(refresh_token, '', ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"])
+            csrf_token = generate_csrf_token()
+            ipdb.set_trace()
+            user_session = {
+                "user_id": user.id,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "csrf_token": csrf_token,
+            }
+            user_session_str = json.dumps(user_session)
+            redis_client.set(
+                access_token, user_session_str, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+            )
             response = make_response(self.schema.dump(user), 200)
+            # response.set_cookie("CSRF-TOKEN", csrf_token)
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
             return response

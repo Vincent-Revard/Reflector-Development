@@ -42,7 +42,8 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # over https. In production, this should always be set to True
 app.config["JWT_COOKIE_SECURE"] = False
 app.config["JWT_CSRF_IN_COOKIES"] = True
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
+# app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=5)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=1)
 
 #! Extensions Setup
