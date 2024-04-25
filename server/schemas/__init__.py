@@ -7,6 +7,7 @@ from models.note import Note
 from models.topic import Topic
 from models.user import User
 from models.usercourse import UserCourse
+import ipdb
 
 from config import ma, db
 

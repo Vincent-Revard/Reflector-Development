@@ -4,12 +4,15 @@ import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from "yup";
 import { useAuth } from '../../context/AuthContext';
 // import '../styles/Authentication.scss';
+import styled from 'styled-components';
+
 
 function Registration() {
     const { user, updateUser } = useAuth()
     // const location = useLocation();
     const navigate = useNavigate();
 
+    //! GET_COOKIE FUNCTION FROM LECTURE (NEAR END)
     
     const [isLogin, setIsLogin] = useState(true);
 
@@ -27,12 +30,14 @@ function Registration() {
 
     const onSubmit = (values) => {
         const requestUrl = isLogin ? "/login" : "/signup"
-        const dataToSend = isLogin ? { username: values.username, password: values.password } : values;        fetch(requestUrl ? '/api/v1/login' : '/api/v1/signup', {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
+        const dataToSend = isLogin ? { username: values.username, password: values.password } : values;
+        fetch('/api/v1' + requestUrl, {
+            method: "POST",
+            headers: {
+                // "headers" : COOKIE FUNCTION
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataToSend),
         })
         .then(res => {
             if (res.ok) {
@@ -59,27 +64,48 @@ function Registration() {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={onSubmit}
-        >
-            <Form className="authentication-form">
-            <label>Username:</label>
-            <Field type='text' name='username' />
-            <ErrorMessage name='username' component='div' />
-            <label>Password:</label>
-            <Field type='password' name='password' />
-            <ErrorMessage name='password' component='div' />
-            {!isLogin && (
-                <>
-                <label>Email:</label>
-                <Field type='text' name='email' />
-                <ErrorMessage name='email' component='div' />
-                </>
-            )}
-            <button type='submit'>{isLogin ? 'Log In!' : 'Sign Up!'}</button>
-            <button type='button' onClick={() => setIsLogin(!isLogin)}>{isLogin ? 'Register Now!' : 'Login!'}</button>
-            </Form>
+            >
+                <StyledDiv>
+                <Form className="authentication-form">
+                <label>Username:</label>
+                <Field type='text' name='username' />
+                <ErrorMessage name='username' component='div' />
+                <label>Password:</label>
+                <Field type='password' name='password' />
+                <ErrorMessage name='password' component='div' />
+                {!isLogin && (
+                    <>
+                    <label>Email:</label>
+                    <Field type='text' name='email' />
+                    <ErrorMessage name='email' component='div' />
+                    </>
+                )}
+                <button type='submit'>{isLogin ? 'Log In!' : 'Sign Up!'}</button>
+                <button type='button' onClick={() => setIsLogin(!isLogin)}>{isLogin ? 'Register Now!' : 'Login!'}</button>
+                </Form>
+            </StyledDiv>
         </Formik>
         </div>
     );
     }
 
 export default Registration;
+
+
+const StyledDiv = styled.div`
+    display:flex;
+    flex-direction:column;
+    width: 400px;
+    margin:auto;
+    font-family:Arial;
+    font-size:30px;
+    input[type=submit]{
+        background-color:var(--link);
+        color: var(--bg);
+        height:40px;
+        font-family:Arial;
+        font-size:30px;
+        margin-top:10px;
+        margin-bottom:10px;
+    }
+`;
