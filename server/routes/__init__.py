@@ -66,6 +66,5 @@ def login_required(func):
 # if the user has been deleted from the database).
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
-    ipdb.set_trace()
     identity = jwt_data["sub"]
     return db.session.get(User, identity)

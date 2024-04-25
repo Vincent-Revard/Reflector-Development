@@ -20,11 +20,10 @@ class Logout(Resource):
     @jwt_required_modified
     def delete(self):
         try:
-            csrf_token = request.cookies.get("csrf_access_token")
+            # csrf_token = request.cookies.get("csrf_access_token")
             refresh_token = request.cookies.get("csrf_refresh_token")
             access_token = get_jwt()["jti"]
-            ipdb.set_trace()
-            user_session = redis_client.get(refresh_token)
+            # user_session = redis_client.get(refresh_token)
             # if not user_session or user_session["csrf_token"] != csrf_token:
             #     return {"message": "Invalid CSRF token"}, 401
             response = make_response({"message": "Logout successful"}, 200)
