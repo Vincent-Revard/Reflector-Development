@@ -22,6 +22,7 @@ marshmallow-sqlalchemy = "*"
 email-validator = "*"
 flask-jwt-extended = "*"
 flask-redis = "*"
+flask-mail = "*"
 
 [requires]
 python_full_version = "3.8.13"

@@ -5,6 +5,7 @@ from werkzeug.exceptions import NotFound
 from .helpers.generate_csrf_token import generate_csrf_token
 from .helpers.jwt_required_modified import jwt_required_modified
 import json
+from flask_mail import Mail, Message
 
 # from schemas.crew_member_schema import crew_member_schema, crew_members_schema
 
@@ -15,7 +16,7 @@ import json
 from schemas.userSchema import user_schema, users_schema
 import ipdb
 from models.user import User
-from config import db, app, jwt, redis_client
+from config import db, app, jwt, redis_client, mail
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -31,6 +32,7 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
     decode_token,
     get_jwt,
+    
 )
 
 #! ==================

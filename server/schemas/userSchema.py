@@ -6,8 +6,13 @@ from models.user import User
 import ipdb
 
 
+from .noteSchema import NoteSchema
+from .referenceSchema import ReferenceSchema
+from .usercourseSchema import UserCourseSchema
+
 class UserSchema(ma.SQLAlchemyAutoSchema):
     ipdb.set_trace()
+
     class Meta:
         model = User
         load_instance = True  # Optional: deserialize to model instances
@@ -19,17 +24,13 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         metadata={"description": "The unique username of the user"},
     )
     # password_hash = ma.auto_field("_password_hash", load_only=True, required=True)
-    password = fields.Str(
-        load_only=True, required=True, validate=Length(min=8)
-    )
+    password = fields.Str(load_only=True, required=True, validate=Length(min=8))
     # _password_hash = fields.Str(dump_only=True)
     email = fields.Str(
         metadata={"description": "The email of the user"},
     )
-    game_master = fields.Boolean(
-        metadata={
-            "description": "The option to determine if this user is a game master or not"
-        }
+    email_verified = fields.Boolean(  # New field for email verification status
+        metadata={"description": "The email verification status of the user"},
     )
 
     @validates("email")
@@ -74,6 +75,10 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         ipdb.set_trace()
 
         return loaded_instance
+
+UserSchema.notes = fields.Nested(NoteSchema, many=True)
+UserSchema.user_courses = fields.Nested(UserCourseSchema, many=True)
+UserSchema.references = fields.Nested(ReferenceSchema, many=True)
 
 #! Create schema for a single crew_member
 user_schema = UserSchema()

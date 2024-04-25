@@ -13,6 +13,7 @@ from flask_jwt_extended import JWTManager
 from os import environ
 from datetime import timedelta
 from flask_redis import FlaskRedis
+from flask_mail import Mail
 
 # from flask_cors import CORS
 # from sqlalchemy import MetaData
@@ -46,6 +47,14 @@ app.config["JWT_CSRF_IN_COOKIES"] = True
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=5)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=1)
 
+# ? MAIL SERVER SETUP
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = "noreply.reflector@gmail.com"
+app.config["MAIL_PASSWORD"] = environ.get('SMTP_PASS')
+app.config["MAIL_DEFAULT_SENDER"] = "noreply.reflector@gmail.com"
+
 #! Extensions Setup
 # flask-sqlalchemy connection to app
 db = SQLAlchemy(app)
@@ -66,3 +75,5 @@ jwt = JWTManager(app)
 # CORS(app)
 app.config["REDIS_URL"] = "redis://localhost:6379/0"  # Update with your Redis URL
 redis_client = FlaskRedis(app)
+
+mail = Mail(app)
