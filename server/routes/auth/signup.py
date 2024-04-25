@@ -14,6 +14,7 @@ from .. import (
     generate_csrf_token,
 )
 import ipdb
+import json
 
 class Signup(Resource):
     model = User
@@ -46,8 +47,10 @@ class Signup(Resource):
                 "refresh_token": refresh_token,
                 "csrf_token": csrf_token,
             }
+            user_session_str = json.dumps(user_session)
+
             redis_client.set(
-                access_token, user_session, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+                access_token, user_session_str, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
             )
             response = make_response(user_schema.dump(user), 201)
             # response.set_cookie("CSRF-TOKEN", csrf_token)
