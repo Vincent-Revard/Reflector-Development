@@ -1,11 +1,9 @@
-from email_validator import validate_email, EmailNotValidError
-from marshmallow import fields, validates, ValidationError, post_load, Schema
-from marshmallow.validate import Length
+from . import UserCourse
 from config import ma
-from models.usercourse import UserCourse
+from marshmallow import fields, post_load
 
 
-class UserCourseSchema(Schema):
+class UserCourseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = UserCourse
         load_instance = True

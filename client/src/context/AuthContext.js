@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
     if (parts.length === 2) return parts.pop().split(';').shift();
   }
   const csrfToken = getCookie('CSRF-TOKEN')
-  console.log(csrfToken)
 
   useEffect(() => {
     fetch('api/v1/check_session', {

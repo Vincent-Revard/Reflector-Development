@@ -18,6 +18,7 @@ import Registration from '../components/auth/Registration';
 // import NotFound from '../components/NotFound'; 
 // import ErrorPage from '../components/ErrorPage'; 
 import VerifiyPage from '../components/pages/VerifyPage';
+import UserProfileDetail from '../components/profile/user_profile_detail';
 import Error from '../components/errors/Error';
 import NotFound from '../components/errors/NotFound';
 
@@ -96,7 +97,7 @@ const router = createBrowserRouter([
     //   },
       {
         path: "profile",
-        element: <ProfileDetail />
+        element: <UserProfileDetail />
       },
       // {
       //   path: "profile/edit",
@@ -111,8 +112,8 @@ const router = createBrowserRouter([
       //   element: <NoteDetail />,
       // },
         {
-            path: "registration",
-            element: <Registration />
+          path: "registration",
+          element: <Registration />
         },
         {
           path: "verify/:token",

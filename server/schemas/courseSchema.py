@@ -1,9 +1,12 @@
-from email_validator import validate_email, EmailNotValidError
-from marshmallow import fields, validates, ValidationError
-from marshmallow.validate import Length
-from config import ma
-from models.course import Course
+from marshmallow import fields
 from .usercourseSchema import UserCourseSchema
+
+from config import ma
+from . import (
+    Course,
+
+)
+
 
 class CourseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

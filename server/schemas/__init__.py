@@ -7,9 +7,27 @@ from models.note import Note
 from models.topic import Topic
 from models.user import User
 from models.usercourse import UserCourse
-import ipdb
 
+
+from .courseSchema import CourseSchema
+from .topicSchema import TopicSchema
+from .userSchema import UserSchema
+from .topicSchema import TopicSchema
+from .notereferenceSchema import NoteReferenceSchema
+from .usercourseSchema import UserCourseSchema
+
+
+import ipdb
 from config import ma, db
 
 # external libraries imports
-from marshmallow import validates, ValidationError, fields, validate
+from marshmallow import (
+    validates,
+    ValidationError,
+    fields,
+    validate,
+    pre_load,
+    pre_dump,
+    post_load,
+)
+from marshmallow.validate import Length

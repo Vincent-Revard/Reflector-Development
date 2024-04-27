@@ -15,20 +15,25 @@ function Header({ user , logout}) {
         <GiHamburgerMenu size={30} color="white"/> 
       </div>:
       <ul>
-        <ControlPanel>
-        <XButton onClick={() => setMenu(!menu)}>X</XButton>
-        {user ? (
-          <>
-            <StyledButton onClick={logout}>Logout</StyledButton>
-            <StyledButtonLink to='/courses/new'>New Course</StyledButtonLink>
-          </>
-        ) : (
-          <>
-            <StyledButtonLink to='/registration'>Register</StyledButtonLink>
-          </>
-        )}
-        <StyledButtonLink to='/'> Home</StyledButtonLink>
-        </ControlPanel>
+        <li>
+          <ControlPanel>
+            <XButton onClick={() => setMenu(!menu)}>X</XButton>
+            {user ? (
+              <>
+                <li><StyledButton onClick={logout}>Logout</StyledButton></li>
+                <li><StyledButtonLink> <Link to='/courses/new'>New Course</Link> </StyledButtonLink></li>
+              </>
+            ) : (
+              <>
+                <li><StyledButtonLink> <Link to='/registration'>Register</Link> </StyledButtonLink></li>
+              </>
+            )}
+            <li><StyledButtonLink> <Link to='/'> Home </Link> </StyledButtonLink></li>
+            <li><StyledButtonLink> <Link to='/profile'>Profile</Link> </StyledButtonLink></li>
+            <li><StyledButtonLink> <Link to='/notes'>Notes</Link> </StyledButtonLink></li>
+            <li><StyledButtonLink> <Link to='/courses'>Courses</Link> </StyledButtonLink></li>
+          </ControlPanel>
+        </li>
       </ul>
       }
     </Menu>
@@ -44,15 +49,21 @@ const StyledHeader = styled.div`
   background-color: var(--header);
   padding: 10px;
   border-radius: 4px;
+  position: relative;
 `;
 
 const ControlPanel = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  background-color: #8EAOAE;
+  background-color: #D3D3D3;
   padding: 10px;
   border-radius: 4px;
+  position: absolute;
+  right: 0;
+  width: 120px; 
+  color: #333; // Dark gray text
+
 `;
 
 const Menu = styled.div`
@@ -89,8 +100,8 @@ const XButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #8EAOAE; /* New color */
-  color: #fff; /* White text */
+  background-color: #8EAOAE; 
+  color: #000; 
   font-family: Arial, sans-serif;
   font-weight: bold;
   border: none;
@@ -101,7 +112,7 @@ const XButton = styled.div`
   transition: background-color 0.3s ease;
   margin-bottom: 10px;
   &:hover {
-    background-color: #fff; /* New hover color */
+    background-color: #fff; 
   }
 `;
 const StyledButton = styled.button`

@@ -1,13 +1,11 @@
-from email_validator import validate_email, EmailNotValidError
-from marshmallow import fields, validates, ValidationError, post_load, Schema
-from marshmallow.validate import Length
+from marshmallow import fields, post_load
 from config import ma
-from models.reference import Reference
 from .notereferenceSchema import NoteReferenceSchema
-# from .userSchema import UserSchema
+
+from . import Reference
 
 
-class ReferenceSchema(Schema):
+class ReferenceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Reference
         load_instance = True

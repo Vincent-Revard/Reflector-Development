@@ -1,11 +1,12 @@
-from email_validator import validate_email, EmailNotValidError
-from marshmallow import fields, validates, ValidationError
-from marshmallow.validate import Length
+
+from marshmallow import fields
 from config import ma
-from models.note import Note
 from .userSchema import UserSchema
 from .topicSchema import TopicSchema
 from .notereferenceSchema import NoteReferenceSchema
+
+
+from . import Note
 
 class NoteSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
