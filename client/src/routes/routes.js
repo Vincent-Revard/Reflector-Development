@@ -21,6 +21,8 @@ import VerifiyPage from '../components/pages/VerifyPage';
 import UserProfileDetail from '../components/profile/user_profile_detail';
 import Error from '../components/errors/Error';
 import NotFound from '../components/errors/NotFound';
+import ProfileProvider from '../context/ProfileProvider';
+import UserProfileList from '../components/profile/user_profile_list';
 
 const router = createBrowserRouter([
   {
@@ -96,8 +98,14 @@ const router = createBrowserRouter([
     //     element: <QuizDetail />
     //   },
       {
-        path: "profile",
-        element: <UserProfileDetail />
+        path: "profile/:id",
+        element: (
+          <ProfileProvider >
+            <UserProfileList >
+              <UserProfileDetail />
+            </UserProfileList >
+          </ProfileProvider>
+        )
       },
       // {
       //   path: "profile/edit",

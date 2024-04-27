@@ -7,8 +7,6 @@ import { useToast } from '../../context/ToastContext';
 // import '../styles/Authentication.scss';
 import styled from 'styled-components';
 
-
-
 function Registration() {
     const { user, updateUser } = useAuth()
     const { showToast } = useToast();
@@ -16,6 +14,12 @@ function Registration() {
     const navigate = useNavigate();
 
     //! GET_COOKIE FUNCTION FROM LECTURE (NEAR END)
+
+    function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+   }
     
     const [isLogin, setIsLogin] = useState(true);
 
@@ -32,13 +36,15 @@ function Registration() {
     };
 
     const onSubmit = (values) => {
+        console.log(getCookie('csrf_access_token'))
         const requestUrl = isLogin ? "/login" : "/signup"
         const dataToSend = isLogin ? { username: values.username, password: values.password } : values;
+        debugger
         fetch('/api/v1' + requestUrl, {
             method: "POST",
             headers: {
-                // "headers" : COOKIE FUNCTION
                 "Content-Type": "application/json",
+                "X-CSRFToken": getCookie('csrf_access_token'),
             },
             body: JSON.stringify(dataToSend),
         })
@@ -48,10 +54,14 @@ function Registration() {
                 console.log(user);
                 updateUser(user);
                 navigate('/');
-                showToast('success', 'Successfully logged in!');            });
+                showToast('success', 'Successfully logged in!');
+            });
+            debugger
             } else {
             res.json().then(error => {
-            showToast('error', error.message);            });
+                showToast('error', error.message);
+            });
+            debugger
             }
         });
     };

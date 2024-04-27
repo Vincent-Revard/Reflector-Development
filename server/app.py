@@ -23,7 +23,7 @@ api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
-api.add_resource(UsersIndex, "/profile", "/profile/<int:user_id>", endpoint="profile")
+api.add_resource(UsersIndex, "/profile", "/profile/<int:id>", endpoint="profile")
 
 
 if __name__ == "__main__":

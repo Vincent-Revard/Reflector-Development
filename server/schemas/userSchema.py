@@ -13,6 +13,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         model = User
         load_instance = True  # Optional: deserialize to model instances
         exclude = ("_password_hash",)
+    id = fields.Int(dump_only=True)
 
     username = fields.Str(
         required=True,

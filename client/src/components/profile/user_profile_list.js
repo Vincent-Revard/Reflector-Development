@@ -1,6 +1,6 @@
 import React from 'react';
 import UserProfileDetail from './user_profile_detail'
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useProfileContext } from '../../context/ProfileProvider';
 // import '../styles/UserProfile.scss';
 
@@ -13,31 +13,24 @@ const UserProfileList = () => {
     if (!currentPage) {
       return null;
     }
-  
-    return (
-      <div className="user-profile-container">
-        
-        {user && profileData ? (
-          
-            <>
-            <div>
-              {profileData.map((userProfile) => (
-                  <UserProfileDetail
-                    key={userProfile.id}
-                    profileData={userProfile}
-                    handlePatchProfile={handlePatchProfile}
-                    handleDeleteProfile={handleDeleteProfile}
-                  />
-                )
-              )}
-              </div>
-            </>
-          ) : (
-            <h1>You need to log in to view this page! </h1>
-          )}
 
+  return(
+  
+  <div className="user-profile-container">
+    {user && profileData ? (
+      <div>
+        <UserProfileDetail
+          key={profileData.id}
+          {...profileData}
+          handlePatchProfile={handlePatchProfile}
+          handleDeleteProfile={handleDeleteProfile}
+        />
       </div>
-    );
-  };
+    ) : (
+      <h1>You need to log in to view this page! </h1>
+    )}
+  </div>
+  )};
+
   
   export default UserProfileList;

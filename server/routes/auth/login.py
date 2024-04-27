@@ -12,8 +12,8 @@ from .. import (
     redis_client,
     generate_csrf_token,
     json,
-    ipdb
 )
+import ipdb
 
 
 class Login(Resource):
@@ -25,21 +25,21 @@ class Login(Resource):
             self.schema.context = {"is_signup": False}
             request_data = request.get_json()
             password = request_data.get("password")
-            
+            ipdb.set_trace()
             data = self.schema.load(request_data)
-            
+            ipdb.set_trace()
             username = data.username
             # password = request_data.get("password")
-            
+            ipdb.set_trace()
 
             user = User.query.filter_by(username=username).first()
             if user is None or not user.authenticate(password):
                 return {"message": "Invalid credentials"}, 401
             access_token = create_access_token(identity=user.id, fresh=True)
-            
+            ipdb.set_trace()
             refresh_token = create_refresh_token(identity=user.id)
             csrf_token = generate_csrf_token()
-            
+            ipdb.set_trace()
             user_session = {
                 "user_id": user.id,
                 "access_token": access_token,
@@ -51,7 +51,7 @@ class Login(Resource):
                 access_token, user_session_str, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
             )
             response = make_response(self.schema.dump(user), 200)
-            # response.set_cookie("CSRF-TOKEN", csrf_token)
+            # response.set_cookie('csrf_token', csrf_token)
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
             return response

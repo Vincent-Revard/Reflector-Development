@@ -14,27 +14,27 @@ function Header({ user , logout}) {
       <div onClick={() => setMenu(!menu)}>
         <GiHamburgerMenu size={30} color="white"/> 
       </div>:
-      <ul>
-        <li>
-          <ControlPanel>
-            <XButton onClick={() => setMenu(!menu)}>X</XButton>
+      <div>
+        <ControlPanel>
+          <XButton onClick={() => setMenu(!menu)}>X</XButton>
+          <ul>
             {user ? (
               <>
                 <li><StyledButton onClick={logout}>Logout</StyledButton></li>
-                <li><StyledButtonLink> <Link to='/courses/new'>New Course</Link> </StyledButtonLink></li>
+                <li><StyledButtonLink to='/courses/new'>New Course</StyledButtonLink></li>
+                <li><StyledButtonLink to={`/profile/${user.id}`}>Profile</StyledButtonLink></li>
+                <li><StyledButtonLink to='/notes'>Notes</StyledButtonLink></li>
+                <li><StyledButtonLink to='/courses'>Courses</StyledButtonLink></li>
               </>
             ) : (
               <>
-                <li><StyledButtonLink> <Link to='/registration'>Register</Link> </StyledButtonLink></li>
+                <li><StyledButtonLink to='/registration'>Register</StyledButtonLink></li>
               </>
             )}
-            <li><StyledButtonLink> <Link to='/'> Home </Link> </StyledButtonLink></li>
-            <li><StyledButtonLink> <Link to='/profile'>Profile</Link> </StyledButtonLink></li>
-            <li><StyledButtonLink> <Link to='/notes'>Notes</Link> </StyledButtonLink></li>
-            <li><StyledButtonLink> <Link to='/courses'>Courses</Link> </StyledButtonLink></li>
-          </ControlPanel>
-        </li>
-      </ul>
+            <li><StyledButtonLink to='/'> Home </StyledButtonLink></li>
+          </ul>
+        </ControlPanel>
+      </div>
       }
     </Menu>
   </StyledHeader>
