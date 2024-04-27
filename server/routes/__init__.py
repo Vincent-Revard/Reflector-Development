@@ -6,13 +6,18 @@ from .helpers.generate_csrf_token import generate_csrf_token
 from .helpers.jwt_required_modified import jwt_required_modified
 import json
 from flask_mail import Mail, Message
+from schemas.userupdateSchema import UserUpdateSchema
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from marshmallow import ValidationError, fields, validates, ValidationError, pre_load
 
-# from schemas.crew_member_schema import crew_member_schema, crew_members_schema
-
-# from schemas.production_schema import production_schema, productions_schema
-# from schemas.user_schema import user_schema, users_schema
+from routes.utils.baseresource import BaseResource
 # from models.production import Production
-# from models.crew_member import CrewMember
+from models.user import User
+from models.course import Course
+from models.topic import Topic
+from models.reference import Reference
+from models.note import Note
+
 from schemas.userSchema import user_schema, users_schema
 import ipdb
 from models.user import User
@@ -41,15 +46,20 @@ from flask_jwt_extended import (
 def not_found(error):
     return {"error": error.description}, 404
 
-
-# @app.before_request
-# def before_request():
-#     path_dict = {"productionbyid": Production, "crewmemberbyid": CrewMember}
-#     if request.endpoint in path_dict:
-#         id = request.view_args.get("id")
-#         record = db.session.get(path_dict.get(request.endpoint), id)
-#         key_name = "prod" if request.endpoint == "productionbyid" else "crew"
-#         setattr(g, key_name, record)
+@app.before_request
+def before_request():
+    path_dict = {
+        "coursebyid": Course,
+        "topicbyid": Topic,
+        "referencebyid": Reference,
+        "notebyid": Note,
+        "profilebyid": User,
+    }
+    if request.endpoint in path_dict:
+        id = request.view_args.get("id")
+        record = db.session.get(path_dict.get(request.endpoint), id)
+        key_name = request.endpoint.split("byid")[0]
+        setattr(g, key_name, record)
 
 def login_required(func):
     @wraps(func)

@@ -1,12 +1,13 @@
-from email_validator import validate_email, EmailNotValidError
-from marshmallow import fields, validates, ValidationError, post_load
-from marshmallow.validate import Length
+from marshmallow import fields, validates, ValidationError
 from config import ma
-from models.user import User
-import ipdb
+from marshmallow.validate import Length
+from email_validator import validate_email, EmailNotValidError
+
+from . import (
+    User,
+)
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
-    ipdb.set_trace()
 
     class Meta:
         model = User
@@ -42,13 +43,11 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
             raise ValidationError("Password must be at least 8 characters long")
 
     def load(self, data, instance=None, *, partial=False, **kwargs):
-        ipdb.set_trace()
 
         # Load the instance using Marshmallow's default behavior
         loaded_instance = super().load(
             data, instance=instance, partial=partial, **kwargs
         )
-        ipdb.set_trace()
         if "password" in data:
             password = data.pop("password")
             is_signup = self.context.get("is_signup")
@@ -67,7 +66,6 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         print(loaded_instance)
         print(data)
         setattr(loaded_instance, key, value)
-        ipdb.set_trace()
 
         return loaded_instance
 

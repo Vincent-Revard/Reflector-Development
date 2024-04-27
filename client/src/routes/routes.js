@@ -18,6 +18,7 @@ import Registration from '../components/auth/Registration';
 // import NotFound from '../components/NotFound'; 
 // import ErrorPage from '../components/ErrorPage'; 
 import VerifiyPage from '../components/pages/VerifyPage';
+import UserProfileDetail from '../components/profile/user_profile_detail';
 
 const router = createBrowserRouter([
   {
@@ -91,10 +92,10 @@ const router = createBrowserRouter([
     //     path: "courses/:courseId/topics/:topicId/quizzes/:quizId",
     //     element: <QuizDetail />
     //   },
-    //   {
-    //     path: "profile",
-    //     element: <ProfileDetail />
-    //   },
+      {
+        path: "profile",
+        element: <UserProfileDetail />
+      },
       // {
       //   path: "profile/edit",
       //   element: <ProfileDetailForm />

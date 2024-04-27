@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useFetchJSON } from '../utils/useFetchJSON';
 import { useAuth } from './AuthContext';
 import { useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useToast } from './ToastContext';
 
 // ProfileContext
 const ProfileContext = createContext();
@@ -11,10 +11,12 @@ export const useProfileContext = () => useContext(ProfileContext);
 
 const ProfileProvider = ({ children }) => {
     const { updateUser, logout } = useAuth();
+    const toast = useToast();
     const [profileData, setProfileData] = useState({});
     const { deleteJSON, patchJSON } = useFetchJSON();
     const location = useLocation();
     const currentPage = location.pathname.slice(1);
+    console.log('ProfileProvider mounted');
 
     useEffect(() => {
         if (currentPage === 'profile') {
@@ -24,6 +26,8 @@ const ProfileProvider = ({ children }) => {
                     if (res.ok) {
                         const data = await res.json()
                         setProfileData(data)
+                        console.log(data)
+                        debugger
                         toast.success('Profile fetched successfully')
                     } else {
                         toast.error('Failed to fetch profile')
@@ -35,7 +39,7 @@ const ProfileProvider = ({ children }) => {
             )()
         }
     }
-        , [currentPage])
+        , [currentPage, toast, profileData])
 
     const handlePatchProfile = async (id, updates) => {
         setProfileData(profileData.map(user => user.id === id ? { ...user, ...updates } : user))
@@ -77,12 +81,8 @@ const ProfileProvider = ({ children }) => {
         }
     }
 
-    const handlePostProfile = async (newProfileData) => {
-        // Implement post logic here
-    };
-
     return (
-        <ProfileContext.Provider value={{ profileData, handlePatchProfile, handleDeleteProfile, handlePostProfile, currentPage }}>
+        <ProfileContext.Provider value={{ profileData, handlePatchProfile, handleDeleteProfile, currentPage }}>
             {children}
         </ProfileContext.Provider>
     );

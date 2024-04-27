@@ -13,6 +13,7 @@ from routes.auth.check_session import CheckSession
 from routes.auth.refresh import Refresh
 from routes.auth.signup import Signup
 from routes.auth.verify import Verify
+from routes.user.usersindex import UsersIndex
 
 
 
@@ -22,6 +23,7 @@ api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
+api.add_resource(UsersIndex, "/profile", "/profile/<int:user_id>", endpoint="profile")
 
 
 if __name__ == "__main__":

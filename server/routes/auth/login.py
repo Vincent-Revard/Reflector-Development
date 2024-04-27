@@ -12,8 +12,8 @@ from .. import (
     redis_client,
     generate_csrf_token,
     json,
+    ipdb
 )
-import ipdb
 
 
 class Login(Resource):
