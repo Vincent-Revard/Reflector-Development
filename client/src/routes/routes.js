@@ -19,11 +19,14 @@ import Registration from '../components/auth/Registration';
 // import ErrorPage from '../components/ErrorPage'; 
 import VerifiyPage from '../components/pages/VerifyPage';
 import UserProfileDetail from '../components/profile/user_profile_detail';
+import Error from '../components/errors/Error';
+import NotFound from '../components/errors/NotFound';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <Error />,
     children: [
       {
         path: "/",
@@ -109,21 +112,17 @@ const router = createBrowserRouter([
       //   element: <NoteDetail />,
       // },
         {
-            path: "registration",
-            element: <Registration />
-      },
-                {
-            path: "verify/:token",
-            element: <VerifiyPage />
+          path: "registration",
+          element: <Registration />
         },
-      // {
-      //   path: "*",
-      //   element: <NotFound />
-      // },
-      // {
-      //   path: "/error",
-      //   element: <ErrorPage />
-      // }
+        {
+          path: "verify/:token",
+          element: <VerifiyPage />
+        },
+        {
+          path: "*",
+          element: <NotFound />
+        }
     ]
   }
 ]);
