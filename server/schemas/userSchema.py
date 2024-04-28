@@ -69,6 +69,31 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         setattr(loaded_instance, key, value)
 
         return loaded_instance
+    
+
+#!     do I want a user dictionary instead of object? reference!
+# def load(self, data, instance=None, *, partial=False, **kwargs):
+#     # Load the instance using Marshmallow's default behavior
+#     loaded_instance = super().load(
+#         data, instance=instance, partial=partial, **kwargs
+#     )
+
+#     if "password" in data:
+#         password = data.pop("password")
+#         is_signup = self.context.get("is_signup")
+#         if is_signup:
+#             # During signup, use the password setter in the User model to hash the password
+#             loaded_instance.password = password
+#         else:
+#             # During login, store the password as is for authentication
+#             loaded_instance._password_hash = password
+#         # Put the password back into the data
+#         data["password"] = password
+
+#     # Convert the loaded_instance back to a dictionary
+#     data = {c.name: getattr(loaded_instance, c.name) for c in loaded_instance.__table__.columns}
+
+#     return data
 
 
 UserSchema.notes = fields.Nested("NoteSchema", many=True)

@@ -56,6 +56,7 @@ def before_request():
         "referencebyid": Reference,
         "notebyid": Note,
         "profilebyid": User,
+        "profile": User,
     }
 
     if request.endpoint in path_dict:
@@ -66,6 +67,7 @@ def before_request():
         key_name = request.endpoint.split("byid")[0]
         ipdb.set_trace()
         setattr(g, key_name, record)
+        ipdb.set_trace()
 
 # Register a callback function that loads a user from your database whenever
 # a protected route is accessed. This should return any python object on a
@@ -74,4 +76,5 @@ def before_request():
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
+    ipdb.set_trace()
     return get_instance_by_id(User, identity)

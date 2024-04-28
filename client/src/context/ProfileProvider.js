@@ -1,20 +1,22 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useFetchJSON } from '../utils/useFetchJSON';
 import { useAuth } from './AuthContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from './ToastContext';
 // ProfileContext
 const ProfileContext = createContext();
 
 export const useProfileContext = () => useContext(ProfileContext);
 
+
 const ProfileProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const { logout, user } = useAuth();
     const {showToast} = useToast();
     const [profileData, setProfileData] = useState({});
-    // const { deleteJSON, patchJSON } = useFetchJSON();
+    const { deleteJSON, patchJSON } = useFetchJSON();
     const location = useLocation();
+    const navigate = useNavigate();
     const currentPage = location.pathname.slice(1);
     console.log('ProfileProvider mounted');
     console.log('currentPage:', currentPage);
@@ -27,12 +29,14 @@ const ProfileProvider = ({ children }) => {
 
 
     useEffect(() => {
+        console.log('showToast in effect:', showToast);
         console.log('user:', user)
         if (currentPage.startsWith(`profile`) && user) {
+            let abortController = new AbortController(); // Create an instance of AbortController
             (async () => {
                 setIsLoading(true);
                 try {
-                    const res = await fetch(`/api/v1/${currentPage}`)
+                    const res = await fetch(`/api/v1/${currentPage}`, { signal: abortController.signal }) // Pass the signal to the fetch request
                     if (res.ok) {
                         const data = await res.json()
                         setProfileData(data)
@@ -40,71 +44,63 @@ const ProfileProvider = ({ children }) => {
                         debugger
                         showToast('Profile fetched successfully')
                         setIsLoading(false);
-                    // } else if (!res.ok) { // If unauthorized
-                    //     const refreshRes = await fetch("/refresh", {
-                    //         method: "POST",
-                    //         headers: {
-                    //             "Content-Type": "application/json",
-                    //             "X-CSRF-TOKEN": getCookie('csrf_refresh_token'),
-                    //         }
-                    //     })
-                    //     if (refreshRes.ok) {
-                    //         const data = await refreshRes.json()
-                    //         setProfileData(data)
-                    //         showToast('Profile fetched successfully')
-                    //         setIsLoading(false);
-                    //     } else {
-                    //         throw new Error('Token refresh failed');
-                        // }
                     }
                 } catch (err) {
-                    showToast(`An error occurred while fetching profile. ${err.message}`)
-                    setIsLoading(false);
+                    if (err.name === 'AbortError') {
+                        console.log('Fetch aborted')
+                    } else {
+                        showToast(`An error occurred while fetching profile. ${err.message}`)
+                        setIsLoading(false);
+                    }
                 }
-            }
-            )()
-        }
-    }
-        , [currentPage, showToast, user])
+            })()
 
-    const handlePatchProfile = async (id, updates) => {
+            return () => {
+                abortController.abort(); // Abort the fetch request when the component unmounts or the dependencies change
+            }
+        }
+    }, [currentPage, showToast, user])
+
+    const handlePatchProfile = async (updates) => {
         debugger
-        setProfileData(profileData.map(user => user.id === id ? { ...user, ...updates } : user))
-        try {
-            const csrfToken = getCookie('CSRF-TOKEN');
-            const result = await fetch(`/api/v1/${currentPage}/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-                body: JSON.stringify(updates),
-            });
-            if (!result.ok) {
-                throw new Error('Patch failed: status: ' + result.status)
-            }
-        } catch (err) {
-            showToast(err.message);
-            setProfileData(currentProfiles => currentProfiles.map(profile =>
-                profile.id === id ? { ...profile, ...revertUpdates(profile, updates) } : profile
-            ))
-        }
+        const { current_password, new_password, ...updatesWithoutPasswords } = updates;
+        debugger
+        const prevProfileData = { ...profileData };
 
-        function revertUpdates(user, updates) {
-            const revertedUpdates = {}
-            for (let key in updates) {
-                revertedUpdates[key] = user[key]
-            }
-            return revertedUpdates
+        const csrfToken = getCookie('csrf_access_token');
+        console.log(csrfToken)
+        // setProfileData(profileData.map(user => user.id === id ? { ...user, ...updates } : user));
+        debugger
+        try {
+            setProfileData({ ...profileData, ...updatesWithoutPasswords });
+            const response = await patchJSON(`/api/v1/${currentPage}`, updates, csrfToken);
+            return response
+        } catch (err) {
+            debugger
+            showToast(typeof err.message === 'string' ? err.message : 'An error occurred');
+            setProfileData(prevProfileData);
         }
     }
 
-    const handleDeleteProfile = async (id) => {
-        const userToDelete = profileData.find(user => user.id === id)
-        setProfileData(profileData.filter(user => user.id !== id))
+// function revertUpdates(user, updates) {
+//         debugger
+//         const revertedUpdates = {};
+//         for (let key in updates) {
+//             revertedUpdates[key] = user[key];
+//         }
+//         debugger
+//         return revertedUpdates;
+//     };
+
+    const handleDeleteProfile = async () => {
+        // const userToDelete = profileData.find(user => user.id === id)
+        let userToDelete = profileData;
+        // setProfileData(profileData.filter(user => user.id !== id))
+        setProfileData({})
+        navigate('/')
         try {
-            const csrfToken = getCookie('CSRF-TOKEN');
-            const resp = await fetch(`/api/v1/${currentPage}/${id}`, {
+            const csrfToken = getCookie('csrf_access_token');
+            const resp = await fetch(`/api/v1/${currentPage}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
@@ -116,7 +112,7 @@ const ProfileProvider = ({ children }) => {
             }
         } catch (err) {
             showToast(err)
-            setProfileData(currentUsers => [...currentUsers, userToDelete])
+            setProfileData(userToDelete)
         }
     }
     if (isLoading) {
@@ -124,7 +120,7 @@ const ProfileProvider = ({ children }) => {
     }
 
     return (
-        <ProfileContext.Provider value={{ profileData, handlePatchProfile, handleDeleteProfile, currentPage }}>
+        <ProfileContext.Provider value={{ profileData, handlePatchProfile, handleDeleteProfile, currentPage, showToast }}>
             {children}
         </ProfileContext.Provider>
     );

@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const csrfToken = getCookie('CSRF-TOKEN')
 
 useEffect(() => {
-  fetch('api/v1/check_session', {
+  fetch('http://localhost:3000/api/v1/check_session', {
     headers: {
       'X-CSRF-TOKEN': csrfToken,
     },
@@ -33,7 +33,7 @@ useEffect(() => {
     .then(data => {
       if (data.msg === 'Token has expired') {
         // Directly call the refresh endpoint instead of throwing an error
-        return fetch("/refresh", {
+        return fetch("http://localhost:3000/api/v1/refresh", {
           method: "POST",
           headers: {
             'X-CSRF-TOKEN': getCookie('csrf_refresh_token'),

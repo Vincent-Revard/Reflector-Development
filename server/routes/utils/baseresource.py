@@ -1,6 +1,8 @@
 from .. import Resource, request, IntegrityError, ValidationError
 from ..helpers.query_helpers import get_all, get_all_by_condition, get_instance_by_id, get_one_by_condition
 
+from models.user import User
+
 from config import db
 import ipdb
 
@@ -41,7 +43,10 @@ class BaseResource(Resource):
 
     def delete(self, id=None):
         try:
-            instance = self.model.query.get(id)
+            instance = get_instance_by_id(self.model, id)
+            if instance is None:
+                return {"errors": f"{self.model.__name__} not found"}, 404
+
             db.session.delete(instance)
             db.session.commit()
             return "", 204
@@ -63,14 +68,30 @@ class BaseResource(Resource):
             db.session.rollback()
             return {"message": "Invalid data"}, 422
 
-    def patch(self, id=None):
+    def patch(self, id):
         try:
+            ipdb.set_trace()
+
             data = self.schema.load(request.json)
-            instance = self.model.query.get(id)
+                # Check if data is a User instance (object not dictionary)
+            if isinstance(data, User):
+                ipdb.set_trace()
+
+                # Convert the User instance to a dictionary
+                data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
+            ipdb.set_trace()
+
+            instance = get_instance_by_id(self.model, id)
+            if instance is None:
+                return {"errors": f"{self.model.__name__} not found"}, 404
+            ipdb.set_trace()
+
             for key, value in data.items():
-                setattr(instance, key, value)
+                if value is not None:
+                    setattr(instance, key, value)
             db.session.commit()
-            
+            ipdb.set_trace()
+
             return self.schema.dump(instance), 200
         except ValidationError as e:
             return {"message": str(e)}, 422

@@ -22,9 +22,11 @@ class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
     )  #! NEED REGEX!
     password = fields.Str(
         validate=Length(min=1),
+        load_only=True,
         metadata={"description": "The new password of the user"},
     )
     current_password = fields.Str(
+        load_only=True,
         metadata={"description": "The current password of the user"}
     )
 

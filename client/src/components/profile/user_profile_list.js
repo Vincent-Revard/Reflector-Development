@@ -5,14 +5,14 @@ import { useProfileContext } from '../../context/ProfileProvider';
 // import '../styles/UserProfile.scss';
 
 const UserProfileList = () => {
-  const { profileData, handlePatchProfile, handleDeleteProfile, currentPage } = useProfileContext();
+  const { profileData, handlePatchProfile, handleDeleteProfile, currentPage, showToast } = useProfileContext();
   const { user } = useAuth();
   
   console.log(profileData);
     
-    if (!currentPage) {
-      return null;
-    }
+    // if (!currentPage) {
+    //   return null;
+    // }
 
   return(
   
@@ -21,9 +21,10 @@ const UserProfileList = () => {
       <div>
         <UserProfileDetail
           key={profileData.id}
-          {...profileData}
+          profileData={profileData}
           handlePatchProfile={handlePatchProfile}
           handleDeleteProfile={handleDeleteProfile}
+          showToast={showToast}
         />
       </div>
     ) : (

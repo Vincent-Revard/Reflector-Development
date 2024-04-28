@@ -6,6 +6,8 @@ import { ToastProvider } from "./context/ToastContext";
 import { RouterProvider } from 'react-router-dom';
 import router from "./routes/routes";
 import App from "./App";
+import Modal from 'react-modal'
+Modal.setAppElement('#root')
 
 // const container = document.getElementById("root");
 // const root = createRoot(container);
