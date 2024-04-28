@@ -6,6 +6,7 @@ from random import randint, choice as rc
 # Remote library imports
 from faker import Faker
 from sqlalchemy.sql import text
+import redis
 
 # Local imports
 from config import app
@@ -37,6 +38,9 @@ if __name__ == '__main__':
         CourseTopic.query.delete()
 
         db.session.commit()
+
+        r = redis.Redis(host='localhost', port=6379, db=0)  # Connect to your Redis instance
+        r.flushall()  # Clear all data in Redis
 
         # Create some users
         users = []

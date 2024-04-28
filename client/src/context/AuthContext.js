@@ -7,7 +7,7 @@ export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const { toast } = useToast()
+  const { showToast } = useToast()
   const onUnauthorized = useUnauthorized();
 
   function getCookie(name) {
@@ -17,47 +17,48 @@ export const AuthProvider = ({ children }) => {
   }
   const csrfToken = getCookie('CSRF-TOKEN')
 
-  useEffect(() => {
-    fetch('api/v1/check_session', {
-      headers: {
-        'X-CSRF-TOKEN': csrfToken,
-      },
+useEffect(() => {
+  fetch('http://localhost:3000/api/v1/check_session', {
+    headers: {
+      'X-CSRF-TOKEN': csrfToken,
+    },
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Session check failed');
+      }
     })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Session check failed');
-        }
-      })
-      .then(data => {
-        if (data.msg === 'Token has expired') {
-          throw new Error('Token has expired');
-        } else {
-          setUser(data);
-        }
-      })
-      .catch(error => {
-        if (error.message === 'Token has expired') {
-          fetch("/refresh", {
-            method: "POST",
-            headers: {
-              'X-CSRF-TOKEN': getCookie('csrf_refresh_token'),
-            }
-          })
-          .then(resp => {
-            if (resp.ok) {
-              resp.json().then(setUser)
-            } else {
-              onUnauthorized();
-              toast.error("Your session has expired. Please log in again.");
-            }
-          })
-        } else {
-          console.error('Error:', error);
-        }
-      });
-  }, [toast, onUnauthorized, csrfToken]);
+    .then(data => {
+      if (data.msg === 'Token has expired') {
+        // Directly call the refresh endpoint instead of throwing an error
+        return fetch("http://localhost:3000/api/v1/refresh", {
+          method: "POST",
+          headers: {
+            'X-CSRF-TOKEN': getCookie('csrf_refresh_token'),
+          }
+        })
+        .then(resp => {
+          if (resp.ok) {
+            return resp.json();
+          } else {
+            throw new Error('Token refresh failed');
+          }
+        })
+        .then(setUser)
+        .catch(error => {
+          onUnauthorized();
+          showToast(`Your session has expired. Please log in again. ${error.message}.`);
+        });
+      } else {
+        setUser(data);
+      }
+    })
+    .catch(error => {
+      showToast(`Error: ${error.message}`);
+    });
+}, [showToast, onUnauthorized, csrfToken]);
   
   const logout = useCallback(() => {
 // const csrfToken = document.cookie
@@ -81,8 +82,8 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Logout failed');
       }
     })
-    .catch(err => console.log(err))
-  }, [setUser, onUnauthorized]);
+    .catch(err => showToast(err))
+  }, [setUser, onUnauthorized, showToast]);
 
   const value = useMemo(() => ({
     user,

@@ -21,6 +21,8 @@ import VerifiyPage from '../components/pages/VerifyPage';
 import UserProfileDetail from '../components/profile/user_profile_detail';
 import Error from '../components/errors/Error';
 import NotFound from '../components/errors/NotFound';
+import ProfileProvider from '../context/ProfileProvider';
+import UserProfileList from '../components/profile/user_profile_list';
 
 const router = createBrowserRouter([
   {
@@ -33,96 +35,72 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />
       },
-      // {
-      //   path: "courses",
-      //   element: <CourseList />
-      // },
-      // {
-      //   path: "courses/new",
-      //   element: <CourseForm />
-      // },
-      // {
-      //   path: "courses/:courseId",
-      //   element: <CourseDetail />,
-      //   children: [
-      //     {
-      //       path: "edit",
-      //       element: <CourseForm />
-      //     },
-      //     {
-      //       path: "topics",
-      //       element: <TopicList />
-      //     },
-      //     {
-      //       path: "topics/new",
-      //       element: <TopicForm />
-      //     },
-      //     {
-      //       path: "topics/:topicId",
-      //       element: <TopicDetail />,
-      //       children: [
-      //         {
-      //           path: "edit",
-      //           element: <TopicForm />
-      //         },
-      //         {
-      //           path: "notes",
-      //           element: <NoteList />
-      //         },
-      //         {
-      //           path: "notes/new",
-      //           element: <NoteForm />
-      //         },
-      //         {
-      //           path: "notes/:noteId",
-      //           element: <NoteDetail />,
-      //           children: [
-      //             {
-      //               path: "edit",
-      //               element: <NoteForm />
-      //             }
-              //   ]
-              // }
-            // ]
-          // }
-        // ]
-      // },
-    //   {
-    //     path: "courses/:courseId/topics/:topicId/quizzes",
-    //     element: <QuizList />
-    //   },
-    //   {
-    //     path: "courses/:courseId/topics/:topicId/quizzes/:quizId",
-    //     element: <QuizDetail />
-    //   },
       {
-        path: "profile",
-        element: <UserProfileDetail />
+        path: "courses",
+        element: <CourseList />,
+        children: [
+          {
+            // path: ":courseId",
+            // element: <CourseDetail />,
+            // children: [
+            //   {
+            //     path: "topics",
+            //     element: <TopicList />,
+            //     children: [
+            //       {
+            //         path: ":topicId",
+            //         element: <TopicDetail />,
+            //         children: [
+            //           {
+            //             path: "notes",
+            //             element: <NoteList />,
+            //             children: [
+            //               {
+            //                 path: ":noteId",
+            //                 element: <NoteDetail />
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
-      // {
-      //   path: "profile/edit",
-      //   element: <ProfileDetailForm />
-      //   },
-      //   {
-      //   path: "notes/",
-      //   element: <NoteList/>,
-      // },
-      // {
-      //   path: "notes/:noteId",
-      //   element: <NoteDetail />,
-      // },
-        {
-          path: "registration",
-          element: <Registration />
-        },
-        {
-          path: "verify/:token",
-          element: <VerifiyPage />
-        },
-        {
-          path: "*",
-          element: <NotFound />
-        }
+      {
+        path: "profile/:id",
+        element: (
+          <ProfileProvider >
+            <UserProfileList >
+              <UserProfileDetail />
+            </UserProfileList >
+          </ProfileProvider>
+        )
+      },
+      {
+        path: "notes",
+        element: <NoteList />,
+        children: [
+          {
+            path: ":noteId",
+            element: <NoteDetail />
+          }
+        ]
+      },
+      {
+        path: "registration",
+        element: <Registration />
+      },
+      {
+        path: "verify/:token",
+        element: <VerifiyPage />
+      },
+      {
+        path: "*",
+        element: <NotFound />
+      }
     ]
   }
 ]);

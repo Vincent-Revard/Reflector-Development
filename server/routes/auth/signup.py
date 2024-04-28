@@ -26,20 +26,26 @@ class Signup(Resource):
     schema = user_schema
 
     def post(self):
+        ipdb.set_trace()
         try:
+            ipdb.set_trace()
             data = request.get_json()
             self.schema.context = {"is_signup": True}
             user = user_schema.load(data)
+            ipdb.set_trace()
             existing_user = User.query.filter_by(email=user.email).first()
             if existing_user is not None:
                 return {"message": "A user with this email already exists"}, 400
             existing_user_username = User.query.filter_by(
                 username=user.username
             ).first()
+            ipdb.set_trace()
+
             if existing_user_username is not None:
                 return {"message": "A user with this username already exists"}, 400
             db.session.add(user)
             db.session.flush()
+            ipdb.set_trace()
 
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(identity=user.id)
@@ -50,25 +56,32 @@ class Signup(Resource):
                 "refresh_token": refresh_token,
                 "csrf_token": csrf_token,
             }
+            ipdb.set_trace()
             user_session_str = json.dumps(user_session)
             redis_client.set(
                 access_token,
                 user_session_str,
                 ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"],
             )
+            ipdb.set_trace()
+
             response = make_response(user_schema.dump(user), 201)
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
+            # response.set_cookie("csrf_token", csrf_token)
 
             # Generate a unique token
             s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
             token = s.dumps(user.email, salt="email-confirm")
+            ipdb.set_trace()
 
             # Store the token in Redis
             redis_client.set(
                 token,
                 user.id,
             )
+            ipdb.set_trace()
+
             verification_link = f"http://localhost:3000/verify/{token}"
             # Send an email with the token
             send_email(

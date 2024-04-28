@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import request, g, render_template, make_response
+from flask import request, g, render_template, make_response, jsonify
 from flask_restful import Resource
 from werkzeug.exceptions import NotFound
 from .helpers.generate_csrf_token import generate_csrf_token
@@ -9,7 +9,7 @@ from flask_mail import Mail, Message
 from schemas.userupdateSchema import UserUpdateSchema
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from marshmallow import ValidationError, fields, validates, ValidationError, pre_load
-
+from sqlalchemy import select
 from routes.utils.baseresource import BaseResource
 # from models.production import Production
 from models.user import User
@@ -17,6 +17,7 @@ from models.course import Course
 from models.topic import Topic
 from models.reference import Reference
 from models.note import Note
+from routes.helpers.query_helpers import get_all, get_all_by_condition, get_instance_by_id, get_one_by_condition
 
 from schemas.userSchema import user_schema, users_schema
 import ipdb
@@ -36,9 +37,9 @@ from flask_jwt_extended import (
     get_jwt,
     verify_jwt_in_request,
     decode_token,
-    get_jwt,
     
 )
+from flask_jwt_extended.exceptions import NoAuthorizationError
 
 #! ==================
 #! GENERAL ROUTE CONCERNS
@@ -48,27 +49,25 @@ def not_found(error):
 
 @app.before_request
 def before_request():
+
     path_dict = {
         "coursebyid": Course,
         "topicbyid": Topic,
         "referencebyid": Reference,
         "notebyid": Note,
         "profilebyid": User,
+        "profile": User,
     }
+
     if request.endpoint in path_dict:
         id = request.view_args.get("id")
-        record = db.session.get(path_dict.get(request.endpoint), id)
+        print(id)
+        record = get_instance_by_id(path_dict.get(request.endpoint), id)
+        print(record)
         key_name = request.endpoint.split("byid")[0]
+        ipdb.set_trace()
         setattr(g, key_name, record)
-
-def login_required(func):
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        # if "user_id" not in session:
-        #     return {"message": "Access Denied, please log in!"}, 422
-        return func(*args, **kwargs)
-
-    return decorated_function
+        ipdb.set_trace()
 
 # Register a callback function that loads a user from your database whenever
 # a protected route is accessed. This should return any python object on a
@@ -77,4 +76,5 @@ def login_required(func):
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
-    return db.session.get(User, identity)
+    ipdb.set_trace()
+    return get_instance_by_id(User, identity)
