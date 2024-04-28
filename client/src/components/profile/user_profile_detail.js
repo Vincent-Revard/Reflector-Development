@@ -6,8 +6,8 @@ import FormComponent from '../form/form_component';
 import { Formik } from 'formik'
 import Modal from 'react-modal';
 
-const UserProfileDetail = ({ profileData, handlePatchProfile, handleDeleteProfile, showToast }) => {
-  const {username, email, id} = profileData;
+const UserProfileDetail = ({ data, handlePatchContext, handleDeleteContext, showToast }) => {
+  const {username, email, id} = data;
   const [isEditMode, setIsEditMode] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   // const navigate = useNavigate();
@@ -41,7 +41,7 @@ const UserProfileDetail = ({ profileData, handlePatchProfile, handleDeleteProfil
   }
 
   const handleDelete = () => {
-    handleDeleteProfile();
+    handleDeleteContext();
     closeDeleteModal();
   }
   
@@ -117,7 +117,7 @@ const toggleEditable = (fieldName) => {
       payload.password = values.new_password;
     }
     
-    handlePatchProfile(payload)
+    handlePatchContext(payload)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Update failed');
@@ -128,8 +128,8 @@ const toggleEditable = (fieldName) => {
         setIsEditMode(false);
         setShowChangePassword(false);
         setFormValues({
-          username: res.data.username,
-          email: res.data.email,
+          username: showChangePassword ? formValues.username : res.data.username,
+          email: showChangePassword ? formValues.email : res.data.email,
           current_password: '',
         });
         resetForm({
@@ -186,6 +186,7 @@ const toggleEditable = (fieldName) => {
           initialValues={formValues}
           validationSchema={validationSchema}
           onSubmit={onSubmit}
+          enableReinitialize
         >
           {({ isSubmitting }) => (
             <FormComponent
