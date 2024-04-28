@@ -4,21 +4,21 @@ import { useAuth } from './AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from './ToastContext';
 // ProfileContext
-const ProfileContext = createContext();
+const Context = createContext();
 
-export const useProfileContext = () => useContext(ProfileContext);
+export const useProviderContext = () => useContext(Context);
 
 
-const ProfileProvider = ({ children }) => {
+const ContextProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
-    const { logout, user } = useAuth();
+    const { logout, user, onUnauthorized } = useAuth();
     const {showToast} = useToast();
-    const [profileData, setProfileData] = useState({});
+    const [data, setData] = useState({});
     const { deleteJSON, patchJSON } = useFetchJSON();
     const location = useLocation();
     const navigate = useNavigate();
     const currentPage = location.pathname.slice(1);
-    console.log('ProfileProvider mounted');
+    console.log('Provider mounted');
     console.log('currentPage:', currentPage);
 
     function getCookie(name) {
@@ -31,7 +31,7 @@ const ProfileProvider = ({ children }) => {
     useEffect(() => {
         console.log('showToast in effect:', showToast);
         console.log('user:', user)
-        if (currentPage.startsWith(`profile`) && user) {
+        if ( user) {
             let abortController = new AbortController(); // Create an instance of AbortController
             (async () => {
                 setIsLoading(true);
@@ -39,10 +39,10 @@ const ProfileProvider = ({ children }) => {
                     const res = await fetch(`/api/v1/${currentPage}`, { signal: abortController.signal }) // Pass the signal to the fetch request
                     if (res.ok) {
                         const data = await res.json()
-                        setProfileData(data)
+                        setData(data)
                         console.log(data)
                         debugger
-                        showToast('Profile fetched successfully')
+                        showToast('Data Fetch Successful')
                         setIsLoading(false);
                     }
                 } catch (err) {
@@ -61,24 +61,24 @@ const ProfileProvider = ({ children }) => {
         }
     }, [currentPage, showToast, user])
 
-    const handlePatchProfile = async (updates) => {
+    const handlePatchContext = async (updates) => {
         debugger
         const { current_password, new_password, ...updatesWithoutPasswords } = updates;
         debugger
-        const prevProfileData = { ...profileData };
+        const prevProfileData = { ...data };
 
         const csrfToken = getCookie('csrf_access_token');
         console.log(csrfToken)
         // setProfileData(profileData.map(user => user.id === id ? { ...user, ...updates } : user));
         debugger
         try {
-            setProfileData({ ...profileData, ...updatesWithoutPasswords });
+            setData({ ...data, ...updatesWithoutPasswords });
             const response = await patchJSON(`/api/v1/${currentPage}`, updates, csrfToken);
             return response
         } catch (err) {
             debugger
             showToast(typeof err.message === 'string' ? err.message : 'An error occurred');
-            setProfileData(prevProfileData);
+            setData(prevProfileData);
         }
     }
 
@@ -92,11 +92,11 @@ const ProfileProvider = ({ children }) => {
 //         return revertedUpdates;
 //     };
 
-    const handleDeleteProfile = async () => {
+    const handleDeleteContext = async () => {
         // const userToDelete = profileData.find(user => user.id === id)
-        let userToDelete = profileData;
+        let userToDelete = data;
         // setProfileData(profileData.filter(user => user.id !== id))
-        setProfileData({})
+        setData({})
         navigate('/')
         try {
             const csrfToken = getCookie('csrf_access_token');
@@ -109,10 +109,11 @@ const ProfileProvider = ({ children }) => {
             if (resp.status === 204) {
                 showToast('User deleted successfully')
                 logout()
+                onUnauthorized()
             }
         } catch (err) {
             showToast(err)
-            setProfileData(userToDelete)
+            setData(userToDelete)
         }
     }
     if (isLoading) {
@@ -120,10 +121,10 @@ const ProfileProvider = ({ children }) => {
     }
 
     return (
-        <ProfileContext.Provider value={{ profileData, handlePatchProfile, handleDeleteProfile, currentPage, showToast }}>
+        <Context.Provider value={{ data, handlePatchContext, handleDeleteContext, currentPage, showToast }}>
             {children}
-        </ProfileContext.Provider>
+        </Context.Provider>
     );
 };
 
-export default ProfileProvider;
+export default ContextProvider;

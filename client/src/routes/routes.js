@@ -17,12 +17,12 @@ import Home from '../components/pages/home';
 import Registration from '../components/auth/Registration';
 // import NotFound from '../components/NotFound'; 
 // import ErrorPage from '../components/ErrorPage'; 
-import VerifiyPage from '../components/pages/VerifyPage';
+import VerifyPage from '../components/pages/VerifyPage';
 import UserProfileDetail from '../components/profile/user_profile_detail';
 import Error from '../components/errors/Error';
 import NotFound from '../components/errors/NotFound';
-import ProfileProvider from '../context/ProfileProvider';
-import UserProfileList from '../components/profile/user_profile_list';
+import ContextProvider from '../context/ContextProvider';
+import ContextList from '../context/context_list';
 
 const router = createBrowserRouter([
   {
@@ -35,11 +35,11 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />
       },
-      {
-        path: "courses",
-        element: <CourseList />,
-        children: [
-          {
+      // {
+      //   path: "courses",
+      //   element: <CourseList />,
+      //   children: [
+      //     {
             // path: ":courseId",
             // element: <CourseDetail />,
             // children: [
@@ -58,44 +58,44 @@ const router = createBrowserRouter([
             //               {
             //                 path: ":noteId",
             //                 element: <NoteDetail />
-                //           }
-                //         ]
-                //       }
-                //     ]
-                //   }
-                // ]
-              }
-            ]
-          }
-        ]
-      },
+            //               }
+            //             ]
+            //           }
+            //         ]
+            //       }
+            //     ]
+            //   }
+            // ]
+          // }
+        // ]
+      // },
       {
         path: "profile/:id",
         element: (
-          <ProfileProvider >
-            <UserProfileList >
+          <ContextProvider >
+            <ContextList >
               <UserProfileDetail />
-            </UserProfileList >
-          </ProfileProvider>
+            </ContextList >
+          </ContextProvider>
         )
       },
-      {
-        path: "notes",
-        element: <NoteList />,
-        children: [
-          {
-            path: ":noteId",
-            element: <NoteDetail />
-          }
-        ]
-      },
+      // {
+      //   path: "notes",
+      //   element: <NoteList />,
+      //   children: [
+      //     {
+      //       path: ":noteId",
+      //       element: <NoteDetail />
+      //     }
+      //   ]
+      // },
       {
         path: "registration",
         element: <Registration />
       },
       {
         path: "verify/:token",
-        element: <VerifiyPage />
+        element: <VerifyPage />
       },
       {
         path: "*",
@@ -104,5 +104,6 @@ const router = createBrowserRouter([
     ]
   }
 ]);
+
 
 export default router;
