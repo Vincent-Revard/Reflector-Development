@@ -63,6 +63,7 @@ class Topic(db.Model):
 class Note(db.Model):
     __tablename__ = 'notes'
 
+    name = db.Column(db.String(100), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
@@ -82,6 +83,7 @@ class Reference(db.Model):
     __tablename__ = 'references'
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     author = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

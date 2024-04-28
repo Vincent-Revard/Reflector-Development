@@ -25,10 +25,12 @@ function Header({ user , logout}) {
                 <li><StyledButtonLink to={`/profile/${user.id}`}>Profile</StyledButtonLink></li>
                 <li><StyledButtonLink to='/notes'>Notes</StyledButtonLink></li>
                 <li><StyledButtonLink to='/courses'>Courses</StyledButtonLink></li>
+                <li><StyledButtonLink to='/references'>References</StyledButtonLink></li>
+                <li><StyledButtonLink to='/topics'>Topics</StyledButtonLink></li>
               </>
             ) : (
               <>
-                <li><StyledButtonLink to='/registration'>Register</StyledButtonLink></li>
+                <li><StyledButtonLink to='/registration'>Login/Register</StyledButtonLink></li>
               </>
             )}
             <li><StyledButtonLink to='/'> Home </StyledButtonLink></li>

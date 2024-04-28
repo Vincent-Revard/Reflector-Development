@@ -14,7 +14,7 @@ from routes.auth.refresh import Refresh
 from routes.auth.signup import Signup
 from routes.auth.verify import Verify
 from routes.user.usersindex import UsersIndex
-
+from routes.course.courses import CoursesIndex
 
 
 api.add_resource(Signup, "/signup")
@@ -23,6 +23,7 @@ api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
+api.add_resource(CoursesIndex, "/course", "/course/<int:id>", endpoint="course")
 api.add_resource(UsersIndex, "/profile", "/profile/<int:id>", endpoint="profile")
 
 

@@ -5,6 +5,7 @@ import UserProfileDetail from '../components/profile/user_profile_detail';
 // import NoteDetail from './NoteDetail';
 import { useAuth } from './AuthContext';
 import { useProviderContext } from './ContextProvider';
+import ContextCard from './context_card';
 
 const ContextList = () => {
   const { data, handlePatchContext, handleDeleteContext, currentPage, showToast } = useProviderContext();
@@ -17,12 +18,14 @@ const ContextList = () => {
       switch (page) {
       case 'profile':
         return <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-      // case 'courses':
-      //   return data.map(course => <CourseCard key={course.id} data={course} />);
+      case 'courses':
+          return data.map(course => <ContextCard key={course.id} data={course} />);
+      // case 'topics':
+      //     return data.map(topic => <TopicCard key={topic.id} data={topic} />);
       // case 'references':
       //   return data.map(reference => <ReferenceCard key={reference.id} data={reference} />);
       // case 'notes':
-      //   return data.map(note => <NoteDetail key={note.id} data={note} />);
+      //   return data.map(note => <NoteCard key={note.id} data={note} />);
       default:
         return <h1>You need to log in to view this page!</h1>;
     }

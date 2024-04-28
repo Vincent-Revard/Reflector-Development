@@ -13,6 +13,7 @@ from .notereference import NoteReference
 class Reference(db.Model):
     __tablename__ = "references"
 
+    name = db.Column(db.String(100), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)

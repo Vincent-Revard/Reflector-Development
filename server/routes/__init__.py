@@ -7,6 +7,7 @@ from .helpers.jwt_required_modified import jwt_required_modified
 import json
 from flask_mail import Mail, Message
 from schemas.userupdateSchema import UserUpdateSchema
+from schemas.courseSchema import CourseSchema
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from marshmallow import ValidationError, fields, validates, ValidationError, pre_load
 from sqlalchemy import select
@@ -52,6 +53,7 @@ def before_request():
 
     path_dict = {
         "coursebyid": Course,
+        "course": Course,
         "topicbyid": Topic,
         "referencebyid": Reference,
         "notebyid": Note,
