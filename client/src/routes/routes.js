@@ -58,12 +58,12 @@ const router = createBrowserRouter([
             //               {
             //                 path: ":noteId",
             //                 element: <NoteDetail />
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
+                //           }
+                //         ]
+                //       }
+                //     ]
+                //   }
+                // ]
               }
             ]
           }
