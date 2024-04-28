@@ -12,6 +12,7 @@ from .. import (
     redis_client,
     generate_csrf_token,
     json,
+    jwt_required,
 )
 import ipdb
 
@@ -25,21 +26,16 @@ class Login(Resource):
             self.schema.context = {"is_signup": False}
             request_data = request.get_json()
             password = request_data.get("password")
-            ipdb.set_trace()
             data = self.schema.load(request_data)
-            ipdb.set_trace()
             username = data.username
             # password = request_data.get("password")
-            ipdb.set_trace()
 
             user = User.query.filter_by(username=username).first()
             if user is None or not user.authenticate(password):
                 return {"message": "Invalid credentials"}, 401
             access_token = create_access_token(identity=user.id, fresh=True)
-            ipdb.set_trace()
             refresh_token = create_refresh_token(identity=user.id)
             csrf_token = generate_csrf_token()
-            ipdb.set_trace()
             user_session = {
                 "user_id": user.id,
                 "access_token": access_token,

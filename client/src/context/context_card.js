@@ -59,7 +59,8 @@ const ContextCard = ({ data, handlePatchContext, showToast }) => {
   });
   
   const onSubmit = (values, { setSubmitting, resetForm }) => {
-    const payload = {
+      const payload = {
+      id: id,
       name: values.name,
     };
     

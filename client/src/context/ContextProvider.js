@@ -17,7 +17,10 @@ const ContextProvider = ({ children }) => {
     const { deleteJSON, patchJSON } = useFetchJSON();
     const location = useLocation();
     const navigate = useNavigate();
-    const currentPage = location.pathname.slice(1);
+    let currentPage = location.pathname.split('/')[1];
+    if (currentPage === 'profile') {
+        currentPage = location.pathname.slice(1);
+    }
     console.log('Provider mounted');
     console.log('currentPage:', currentPage);
 
@@ -31,7 +34,7 @@ const ContextProvider = ({ children }) => {
     useEffect(() => {
         console.log('showToast in effect:', showToast);
         console.log('user:', user)
-        if ( user) {
+        if (user) {
             let abortController = new AbortController(); // Create an instance of AbortController
             (async () => {
                 setIsLoading(true);
@@ -117,8 +120,11 @@ const ContextProvider = ({ children }) => {
         }
     }
     if (isLoading) {
+        if (!user)
+        {navigate() }
         return <div>Loading...</div>; // Or your custom loading component
-    }
+        }
+        
 
     return (
         <Context.Provider value={{ data, handlePatchContext, handleDeleteContext, currentPage, showToast }}>
