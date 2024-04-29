@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import FormComponent from '../components/form/form_component';
 import { Formik } from 'formik'
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Modal from '@mui/material/Modal';
+import FormComponent from '../components/form/form_component';
+
 
 const TopicCard = ({ data, handlePatchContext, showToast }) => {
   const { name, id } = data;
@@ -103,9 +107,9 @@ const TopicCard = ({ data, handlePatchContext, showToast }) => {
 
   return (
     <>
-      <button onClick={() => { toggleEditMode(); handleOpenModal() }}>
+      <Button variant="contained" color="primary" onClick={() => { toggleEditMode(); handleOpenModal() }}>
         Update Card
-      </button>
+      </Button>
       {isEditMode && (
         <Formik
           initialValues={formValues}
@@ -114,11 +118,11 @@ const TopicCard = ({ data, handlePatchContext, showToast }) => {
           enableReinitialize
         >
           {({ isSubmitting }) => (
-            <FormComponent
-              isOpen={isModalOpen}
-              onRequestClose={handleCloseModal}
+            <FormComponent 
               fieldInfo={fieldInfo}
               isSubmitting={isSubmitting}
+              isOpen={isModalOpen}
+              onRequestClose={handleCloseModal}
               cancelEdit={cancelEdit}
               toggleEditable={toggleEditable}
             />
@@ -133,5 +137,6 @@ const TopicCard = ({ data, handlePatchContext, showToast }) => {
     </>
   );
 }
+
 
 export default TopicCard;
