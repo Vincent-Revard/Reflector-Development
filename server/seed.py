@@ -7,6 +7,9 @@ from random import randint, choice as rc
 from faker import Faker
 from sqlalchemy.sql import text
 import redis
+from sqlalchemy import exists
+from sqlalchemy.exc import IntegrityError
+
 
 # Local imports
 from config import app
@@ -44,85 +47,111 @@ if __name__ == '__main__':
 
         # Create some users
         users = []
-        for _ in range(10):
-            user = User(username=fake.user_name(), email=fake.email())
-            user.password = "password"
+        emails = set()  # Store all emails
+        for _ in range(10):  # Create 10 users
+            email = fake.email()
+            while email in emails:  # Generate a new email if it already exists
+                email = fake.email()
+            emails.add(email)
+            user = User(username=fake.user_name(), email=email)
+            user.password = "password" 
             db.session.add(user)
             users.append(user)
         db.session.commit()
 
         # Create some courses
-        courses = []
-        for _ in range(5):
-            course = Course(name=fake.word(), user_id=rc(users).id)
-            db.session.add(course)
-            courses.append(course)
+        for user in users:
+            for _ in range(randint(5, 10)):  # Each user creates 5-10 courses
+                course = Course(name=fake.job(), user_id=user.id)
+                db.session.add(course)
+                db.session.commit()  # Commit the course to the database to get its ID
+                user_course = UserCourse(user_id=user.id, course_id=course.id)
+                db.session.add(user_course)
+            db.session.commit()
 
         # Create some topics
-        topics = []
-        for _ in range(10):
-            topic = Topic(name=fake.word(), user_id=rc(users).id)
-            db.session.add(topic)
-            topics.append(topic)
-        db.session.commit()  # Ensure topics are committed to the database
+        for course in Course.query.all():
+            for _ in range(randint(5, 10)):  # Each course has 5-10 topics
+                topic = Topic(name=fake.catch_phrase(), user_id=course.user_id)
+                db.session.add(topic)
+                db.session.commit()  # Commit the topic to the database to get its ID
+                course_topic = CourseTopic(course_id=course.id, topic_id=topic.id)
+                db.session.add(course_topic)
+            db.session.commit()
+
+        # Users can enroll in courses
+        for user in users:
+            for _ in range(randint(5, 10)):  # Each user enrolls in 5-10 courses
+                course = rc(Course.query.all())
+                # Check if the record already exists
+                (ret, ), = db.session.query(exists().where(UserCourse.user_id == user.id).where(UserCourse.course_id == course.id))
+                # If the record does not exist, insert it
+                if not ret:
+                    user_course = UserCourse(user_id=user.id, course_id=course.id)
+                    db.session.add(user_course)
+            db.session.commit()
+
+        # Topics can be associated with many courses
+# Topics can be associated with many courses
+        for topic in Topic.query.all():
+            for _ in range(randint(5, 10)):  # Each topic is associated with 5-10 courses
+                course = rc(Course.query.all())
+                try:
+                    # Try to insert the new record.
+                    course_topic = CourseTopic(course_id=course.id, topic_id=topic.id)
+                    db.session.add(course_topic)
+                    db.session.commit()
+                except IntegrityError:
+                    # If a record with the same course_id and topic_id already exists,
+                    # rollback the session to the state before the failed insertion.
+                    db.session.rollback()
 
         # Create some notes
-        for _ in range(20):
-            note = Note(
-                title=fake.sentence(),
-                content=fake.text(),
-                user_id=rc(users).id,
-                topic_id=rc(topics).id,  # Now this should not be None
-            )
-            db.session.add(note)
-        db.session.commit()  # Commit notes to the database
+        for topic in Topic.query.all():
+            for _ in range(randint(20, 30)):  # Each topic has 20-30 notes
+                name = fake.first_name() if fake.first_name() is not None else "Default Name"
+                category = fake.catch_phrase()
+                if category is None:
+                    category = 'default_category'  # Replace 'default_category' with a suitable default
+                note = Note(
+                    name=name,
+                    title=fake.sentence(),
+                    content=fake.paragraph(),
+                    user_id=topic.user_id,
+                    topic_id=topic.id,
+                    category=category,
+                )
+                db.session.add(note)
+            db.session.commit()
 
         # Create some references
-        for _ in range(15):
-            reference = Reference(
-                title=fake.sentence(),
-                author_last=fake.last_name(),
-                author_first=fake.first_name(),
-                organization_name=fake.company(),
-                container_name=fake.domain_name(),
-                publication_day=fake.day_of_month(),
-                publication_month=fake.month_name()[:3],
-                publication_year=fake.year(),
-                url=fake.url(),
-                access_day=fake.day_of_month(),
-                access_month=fake.month_name()[:3],
-                access_year=fake.year(),
-                user_id=rc(users).id,
-            )
-            db.session.add(reference)
+        for user in users:
+            for _ in range(randint(5, 10)):  # Each user creates 5-10 references
+                reference = Reference(
+                    name=fake.first_name(),
+                    title=fake.sentence(),
+                    author_last=fake.last_name(),
+                    author_first=fake.first_name(),
+                    organization_name=fake.company(),
+                    container_name=fake.domain_name(),
+                    publication_day=fake.day_of_month(),
+                    publication_month=fake.month_name()[:3],
+                    publication_year=fake.year(),
+                    url=fake.url(),
+                    access_day=fake.day_of_month(),
+                    access_month=fake.month_name()[:3],
+                    access_year=fake.year(),
+                    user_id=user.id,
+                )
+                db.session.add(reference)
+            db.session.commit()
 
-        # Create some note references
-        for _ in range(10):
-            note_reference = NoteReference(
-                note_id=rc(Note.query.all()).id,
-                reference_id=rc(Reference.query.all()).id,
-            )
-            db.session.add(note_reference)
+        # References can be associated with many notes
+        for reference in Reference.query.all():
+            for _ in range(randint(5, 10)):  # Each reference is associated with 5-10 notes
+                note = rc(Note.query.all())
+                note_reference = NoteReference(note_id=note.id, reference_id=reference.id)
+                db.session.add(note_reference)
+            db.session.commit()
 
-        # Create some user courses
-        user_course_combinations = set()
-        for _ in range(10):
-            user_id = rc(users).id
-            course_id = rc(courses).id
-            if (user_id, course_id) not in user_course_combinations:
-                user_course_combinations.add((user_id, course_id))
-                user_course = UserCourse(user_id=user_id, course_id=course_id)
-                db.session.add(user_course)
-
-        # Create some course topics
-        course_topic_combinations = set()
-        for _ in range(10):
-            course_id = rc(courses).id
-            topic_id = rc(topics).id
-            if (course_id, topic_id) not in course_topic_combinations:
-                course_topic_combinations.add((course_id, topic_id))
-                course_topic = CourseTopic(course_id=course_id, topic_id=topic_id)
-                db.session.add(course_topic)
-
-        # Commit the changes
-        db.session.commit()
+        print("Seed completed!")

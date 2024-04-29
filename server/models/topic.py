@@ -18,3 +18,6 @@ class Topic(db.Model):
     # Define relationship with notes
     notes = db.relationship("Note", back_populates="topic", lazy=True)
     course_topics = db.relationship("CourseTopic", back_populates="topic")
+
+    notes_proxy = association_proxy("notes", "content")
+    courses = association_proxy("course_topics", "course")

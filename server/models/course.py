@@ -20,3 +20,5 @@ class Course(db.Model):
 
     course_topics = db.relationship("CourseTopic", back_populates="course")
     user_courses = db.relationship("UserCourse", back_populates="course")
+
+    topics = association_proxy("course_topics", "topic")

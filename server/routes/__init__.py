@@ -18,7 +18,16 @@ from models.course import Course
 from models.topic import Topic
 from models.reference import Reference
 from models.note import Note
-from routes.helpers.query_helpers import get_all, get_all_by_condition, get_instance_by_id, get_one_by_condition
+from models.usercourse import UserCourse
+from models.coursetopic import CourseTopic
+
+from routes.helpers.query_helpers import (
+    get_all,
+    get_all_by_condition,
+    get_instance_by_id,
+    get_one_by_condition,
+    get_related_data,
+)
 
 from schemas.userSchema import user_schema, users_schema
 import ipdb

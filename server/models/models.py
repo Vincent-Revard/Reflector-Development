@@ -8,14 +8,14 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), nullable=False)
+    username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     _password_hash = db.Column(db.String(100), nullable=False)
+    email_verified = db.Column(db.Boolean, default=False)  # 
 
-    notes = db.relationship('Note', back_populates='user', lazy=True)
-    references = db.relationship('Reference', back_populates='user', lazy=True)
-    user_courses = db.relationship('UserCourse', back_populates='user')
-    note_references = db.relationship('NoteReference', back_populates='user')
+    notes = db.relationship("Note", back_populates="user", lazy=True)
+    user_courses = db.relationship("UserCourse", back_populates="user", lazy=True)
+    references = db.relationship("Reference", back_populates="user", lazy=True)
 
     courses = association_proxy('user_courses', 'course')
     notes_proxy = association_proxy("notes", "content")
@@ -35,15 +35,15 @@ class User(db.Model):
 
 
 class Course(db.Model):
-    __tablename__ = 'courses'
+    __tablename__ = "courses"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     # Define relationship with topics
 
-    course_topics = db.relationship('CourseTopic', back_populates='course')
-    user_courses = db.relationship("UserCourse", back_populates='course')
+    course_topics = db.relationship("CourseTopic", back_populates="course")
+    user_courses = db.relationship("UserCourse", back_populates="course")
 
     topics = association_proxy("course_topics", "topic")
 
@@ -52,64 +52,85 @@ class Topic(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     # Define relationship with notes
-    notes = db.relationship('Note', back_populates='topic', lazy=True)
-    course_topics = db.relationship('CourseTopic', back_populates='topic')
+    notes = db.relationship("Note", back_populates="topic", lazy=True)
+    course_topics = db.relationship("CourseTopic", back_populates="topic")
 
     notes_proxy = association_proxy("notes", "content")
     courses = association_proxy("course_topics", "course")
 
 class Note(db.Model):
-    __tablename__ = 'notes'
+    __tablename__ = "notes"
 
     name = db.Column(db.String(100), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=False)
     # Define relationship with references through association table
-    references = db.relationship('Reference', secondary='note_reference', back_populates='notes', lazy=True)
+    references = db.relationship("NoteReference", back_populates="note")
     # Define back reference to user
-    note_references = db.relationship('NoteReference', back_populates='note')
-    user = db.relationship('User', back_populates='notes')
+    note_references = db.relationship(
+        "NoteReference", back_populates="note", overlaps="references"
+    )
+    user = db.relationship("User", back_populates="notes")
     # Define back reference to topic
-    topic = db.relationship('Topic', back_populates='notes')
+    topic = db.relationship("Topic", back_populates="notes")
 
     references_proxy = association_proxy("references", "title")
 
 class Reference(db.Model):
-    __tablename__ = 'references'
+    __tablename__ = "references"
 
-    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    author = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship('User', back_populates='references')
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    author_last = db.Column(db.String(100))  # Last name of the author(s)
+    author_first = db.Column(db.String(100))  # First name of the author(s)
+    organization_name = db.Column(
+        db.String(100)
+    )  # Name of the organization (if applicable)
 
+    container_name = db.Column(db.String(100))  # Name of the website
+    publication_day = db.Column(db.Integer)  # Day of publication
+    publication_month = db.Column(db.String(3))  # Month of publication (abbreviated)
+    publication_year = db.Column(db.Integer)  # Year of publication
+    url = db.Column(db.String(255))  # Website link to the work
+    access_day = db.Column(db.Integer)  # Day of access (optional)
+    access_month = db.Column(db.String(3))  # Month of access (abbreviated, optional)
+    access_year = db.Column(db.Integer)  # Year of access (optional)
+
+    user = db.relationship("User", back_populates="references")
     note_references = db.relationship("NoteReference", back_populates="reference")
+    notes = association_proxy("note_references", "note")
 
 class NoteReference(db.Model):
-    __tablename__ = 'note_references'
+    __tablename__ = "note_references"
 
-    note_id = db.Column(db.Integer, db.ForeignKey('notes.id'), primary_key=True)
-    reference_id = db.Column(db.Integer, db.ForeignKey('references.id'), primary_key=True)
-    note = db.relationship("User", back_populates="note_references")
-    reference = db.relationship('Reference', back_populates='note_references')
+    note_id = db.Column(db.Integer, db.ForeignKey("notes.id"), primary_key=True)
+    reference_id = db.Column(
+        db.Integer, db.ForeignKey("references.id"), primary_key=True
+    )
+    note = db.relationship("Note", back_populates="note_references")
+    reference = db.relationship("Reference", back_populates="note_references")
+
 
 class UserCourse(db.Model):
-    __tablename__ = 'user_courses'
+    __tablename__ = "user_courses"
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), primary_key=True)
-    user = db.relationship('User', back_populates='user_courses')
-    course = db.relationship('Course', back_populates='user_courses')
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), primary_key=True)
+    user = db.relationship("User", back_populates="user_courses")
+    course = db.relationship("Course", back_populates="user_courses")
+
 
 class CourseTopic(db.Model):
-    __tablename__ = 'course_topics'
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), primary_key=True)
-    topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'), primary_key=True)
-    course = db.relationship('Course', back_populates='course_topics')
-    topic = db.relationship('Topic', back_populates='course_topics')
+    __tablename__ = "course_topics"
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), primary_key=True)
+    course = db.relationship("Course", back_populates="course_topics")
+    topic = db.relationship("Topic", back_populates="course_topics")
