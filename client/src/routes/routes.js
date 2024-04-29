@@ -35,40 +35,64 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />
       },
-      // {
-      //   path: "courses",
-      //   element: <CourseList />,
-      //   children: [
-      //     {
-            // path: ":courseId",
-            // element: <CourseDetail />,
-            // children: [
-            //   {
-            //     path: "topics",
-            //     element: <TopicList />,
-            //     children: [
-            //       {
-            //         path: ":topicId",
-            //         element: <TopicDetail />,
-            //         children: [
-            //           {
-            //             path: "notes",
-            //             element: <NoteList />,
-            //             children: [
-            //               {
-            //                 path: ":noteId",
-            //                 element: <NoteDetail />
-            //               }
-            //             ]
-            //           }
-            //         ]
-            //       }
-            //     ]
-            //   }
-            // ]
-          // }
-        // ]
-      // },
+      {
+        path: "courses",
+        element: (
+          <ContextProvider>
+            <ContextList />
+          </ContextProvider>
+        ),
+        children: [
+          {
+            path: ":courseId",
+            element: (
+              <ContextProvider>
+                <ContextList />
+              </ContextProvider>
+            ),
+            children: [
+              {
+                path: "topics",
+                element: (
+                  <ContextProvider>
+                    <ContextList />
+                  </ContextProvider>
+                ),
+                children: [
+                  {
+                    path: ":topicId",
+                    element: (
+                      <ContextProvider>
+                        <ContextList />
+                      </ContextProvider>
+                    ),
+                    children: [
+                      {
+                        path: "notes",
+                        element: (
+                          <ContextProvider>
+                            <ContextList />
+                          </ContextProvider>
+                        ),
+                        children: [
+                          {
+                            path: ":noteId",
+                            element: (
+                              <ContextProvider>
+                                <ContextList />
+                              </ContextProvider>
+                            )
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
       {
         path: "profile/:id",
         element: (

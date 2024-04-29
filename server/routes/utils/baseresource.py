@@ -1,5 +1,6 @@
 from .. import Resource, request, IntegrityError, ValidationError
 from ..helpers.query_helpers import get_all, get_all_by_condition, get_instance_by_id, get_one_by_condition
+from sqlalchemy import and_
 
 from models.user import User
 
