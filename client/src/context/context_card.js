@@ -121,6 +121,7 @@ const ContextCard = ({ data, handlePatchContext, showToast }) => {
         });
     }
 
+    console.log(`ContextCard data: ${JSON.stringify(data, null, 2)}`);
   return (
         <>
             <StyledCard>
@@ -157,8 +158,8 @@ const ContextCard = ({ data, handlePatchContext, showToast }) => {
                     )}
                 </CardContent>
             </StyledCard>
-            {expanded && data.course_topics.map((topic, index) =>
-                <TopicCard key={index} data={topic} />
+        {expanded && data.course_topics && data.course_topics?.map((topic, index) =>
+            <TopicCard key={index} data={topic} />
             )}
         </>
     );

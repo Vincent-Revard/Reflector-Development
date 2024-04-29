@@ -104,8 +104,7 @@ const TopicCard = ({ data, handlePatchContext, showToast }) => {
       name: name || '',
     });
   }
-
-  return (
+    console.log(`TopicCard data: ${JSON.stringify(data, null, 2)}`);  return (
     <>
       <Button variant="contained" color="primary" onClick={() => { toggleEditMode(); handleOpenModal() }}>
         Update Card

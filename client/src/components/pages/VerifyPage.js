@@ -22,6 +22,7 @@ function VerifyPage() {
         const headers = {
         'X-CSRF-TOKEN': getCookie('csrf_access_token'),
         }
+            debugger
             try {
                 const resp = await fetch(`/api/v1/verify/${token}`, {
                     method: 'PATCH', headers: headers
@@ -30,14 +31,10 @@ function VerifyPage() {
                     const user = await resp.json();
                     updateUser(user);
                     toast.success("Your account email has been verified.");
-                    if (user) {
-                        navigate('/home');
-                    } else {
-                        navigate('/registration');
-                    }
+                    navigate('/home');
                 } else {
-                    onUnauthorized();
                     toast.error("Your session has expired. Please log in again.");
+                    onUnauthorized();
                 }
             } catch (error) {
                 console.error('Error:', error);
