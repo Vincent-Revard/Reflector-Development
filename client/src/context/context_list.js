@@ -16,18 +16,24 @@ const ContextList = () => {
   console.log(data);
 
   const renderComponent = () => {
+
+    let baseRoute = currentPage.split('/')[0];
+    let id = currentPage.split('/')[1];
     // let page = location.pathname.split('/')[1];
     // if (page === 'profile/:id') {
     //   page = location.pathname.slice(1);
     // }
     // switch (page) {
     // case 'profile':
-    //   return <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    //   return <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext}   
+    // handleDeleteContext = { handleDeleteContext } showToast = { showToast } />;
     // case 'courses':
     //     return data.map(course => <ContextCard key={course.id} data={course} />);
-    let pathParts = location.pathname.split('/');
-    let baseRoute = pathParts[1];
-    let id = pathParts[2];
+
+
+    // let pathParts = location.pathname.split('/');
+    // let baseRoute = pathParts[1];
+    // let id = pathParts[2];
 
     if (baseRoute.includes('profile')) {
       return <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;

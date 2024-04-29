@@ -21,6 +21,7 @@ const ContextProvider = ({ children }) => {
     if (currentPage === 'profile') {
         currentPage = location.pathname.slice(1);
     }
+    
     console.log('Provider mounted');
     console.log('currentPage:', currentPage);
 
