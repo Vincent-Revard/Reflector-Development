@@ -24,20 +24,20 @@ const ContextList = () => {
       return <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     } else {
       switch (baseRoute) {
-      case 'courses':
-        return data.courses?.map(course => (
-        <ContextCard key={course.id} data={course} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast}>
-          {course.topics?.map(topic => (
-            // Ensure that 'topic' is distinct from 'note'
-            <TopicCard key={topic.id} data={topic} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}>
-              {topic.notes?.map(note => (
-                // Adjust how NoteCard displays its 'data' prop if necessary
-                <NoteCard key={note.id} data={note} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}/>
+        case 'courses':
+          return data.courses?.map(course => (
+            <ContextCard key={course.id} data={course} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast}>
+              {course.topics?.map(topic => (
+                // Ensure that 'topic' is distinct from 'note'
+                <TopicCard key={topic.id} data={topic} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}>
+                  {topic.notes?.map(note => (
+                    // Adjust how NoteCard displays its 'data' prop if necessary
+                    <NoteCard key={note.id} data={note} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} />
+                  ))}
+                </TopicCard>
               ))}
-            </TopicCard>
-          ))}
-        </ContextCard>
-      ));
+            </ContextCard>
+          ));
         default:
           return <h1>You need to log in to view this page!</h1>;
       }

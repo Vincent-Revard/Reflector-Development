@@ -17,6 +17,7 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
     { name: 'name', type: 'text', placeholder: 'Name', editable: true },
   ];
   const [fieldInfo, setFieldInfo] = useState(initialFieldInfo);
+  const [editingTopicId, setEditingTopicId] = useState(null); 
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -28,15 +29,16 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
   };
 
   const toggleEditable = (fieldName) => {
-    setFieldInfo(fieldInfo.map(field => 
-      field.name === fieldName 
-        ? { ...field, editable: !field.editable } 
+    setFieldInfo(fieldInfo.map(field =>
+      field.name === fieldName
+        ? { ...field, editable: !field.editable }
         : field
     ))
   }
 
-  const toggleEditMode = () => {
+  const toggleEditMode = (topicId) => {
     setIsEditMode(true);
+    setEditingTopicId(topicId); 
     setFieldInfo([
       { name: 'name', type: 'text', placeholder: 'Name', label: `Update Name (current: ${name})`, editable: false },
     ]);
@@ -62,19 +64,19 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
   const [formValues, setFormValues] = useState({
     name: name || '',
   });
-  
+
   const onSubmit = (values, { setSubmitting, resetForm }) => {
-      const payload = {
-      id: id,
+    const payload = {
+      id: editingTopicId,
       name: values.name,
     };
-    
+
     handlePatchContext(payload)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Update failed');
         }
-        
+
         showToast('Card updated successfully');
         setIsEditMode(false);
         setFormValues({
@@ -107,8 +109,8 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
   }
   return (
     <>
-      <Button variant="contained" color="primary" onClick={() => { toggleEditMode(); handleOpenModal() }}>
-        Update Card
+      <Button variant="contained" color="primary" onClick={() => { toggleEditMode(id); handleOpenModal() }}>
+        Update Topic Name
       </Button>
       <Button variant="contained" color="primary" onClick={() => setIsNoteCardVisible(!isNoteCardVisible)}>
         {isNoteCardVisible ? 'Hide Notes' : 'Show Notes'}
@@ -122,7 +124,7 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
           enableReinitialize
         >
           {({ isSubmitting }) => (
-            <FormComponent 
+            <FormComponent
               fieldInfo={fieldInfo}
               isSubmitting={isSubmitting}
               isOpen={isModalOpen}
@@ -135,7 +137,7 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
       )}
       {!isEditMode && (
         <>
-          <p>Name: {name}</p>
+          <p>Topic: {name}</p>
         </>
       )}
     </>
