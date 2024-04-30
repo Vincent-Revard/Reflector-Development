@@ -21,15 +21,11 @@ class Refresh(Resource):
 
     @jwt_required(refresh=True)
     def post(self):
-        csrf_refresh_token = request.cookies.get("csrf_refresh_token")
+        # csrf_refresh_token = request.cookies.get("csrf_refresh_token")
         refresh_token = request.cookies.get("refresh_token_cookie")
 
         user_session = redis_client.get(refresh_token)
 
-        if user_session is not None:
-            user_session = loads(user_session)
-        if not user_session or user_session["csrf_token"] != csrf_refresh_token:
-            return {"message": "Invalid CSRF token"}, 401
         new_access_token = create_access_token(
             identity=user_session["user_id"], fresh=False
         )

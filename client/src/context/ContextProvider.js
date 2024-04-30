@@ -109,8 +109,7 @@ const ContextProvider = ({ children }) => {
     }
 
     if (isLoading) {
-        if (!user) { navigate('/registration') }
-        else
+        if (!user)
             return <div>Loading...</div>; //! add custom loading component from library
     }
 

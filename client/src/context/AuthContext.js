@@ -18,74 +18,60 @@ export const AuthProvider = ({ children }) => {
     if (parts.length === 2) return parts.pop().split(';').shift()
   }
 
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        setCheckingSession(true);
-        const response = await fetch('http://localhost:3000/api/v1/check_session', {
-          headers: {
-            'Content-Type': 'application/json',
-            "X-CSRFToken": getCookie('csrf_access_token'),
-            'Authorization': `Bearer ${getCookie('csrf_access_token')}`
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Session check failed');
-        }
-
-        const data = await response.json();
-
-        if (data.status !== '401') {
-          setUser(data);
-        }
-      } catch (error) {
-        showToast(`Error: ${error.message}`);
-        onUnauthorized();
-      } finally {
-        setCheckingSession(false);
-      }
-    };
-
-    if (!sessionChecked) {
-      checkSession();
-      setSessionChecked(true)
+useEffect(() => {
+  const checkSession = async () => {
+    setCheckingSession(true);
+    let response;
+    try {
+      response = await fetch('http://localhost:3000/api/v1/check_session', {
+        headers: {
+          'Content-Type': 'application/json',
+          "X-CSRFToken": getCookie('csrf_access_token'),
+          'Authorization': `Bearer ${getCookie('csrf_access_token')}`
+        },
+      });
+    } catch (error) {
+      showToast(`Error: ${error.message}`);
     }
-  }, [showToast, onUnauthorized, sessionChecked]);
-
-  useEffect(() => {
-    const refreshSession = async () => {
+    if (response && response.ok) {
+      const data = await response.json();
+      if (data.status !== '401') {
+        setUser(data);
+      }
+    } else {
+      // Session check failed, try to refresh the session
+      let refreshResponse;
       try {
-        const refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
+        refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
           method: "POST",
           headers: {
             "X-CSRFToken": getCookie('csrf_access_token'),
             'Content-Type': 'application/json',
-            'Authorization': `Bearer + ${getCookie('csrf_refresh_token')}`            
+            'Authorization': `Bearer ${getCookie('csrf_refresh_token')}, Bearer ${getCookie('access_token_cookie')}`
           }
         });
+      } catch (error) {
+        showToast(`Error: ${error.message}`);
+        onUnauthorized();
+      }
 
-        if (!refreshResponse.ok) {
-          throw new Error('Session expired');
-        }
-
+      if (refreshResponse && refreshResponse.ok) {
         const refreshData = await refreshResponse.json();
-
         if (refreshData.msg === 'Token has expired') {
           onUnauthorized();
         } else {
           setUser(refreshData);
         }
-      } catch (error) {
-        showToast(`Error: ${error.message}`);
-        onUnauthorized();
       }
-    };
-
-    if (user === null && sessionChecked) {
-      refreshSession();
     }
-  }, [showToast, onUnauthorized, user, sessionChecked]);
+    setCheckingSession(false);
+  };
+
+  if (!sessionChecked) {
+    checkSession();
+    setSessionChecked(true)
+  }
+}, [showToast, onUnauthorized, sessionChecked]);
   
   const logout = useCallback(() => {
     const headers = {

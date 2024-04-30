@@ -75,14 +75,11 @@ def before_request():
         "topics": Topic,
         "login": User,
         "signup": User,
-        "refresh": User,
         # "quizzes": Quiz,
         # "quizzesbyid": Quiz,
     }
     
     try:
-        if request.endpoint == 'refresh':
-            return
         id = request.view_args.get("id")
         print(id)
         ipdb.set_trace()
@@ -111,8 +108,6 @@ def before_request():
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     ipdb.set_trace()
-    if request.path == '/refresh':
-        return None   
     identity = jwt_data["sub"]
     ipdb.set_trace()
     return get_instance_by_id(User, identity)
