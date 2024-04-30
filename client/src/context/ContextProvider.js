@@ -12,7 +12,7 @@ export const useProviderContext = () => useContext(Context);
 const ContextProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const { logout, user, onUnauthorized } = useAuth();
-    const {showToast} = useToast();
+    const { showToast } = useToast();
     const [data, setData] = useState({});
     const { deleteJSON, patchJSON } = useFetchJSON();
     const location = useLocation();
@@ -21,13 +21,13 @@ const ContextProvider = ({ children }) => {
     if (currentPage === 'profile') {
         currentPage = location.pathname.slice(1);
     }
-    
+
     console.log('currentPage:', currentPage);
 
     function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
 
@@ -83,16 +83,6 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-// function revertUpdates(user, updates) {
-//         debugger
-//         const revertedUpdates = {};
-//         for (let key in updates) {
-//             revertedUpdates[key] = user[key];
-//         }
-//         debugger
-//         return revertedUpdates;
-//     };
-
     const handleDeleteContext = async () => {
         // const userToDelete = profileData.find(user => user.id === id)
         let userToDelete = data;
@@ -117,14 +107,12 @@ const ContextProvider = ({ children }) => {
             setData(userToDelete)
         }
     }
-    
+
     if (isLoading) {
-        if (!user)
-        { navigate('/registration') }
+        if (!user) { navigate('/registration') }
         else
             return <div>Loading...</div>; //! add custom loading component from library
     }
-    
 
     return (
         <Context.Provider value={{ data, handlePatchContext, handleDeleteContext, currentPage, showToast }}>
