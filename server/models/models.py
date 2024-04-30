@@ -11,13 +11,15 @@ class User(db.Model):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     _password_hash = db.Column(db.String(100), nullable=False)
-    email_verified = db.Column(db.Boolean, default=False)  # 
+    email_verified = db.Column(db.Boolean, default=False)
 
     notes = db.relationship("Note", back_populates="user", lazy=True)
-    user_courses = db.relationship("UserCourse", back_populates="user", lazy=True)
     references = db.relationship("Reference", back_populates="user", lazy=True)
 
-    courses = association_proxy('user_courses', 'course')
+    created_courses = db.relationship("Course", backref="creator", lazy=True)
+    enrolled_courses = db.relationship(
+        "Course", secondary="user_courses", backref="enrolled_users"
+    )
     notes_proxy = association_proxy("notes", "content")
     references_proxy = association_proxy("references", "title")
 
@@ -43,8 +45,6 @@ class Course(db.Model):
     # Define relationship with topics
 
     course_topics = db.relationship("CourseTopic", back_populates="course")
-    user_courses = db.relationship("UserCourse", back_populates="course")
-
     topics = association_proxy("course_topics", "topic")
 
 class Topic(db.Model):

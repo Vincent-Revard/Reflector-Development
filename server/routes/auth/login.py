@@ -10,7 +10,6 @@ from .. import (
     create_refresh_token,
     set_refresh_cookies,
     redis_client,
-    generate_csrf_token,
     json,
     jwt_required,
 )
@@ -28,26 +27,27 @@ class Login(Resource):
             password = request_data.get("password")
             data = self.schema.load(request_data)
             username = data.username
-            # password = request_data.get("password")
 
             user = User.query.filter_by(username=username).first()
             if user is None or not user.authenticate(password):
                 return {"message": "Invalid credentials"}, 401
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(identity=user.id)
-            csrf_token = generate_csrf_token()
             user_session = {
                 "user_id": user.id,
                 "access_token": access_token,
                 "refresh_token": refresh_token,
-                "csrf_token": csrf_token,
             }
             user_session_str = json.dumps(user_session)
             redis_client.set(
                 access_token, user_session_str, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
             )
+            redis_client.set(
+                refresh_token,
+                user_session_str,
+                ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"],
+            )
             response = make_response(self.schema.dump(user), 200)
-            # response.set_cookie('csrf_token', csrf_token)
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
             return response

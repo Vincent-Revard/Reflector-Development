@@ -9,13 +9,12 @@ import ContextCard from './context_card';
 import { useLocation } from 'react-router-dom';
 import TopicCard from './topic_card';
 import { Container, Typography } from '@mui/material';
+import NoteCard from './note_card';
 
 const ContextList = () => {
   const { data, handlePatchContext, handleDeleteContext, currentPage, showToast } = useProviderContext();
   const { user } = useAuth();
   const location = useLocation();
-  
-  console.log(data);
 
   const renderComponent = () => {
 
@@ -25,26 +24,31 @@ const ContextList = () => {
       return <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     } else {
       switch (baseRoute) {
-        case 'courses':
-          return data.map(course => <ContextCard key={course.id} data={course} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />);
-          case 'topics':
-            return data.map(topic => <TopicCard key={topic.id} data={topic} />);
-        // case 'references':
-        //   return data.map(reference => <ReferenceCard key={reference.id} data={reference} />);
-        // case 'notes':
-        //   return data.map(note => <NoteCard key={note.id} data={note} />);
+      case 'courses':
+        return data.courses?.map(course => (
+        <ContextCard key={course.id} data={course} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast}>
+          {course.topics?.map(topic => (
+            // Ensure that 'topic' is distinct from 'note'
+            <TopicCard key={topic.id} data={topic} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}>
+              {topic.notes?.map(note => (
+                // Adjust how NoteCard displays its 'data' prop if necessary
+                <NoteCard key={note.id} data={note} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}/>
+              ))}
+            </TopicCard>
+          ))}
+        </ContextCard>
+      ));
         default:
           return <h1>You need to log in to view this page!</h1>;
       }
     };
   }
-
   return (
     <Container className="user-profile-container">
       {user && data ? renderComponent() : <Typography variant="h1">You need to log in to view this page!</Typography>}
     </Container>
   );
-  };
+};
 
 
 export default ContextList;

@@ -19,5 +19,9 @@ class Topic(db.Model):
     notes = db.relationship("Note", back_populates="topic", lazy=True)
     course_topics = db.relationship("CourseTopic", back_populates="topic")
 
-    notes_proxy = association_proxy("notes", "content")
-    courses = association_proxy("course_topics", "course")
+    courses = db.relationship(
+        "Course",
+        secondary="course_topics",
+        back_populates="topics",
+        overlaps="course_topics",
+    )

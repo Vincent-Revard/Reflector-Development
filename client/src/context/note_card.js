@@ -5,18 +5,24 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Modal from '@mui/material/Modal';
 import FormComponent from '../components/form/form_component';
-import NoteCard from './note_card';
 
-const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) => {
+const NoteCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) => {
   const { name, id } = data;
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [validationSchema, setValidationSchema] = useState(null);
-  const [isNoteCardVisible, setIsNoteCardVisible] = useState(false);
   const initialFieldInfo = [
     { name: 'name', type: 'text', placeholder: 'Name', editable: true },
   ];
-  const [fieldInfo, setFieldInfo] = useState(initialFieldInfo);
+    const [fieldInfo, setFieldInfo] = useState(initialFieldInfo);
+    
+    const handleNewNote = () => {
+    // logic for creating a new note
+  };
+
+    const handleEditNote = (noteId) => {
+        // logic for editing a note
+    };
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -105,15 +111,11 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
       name: name || '',
     });
   }
-  return (
+    console.log(`NoteCard data: ${JSON.stringify(data, null, 2)}`);  return (
     <>
       <Button variant="contained" color="primary" onClick={() => { toggleEditMode(); handleOpenModal() }}>
         Update Card
       </Button>
-      <Button variant="contained" color="primary" onClick={() => setIsNoteCardVisible(!isNoteCardVisible)}>
-        {isNoteCardVisible ? 'Hide Notes' : 'Show Notes'}
-      </Button>
-      {isNoteCardVisible && <NoteCard data={data} handlePatchContext={handlePatchContext} showToast={showToast} />}
       {isEditMode && (
         <Formik
           initialValues={formValues}
@@ -132,15 +134,27 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
             />
           )}
         </Formik>
-      )}
+            )}
+        <Button variant="contained" color="primary" onClick={handleNewNote}>
+        New Note
+        </Button>
       {!isEditMode && (
         <>
           <p>Name: {name}</p>
+          {data.notes && data.notes.map(note => (
+            <div key={note.id}>
+              <h3>Note Name: {note.name}</h3>
+                  <p>Note Content: {note.content}</p>
+                  <p>Note Category: {note.category}</p>
+              <Button variant="contained" color="primary" onClick={() => handleEditNote(note.id)}>
+                Edit Note
+              </Button>
+            </div>
+          ))}
         </>
       )}
     </>
   );
 }
 
-
-export default TopicCard;
+export default NoteCard;

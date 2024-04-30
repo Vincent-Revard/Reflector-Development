@@ -11,8 +11,11 @@ from .. import (
     CourseTopic,
     Topic,
     get_jwt_identity,
+    
 )
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
+
 import ipdb
 
 class CoursesIndex(BaseResource):
@@ -23,12 +26,34 @@ class CoursesIndex(BaseResource):
     def get(self, id=None, condition=None):
         if id is None:
             user_id = get_jwt_identity()
-            user = get_related_data(
-                user_id, User, UserCourse, Course, CourseTopic, Topic
-            )
-            courses = [user_course.course for user_course in user.user_courses]
-            return self.schema.dump(courses, many=True), 200
-
+            user = User.query.options(
+                joinedload(User.enrolled_courses)
+                .joinedload(Course.course_topics)
+                .joinedload(CourseTopic.topic)
+                .joinedload(Topic.notes)
+            ).get(user_id)
+            courses = [
+                {
+                    "id": course.id,
+                    "name": course.name,
+                    "topics": [
+                        {
+                            "id": topic.id,
+                            "name": topic.name,
+                            "notes": [
+                                {
+                                    "id": note.id,
+                                    "name": note.name,
+                                    "category": note.category,
+                                    "content": note.content
+                                } for note in topic.notes
+                            ]
+                        } for topic in course.topics
+                    ]
+                } for course in user.enrolled_courses
+            ]
+            return {"courses": courses}, 200
+        ipdb.set_trace()
         return super().get(id, condition)
 
     @jwt_required_modified

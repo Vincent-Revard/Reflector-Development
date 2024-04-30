@@ -45,6 +45,7 @@ function Registration() {
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": getCookie('csrf_access_token'),
+                "Authorization": "Bearer " + getCookie('access_token_cookie'),
             },
             body: JSON.stringify(dataToSend),
         })

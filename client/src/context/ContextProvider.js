@@ -22,7 +22,6 @@ const ContextProvider = ({ children }) => {
         currentPage = location.pathname.slice(1);
     }
     
-    console.log('Provider mounted');
     console.log('currentPage:', currentPage);
 
     function getCookie(name) {
@@ -33,8 +32,6 @@ const ContextProvider = ({ children }) => {
 
 
     useEffect(() => {
-        console.log('showToast in effect:', showToast);
-        console.log('user:', user)
         if (user) {
             let abortController = new AbortController(); // Create an instance of AbortController
             (async () => {
@@ -120,12 +117,14 @@ const ContextProvider = ({ children }) => {
             setData(userToDelete)
         }
     }
+    
     if (isLoading) {
         if (!user)
-        {navigate() }
-        return <div>Loading...</div>; // Or your custom loading component
-        }
-        
+        { navigate('/registration') }
+        else
+            return <div>Loading...</div>; //! add custom loading component from library
+    }
+    
 
     return (
         <Context.Provider value={{ data, handlePatchContext, handleDeleteContext, currentPage, showToast }}>

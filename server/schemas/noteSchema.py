@@ -1,9 +1,9 @@
-
-from marshmallow import fields
+from marshmallow import fields, post_load
 from config import ma
+
 from .userSchema import UserSchema
-from .topicSchema import TopicSchema
 from .notereferenceSchema import NoteReferenceSchema
+from .topicSchema import TopicSchema
 
 
 from . import Note
@@ -13,6 +13,12 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
         model = Note
         load_instance = True
 
-    user = fields.Nested(UserSchema)
-    topic = fields.Nested(TopicSchema)
-    note_references = fields.Nested(NoteReferenceSchema, many=True)
+    content = ma.auto_field()
+    category = ma.auto_field()
+    user = fields.Nested('UserSchema')
+    topic = fields.Nested('TopicSchema')
+    note_references = fields.Nested('NoteReferenceSchema', many=True)
+
+    @post_load
+    def make_note(self, data, **kwargs):
+        return data
