@@ -17,9 +17,6 @@ export const AuthProvider = ({ children }) => {
     const parts = value.split(`; ${name}=`)
     if (parts.length === 2) return parts.pop().split(';').shift()
   }
-  const csrfToken = getCookie('csrf_token')
-  const refreshToken = getCookie('refresh_token_cookie')
-  const access_token = getCookie('csrf_access_token')
 
   useEffect(() => {
     const checkSession = async () => {
@@ -28,8 +25,8 @@ export const AuthProvider = ({ children }) => {
         const response = await fetch('http://localhost:3000/api/v1/check_session', {
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'Authorization': `Bearer ${access_token}`
+            "X-CSRFToken": getCookie('csrf_access_token'),
+            'Authorization': `Bearer ${getCookie('csrf_access_token')}`
           },
         });
 
@@ -54,7 +51,7 @@ export const AuthProvider = ({ children }) => {
       checkSession();
       setSessionChecked(true)
     }
-  }, [showToast, onUnauthorized, csrfToken, sessionChecked]);
+  }, [showToast, onUnauthorized, sessionChecked]);
 
   useEffect(() => {
     const refreshSession = async () => {
@@ -62,10 +59,9 @@ export const AuthProvider = ({ children }) => {
         const refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
           method: "POST",
           headers: {
-            'X-CSRF-TOKEN': csrfToken,
+            "X-CSRFToken": getCookie('csrf_access_token'),
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + refreshToken
-
+            'Authorization': `Bearer + ${getCookie('csrf_refresh_token')}`            
           }
         });
 
@@ -86,10 +82,10 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    if (user === null && !sessionChecked) {
+    if (user === null && sessionChecked) {
       refreshSession();
     }
-  }, [showToast, onUnauthorized, refreshToken, user, sessionChecked]);
+  }, [showToast, onUnauthorized, user, sessionChecked]);
   
   const logout = useCallback(() => {
     const headers = {

@@ -12,13 +12,16 @@ from models.usercourse import UserCourse
 from .courseSchema import CourseSchema
 from .topicSchema import TopicSchema
 from .userSchema import UserSchema
-from .topicSchema import TopicSchema
 from .notereferenceSchema import NoteReferenceSchema
 from .usercourseSchema import UserCourseSchema
 
 
 import ipdb
 from config import ma, db
+from flask_marshmallow import Marshmallow
+from flask_marshmallow.sqla import SQLAlchemyAutoSchema, auto_field
+
+
 
 # external libraries imports
 from marshmallow import (

@@ -1,6 +1,6 @@
-from marshmallow import fields
+from marshmallow import fields, post_load
 from config import ma
-from . import Topic, Note
+from . import Topic
 
 
 class TopicSchema(ma.SQLAlchemyAutoSchema):
@@ -8,4 +8,10 @@ class TopicSchema(ma.SQLAlchemyAutoSchema):
         model = Topic
         load_instance = True
 
+    id = ma.auto_field()
+    name = ma.auto_field()
     notes = fields.Nested("NoteSchema", many=True)
+
+    @post_load
+    def make_topic(self, data, **kwargs):
+        return data

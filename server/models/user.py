@@ -18,9 +18,14 @@ class User(db.Model):
     email_verified = db.Column(db.Boolean, default=False)  # 
 
     notes = db.relationship("Note", back_populates="user", lazy=True)
-    user_courses = db.relationship("UserCourse", back_populates="user", lazy=True)
     references = db.relationship("Reference", back_populates="user", lazy=True)
-    courses = association_proxy("user_courses", "course")
+
+    created_courses = db.relationship("Course", back_populates="creator", lazy=True)
+    enrolled_courses = db.relationship(
+        "Course", secondary="user_courses", back_populates="enrolled_users"
+    )
+    notes_proxy = association_proxy("notes", "content")
+    references_proxy = association_proxy("references", "title")
 
     @hybrid_property
     def password(self):

@@ -8,8 +8,9 @@ class UserCourseSchema(ma.SQLAlchemyAutoSchema):
         model = UserCourse
         load_instance = True
 
-    user = fields.Nested("UserSchema")
+    user = fields.Nested("UserSchema", )
+    course = fields.Nested("CourseSchema", many=True, )
 
     @post_load
     def make_usercourse(self, data, **kwargs):
-        return UserCourse(**data)
+        return data

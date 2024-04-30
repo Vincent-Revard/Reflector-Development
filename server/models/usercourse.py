@@ -14,5 +14,4 @@ class UserCourse(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), primary_key=True)
-    user = db.relationship('User', back_populates='user_courses')
-    course = db.relationship('Course', back_populates='user_courses')
+

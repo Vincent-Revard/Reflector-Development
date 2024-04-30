@@ -16,9 +16,14 @@ class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    # Define relationship with topics
-
+    creator = db.relationship("User", back_populates="created_courses")
+    enrolled_users = db.relationship(
+        "User", secondary="user_courses", back_populates="enrolled_courses"
+    )
     course_topics = db.relationship("CourseTopic", back_populates="course")
-    user_courses = db.relationship("UserCourse", back_populates="course")
-
-    topics = association_proxy("course_topics", "topic")
+    topics = db.relationship(
+        "Topic",
+        secondary="course_topics",
+        back_populates="courses",
+        overlaps="course_topics",
+    )

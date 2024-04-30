@@ -75,51 +75,14 @@ def before_request():
         "topics": Topic,
         "login": User,
         "signup": User,
+        "refresh": User,
         # "quizzes": Quiz,
         # "quizzesbyid": Quiz,
     }
-
-    # identity = None
-    # ipdb.set_trace()
-
-    # ]:
-    #     try:
-    #         ipdb.set_trace()
-    #         verify_jwt_in_request()
-    #         ipdb.set_trace()
-    #         identity = get_jwt_identity()
-    #         ipdb.set_trace()
-    #     except NoAuthorizationError:
-    #         pass
-    # if request.endpoint in [
-    #         "courses",
-    #         "coursesbyid",
-    #         "references",
-    #         "notes",
-    #         "topics",
-    #         "quizzes",
-    #     ]:
-            # Fetch the user's data using the identity
-            # if request.path not in [
-            #     "/api/v1/login",
-            #     "/api/v1/signup",
-            # ]:
-            #     try:
-            #         verify_jwt_in_request()
-            #         identity = get_jwt_identity()
-            #         user_data = get_all_by_condition(
-            #             path_dict.get(request.endpoint), {"user_id": identity}
-            #         )
-
-            #         # Set the user's data in the global object
-            #         g.data = user_data
-            #         ipdb.set_trace()
-
-
-            #     except NoAuthorizationError:
-            #         pass
-
+    
     try:
+        if request.endpoint == 'refresh':
+            return
         id = request.view_args.get("id")
         print(id)
         ipdb.set_trace()
@@ -147,6 +110,9 @@ def before_request():
 #     return get_instance_by_id(User, identity)
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
+    ipdb.set_trace()
+    if request.path == '/refresh':
+        return None   
     identity = jwt_data["sub"]
     ipdb.set_trace()
     return get_instance_by_id(User, identity)

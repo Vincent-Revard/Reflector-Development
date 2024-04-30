@@ -22,7 +22,6 @@ const ContextProvider = ({ children }) => {
         currentPage = location.pathname.slice(1);
     }
     
-    console.log('Provider mounted');
     console.log('currentPage:', currentPage);
 
     function getCookie(name) {

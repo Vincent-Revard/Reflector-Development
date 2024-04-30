@@ -1,6 +1,5 @@
-from marshmallow import fields, post_load
+from marshmallow import fields
 from config import ma
-from .notereferenceSchema import NoteReferenceSchema
 
 from . import Reference
 
@@ -11,8 +10,5 @@ class ReferenceSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
 
     user = fields.Nested("UserSchema")
-    note_references = fields.Nested(NoteReferenceSchema, many=True)
+    note_references = fields.Nested('NoteReferenceSchema', many=True)
 
-    @post_load
-    def make_reference(self, data, **kwargs):
-        return Reference(**data)

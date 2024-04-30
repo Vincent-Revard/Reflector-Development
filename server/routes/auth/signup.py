@@ -13,7 +13,6 @@ from .. import (
     create_refresh_token,
     set_refresh_cookies,
     redis_client,
-    generate_csrf_token,
     mail,
     Message,
     jwt_required,
@@ -45,12 +44,11 @@ class Signup(Resource):
 
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(identity=user.id)
-            csrf_token = generate_csrf_token()
+            # csrf_token = generate_csrf_token()
             user_session = {
                 "user_id": user.id,
                 "access_token": access_token,
                 "refresh_token": refresh_token,
-                "csrf_token": csrf_token,
             }
             user_session_str = json.dumps(user_session)
             redis_client.set(
@@ -58,6 +56,16 @@ class Signup(Resource):
                 user_session_str,
                 ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"],
             )
+            redis_client.set(
+                refresh_token,
+                user_session_str,
+                ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"],
+            )
+            # redis_client.set(
+            #     csrf_token,
+            #     user_session_str,
+            #     ex=app.config["JWT_CSRF_TOKEN_EXPIRES"],
+            # )
 
             response = make_response(user_schema.dump(user), 201)
             set_access_cookies(response, access_token)

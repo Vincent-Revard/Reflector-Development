@@ -17,7 +17,7 @@ const StyledButton = styled(Button)({
   margin: '10px',
 });
 
-const ContextCard = ({ data, handlePatchContext, showToast }) => {
+const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePostContext, showToast }) => {
     const { name, id } = data;
     const [isEditMode, setIsEditMode] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,8 +158,9 @@ const ContextCard = ({ data, handlePatchContext, showToast }) => {
                     )}
                 </CardContent>
             </StyledCard>
-        {expanded && data.course_topics && data.course_topics?.map((topic, index) =>
-            <TopicCard key={index} data={topic} />
+            {console.log(`ContextCard course_topics: ${JSON.stringify(data.course_topics, null, 2)}`)}
+            {expanded && data.topics && data.topics.map((topic, index) =>
+                <TopicCard key={index} data={topic} />
             )}
         </>
     );
