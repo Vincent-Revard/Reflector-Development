@@ -18,6 +18,13 @@ class Topic(db.Model):
     # Define relationship with notes
     notes = db.relationship("Note", back_populates="topic", lazy=True)
     course_topics = db.relationship("CourseTopic", back_populates="topic")
+    creator = db.relationship("User", back_populates="created_topics")
+    
+    users = db.relationship(
+        "User",
+        secondary="user_topics",
+        back_populates="topics",
+    )
 
     courses = db.relationship(
         "Course",

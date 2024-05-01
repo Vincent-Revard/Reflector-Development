@@ -29,6 +29,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     email_verified = fields.Boolean(  # New field for email verification status
         metadata={"description": "The email verification status of the user"},
     )
+    
 
     @validates("email")
     def validate_email(self, value):

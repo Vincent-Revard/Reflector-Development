@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { AuthProvider as OriginalAuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { RouterProvider } from 'react-router-dom';
+import ContextProvider from "./context/ContextProvider";
 import router from "./routes/routes";
 import App from "./App";
 import Modal from 'react-modal'
@@ -53,7 +54,9 @@ root.render(
   <ToastProvider> 
     <AuthProviderWithUnauthorized> 
       <RouterProvider router={router}>
-        <App />
+        <ContextProvider>
+          <App />
+        </ContextProvider>
       </RouterProvider>
     </AuthProviderWithUnauthorized>
   </ToastProvider>

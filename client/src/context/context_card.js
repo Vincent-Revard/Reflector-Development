@@ -63,13 +63,13 @@ const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePost
 
     const handleError = (error) => {
         if (typeof error === 'string') {
-            showToast(error)
+            showToast('error', error)
         } else if (error && typeof error.message === 'string') {
-            showToast(error.message)
+            showToast('error', error.message)
         } else if (typeof error === 'object' && error !== null) {
             for (let field in error) {
                 error[field].forEach((message) => {
-                    showToast(`${field}: ${message}`)
+                    showToast('error', `${field}: ${message}`)
                 })
             }
         }
@@ -88,10 +88,10 @@ const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePost
         handlePatchContext(payload)
         .then((res) => {
             if (!res.ok) {
-                throw new Error('Update failed')
+                showToast('error', 'Update failed')
             }
 
-            showToast('Card updated successfully')
+            showToast('success', 'Card updated successfully')
             setIsEditMode(false)
             setFormValues({
                 name: res.data.name,

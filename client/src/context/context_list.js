@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo } from 'react';
 import UserProfileDetail from '../components/profile/user_profile_detail';
 // import CourseCard from './CourseCard';
 // import ReferenceCard from './ReferenceCard';
@@ -16,7 +16,7 @@ const ContextList = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  const renderComponent = () => {
+  const renderComponent = useMemo(() => {
 
     let baseRoute = currentPage.split('/')[0];
     let id = currentPage.split('/')[1];
@@ -32,7 +32,7 @@ const ContextList = () => {
                 <TopicCard key={topic.id} data={topic} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}>
                   {topic.notes?.map(note => (
                     // Adjust how NoteCard displays its 'data' prop if necessary
-                    <NoteCard key={note.id} data={note} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} />
+                    <NoteCard key={note.id} data={note} courseId={course.id} topicId={topic.id} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} user={user} />
                   ))}
                 </TopicCard>
               ))}
@@ -42,13 +42,12 @@ const ContextList = () => {
           return <h1>You need to log in to view this page!</h1>;
       }
     };
-  }
+  }, [data, currentPage, handleDeleteContext, handlePatchContext, showToast, user])
   return (
     <Container className="user-profile-container">
-      {user && data ? renderComponent() : <Typography variant="h1">You need to log in to view this page!</Typography>}
+      {user && data ? renderComponent : <Typography variant="h1">You need to log in to view this page!</Typography>}
     </Container>
   );
 };
-
 
 export default ContextList;

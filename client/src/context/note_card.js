@@ -5,9 +5,12 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Modal from '@mui/material/Modal';
 import FormComponent from '../components/form/form_component';
+import { Link, useNavigate } from 'react-router-dom'
+import NewNote from './newNote';
 
-const NoteCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) => {
+const NoteCard = ({ data, handlePatchContext, handlePostContext, handleDeleteContext, showToast, courseId, topicId }) => {
     const { name, id } = data;
+    const navigate = useNavigate();
     const [isEditMode, setIsEditMode] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [validationSchema, setValidationSchema] = useState(null);
@@ -16,12 +19,12 @@ const NoteCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) 
     ];
     const [fieldInfo, setFieldInfo] = useState(initialFieldInfo);
 
-    const handleNewNote = () => {
-        // logic for creating a new note
+    const handleEditNote = (noteId) => {
+        navigate(`/courses/${courseId}/topics/${topicId}/notes/new`);
     };
 
-    const handleEditNote = (noteId) => {
-        // logic for editing a note
+    const handleNewNote = () => {
+        return <NewNote />;
     };
 
     const handleOpenModal = () => {
@@ -53,13 +56,13 @@ const NoteCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) 
 
     const handleError = (error) => {
         if (typeof error === 'string') {
-            showToast(error);
+            showToast('error', error);
         } else if (error && typeof error.message === 'string') {
-            showToast(error.message);
+            showToast('error', error.message);
         } else if (typeof error === 'object' && error !== null) {
             for (let field in error) {
                 error[field].forEach((message) => {
-                    showToast(`${field}: ${message}`);
+                    showToast('error', `${field}: ${message}`);
                 });
             }
         }
@@ -81,7 +84,7 @@ const NoteCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) 
                     throw new Error('Update failed');
                 }
 
-                showToast('Card updated successfully');
+                showToast('success', 'Card updated successfully');
                 setIsEditMode(false);
                 setFormValues({
                     name: res.data.name,
@@ -139,6 +142,12 @@ const NoteCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) 
             <Button variant="contained" color="primary" onClick={handleNewNote}>
                 New Note
             </Button>
+            <Link to={{
+                pathname: `/courses/${courseId}/topics/${topicId}/notes/new`,
+                state: { /* any data you want to pass to the new note component */ }
+            }}>
+                Create New Note
+            </Link>
             {!isEditMode && (
                 <>
                     <h1>Topic: {name}</h1>
@@ -158,4 +167,4 @@ const NoteCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) 
     );
 }
 
-export default NoteCard;
+export default NoteCard

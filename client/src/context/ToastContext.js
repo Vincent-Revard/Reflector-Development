@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import '../index.css';
 
 const ToastContext = createContext();
 

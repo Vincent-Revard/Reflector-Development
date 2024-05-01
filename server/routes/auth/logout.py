@@ -12,7 +12,8 @@ from .. import (
     request,
     ipdb,
     jwt_required_modified,
-
+    jwt_redis_blocklist,
+    app
 )
 
 class Logout(Resource):
@@ -20,16 +21,12 @@ class Logout(Resource):
     @jwt_required_modified
     def delete(self):
         try:
-            # csrf_token = request.cookies.get("csrf_access_token")
-            refresh_token = request.cookies.get("csrf_refresh_token")
-            access_token = get_jwt()["jti"]
-            # user_session = redis_client.get(refresh_token)
-            # if not user_session or user_session["csrf_token"] != csrf_token:
-            #     return {"message": "Invalid CSRF token"}, 401
+            jti = get_jwt()["jti"] 
             response = make_response({"message": "Logout successful"}, 200)
             unset_jwt_cookies(response)
-            redis_client.delete(access_token)
-            redis_client.delete(refresh_token)
+            jwt_redis_blocklist.set(
+                jti, "", ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+            )
             return response
         except Exception as e:
             return {"message": str(e)}, 422

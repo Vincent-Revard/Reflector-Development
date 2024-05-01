@@ -10,9 +10,11 @@ class CourseSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
 
     id = ma.auto_field()
+    creating_user_id = fields.Integer(attribute="creator.id")
+    enrolled_users = fields.Nested("UserSchema", many=True)
     user_courses = fields.Nested("UserCourseSchema", many=True)
     course_topics = fields.Nested("TopicSchema", many=True)
-    notes = fields.Nested("NoteSchema", many=True)
+    topics = fields.Nested("TopicSchema", many=True)
 
     @post_load
     def make_course(self, data, **kwargs):

@@ -33,6 +33,7 @@ from schemas.userSchema import user_schema, users_schema
 import ipdb
 from models.user import User
 from config import db, app, jwt, redis_client, mail
+import redis
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -58,6 +59,18 @@ from flask_jwt_extended.exceptions import NoAuthorizationError
 def not_found(error):
     return {"error": error.description}, 404
 
+# Setup our redis connection for storing the blocklisted tokens. You will probably
+# want your redis instance configured to persist data to disk, so that a restart
+# does not cause your application to forget that a JWT was revoked
+jwt_redis_blocklist = redis.StrictRedis(
+        host="localhost", port=6379, db=0, decode_responses=True
+    )
+# Callback function to check if a JWT exists in the redis blocklist
+@jwt.token_in_blocklist_loader
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+    jti = jwt_payload["jti"]
+    token_in_redis = jwt_redis_blocklist.get(jti)
+    return token_in_redis is not None
 
 @app.before_request
 def before_request():
@@ -78,7 +91,7 @@ def before_request():
         # "quizzes": Quiz,
         # "quizzesbyid": Quiz,
     }
-    
+
     try:
         id = request.view_args.get("id")
         print(id)
@@ -107,6 +120,7 @@ def before_request():
 #     return get_instance_by_id(User, identity)
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
+
     ipdb.set_trace()
     identity = jwt_data["sub"]
     ipdb.set_trace()

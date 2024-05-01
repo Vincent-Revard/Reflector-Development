@@ -14,3 +14,4 @@ from .note import Note
 from .topic import Topic
 from .user import User
 from .usercourse import UserCourse
+from .usertopic import UserTopic

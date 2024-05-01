@@ -11,3 +11,5 @@ class CourseTopicSchema(ma.SQLAlchemyAutoSchema):
 
     course = fields.Nested('CourseSchema')
     topic = fields.Nested('TopicSchema')
+
+    

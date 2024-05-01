@@ -16,11 +16,11 @@ function Registration() {
     //! GET_COOKIE FUNCTION FROM LECTURE (NEAR END)
 
     function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-   }
-    
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
     const [isLogin, setIsLogin] = useState(true);
 
     const validationSchema = yup.object().shape({
@@ -49,22 +49,23 @@ function Registration() {
             },
             body: JSON.stringify(dataToSend),
         })
-        .then(res => {
-            if (res.ok) {
-            res.json().then(user => {
-                console.log(user);
-                updateUser(user);
-                navigate('/');
-                showToast('success', 'Successfully logged in!');
+            .then(res => {
+                if (res.ok) {
+                    return res.json().then(user => {
+                        console.log(user);
+                        updateUser(user);
+                    })
+                        .then(() => {
+                            navigate('/');
+                            showToast('success', 'Successfully logged in!');
+                        })
+                } else {
+                    return res.json()
+                        .then(error => {
+                        showToast('error', error.message);
+                    });
+                }
             });
-            debugger
-            } else {
-            res.json().then(error => {
-                showToast('error', error.message);
-            });
-            debugger
-            }
-        });
     };
 
     if (user) {
@@ -73,34 +74,34 @@ function Registration() {
 
     return (
         <div className="authentication">
-        <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={onSubmit}
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={onSubmit}
             >
                 <StyledDiv>
-                <Form className="authentication-form">
-                <label>Username:</label>
-                <Field type='text' name='username' />
-                <ErrorMessage name='username' component='div' />
-                <label>Password:</label>
-                <Field type='password' name='password' />
-                <ErrorMessage name='password' component='div' />
-                {!isLogin && (
-                    <>
-                    <label>Email:</label>
-                    <Field type='text' name='email' />
-                    <ErrorMessage name='email' component='div' />
-                    </>
-                )}
-                <button type='submit'>{isLogin ? 'Log In!' : 'Sign Up!'}</button>
-                <button type='button' onClick={() => setIsLogin(!isLogin)}>{isLogin ? 'Register Now!' : 'Login!'}</button>
-                </Form>
-            </StyledDiv>
-        </Formik>
+                    <Form className="authentication-form">
+                        <label>Username:</label>
+                        <Field type='text' name='username' />
+                        <ErrorMessage name='username' component='div' />
+                        <label>Password:</label>
+                        <Field type='password' name='password' />
+                        <ErrorMessage name='password' component='div' />
+                        {!isLogin && (
+                            <>
+                                <label>Email:</label>
+                                <Field type='text' name='email' />
+                                <ErrorMessage name='email' component='div' />
+                            </>
+                        )}
+                        <button type='submit'>{isLogin ? 'Log In!' : 'Sign Up!'}</button>
+                        <button type='button' onClick={() => setIsLogin(!isLogin)}>{isLogin ? 'Register Now!' : 'Login!'}</button>
+                    </Form>
+                </StyledDiv>
+            </Formik>
         </div>
     );
-    }
+}
 
 export default Registration;
 

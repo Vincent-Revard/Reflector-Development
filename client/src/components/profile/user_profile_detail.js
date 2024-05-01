@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { useNavigate } from 'react-router-dom';
-// import { useToast } from '../../context/ToastContext';
 import FormComponent from '../form/form_component';
 import { Formik } from 'formik'
 import Modal from 'react-modal';
@@ -10,8 +8,6 @@ const UserProfileDetail = ({ data, handlePatchContext, handleDeleteContext, show
   const {username, email, id} = data;
   const [isEditMode, setIsEditMode] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
-  // const navigate = useNavigate();
-  // const { showToast } = useToast()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [validationSchema, setValidationSchema] = useState(null);
@@ -21,8 +17,6 @@ const UserProfileDetail = ({ data, handlePatchContext, handleDeleteContext, show
   ];
   const [fieldInfo, setFieldInfo] = useState(initialFieldInfo);
 
-  
-  
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
@@ -53,7 +47,6 @@ const toggleEditable = (fieldName) => {
       : field
   ))
 }
-
   const toggleEditMode = (isPasswordUpdate) => {
     setIsEditMode(true);
     setShowChangePassword(isPasswordUpdate);
@@ -93,7 +86,6 @@ const toggleEditable = (fieldName) => {
     }
   }
 }
-
   
   const [formValues, setFormValues] = useState({
     username: username || '',
@@ -104,7 +96,7 @@ const toggleEditable = (fieldName) => {
   
   const onSubmit = (values, { setSubmitting, resetForm, setStatus }) => {
     if (showChangePassword && !values.new_password) {
-      showToast('Please enter a new password');
+      showToast('error', 'Please enter a new password');
       return;
     }
     const payload = {
@@ -122,9 +114,7 @@ const toggleEditable = (fieldName) => {
         if (!res.ok) {
           throw new Error('Update failed');
         }
-        debugger
-        
-        showToast(showChangePassword ? 'Password updated successfully' : 'Profile updated successfully');
+        showToast(showChangePassword ? 'error' : 'error', showChangePassword ? 'Password updated successfully' : 'Profile updated successfully');
         setIsEditMode(false);
         setShowChangePassword(false);
         setFormValues({
@@ -139,12 +129,6 @@ const toggleEditable = (fieldName) => {
             new_password: '',
           },
         });
-        // setIsModalOpen(false); // Add this line
-        // // navigate(`/profile/${id}`)
-        // setFieldInfo([
-        //   { name: 'username', type: 'text', placeholder: 'Username', editable: false },
-        //   { name: 'email', type: 'text', placeholder: 'Email', editable: false },
-        // ]);
       })
       .catch((error) => {
         handleError(error);
@@ -164,15 +148,14 @@ const toggleEditable = (fieldName) => {
   const cancelEdit = () => {
     setIsEditMode(false);
     setShowChangePassword(false);
-    setFieldInfo(initialFieldInfo);// Reset to initial values
+    setFieldInfo(initialFieldInfo);
     setFormValues({
     username: username || '',
     email: email || '',
     current_password: '',
     new_password: '',
   });
-  }
-  
+  } 
   return (
     <>
       <button onClick={() => { toggleEditMode(false); handleOpenModal() }}>

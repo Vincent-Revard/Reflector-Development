@@ -7,6 +7,8 @@ from . import (
     hybrid_property,
     flask_bcrypt,
 )
+from .usertopic import UserTopic
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -21,6 +23,14 @@ class User(db.Model):
     references = db.relationship("Reference", back_populates="user", lazy=True)
 
     created_courses = db.relationship("Course", back_populates="creator", lazy=True)
+    created_topics = db.relationship("Topic", back_populates="creator", lazy=True)
+    
+    topics = db.relationship(
+        "Topic",
+        secondary="user_topics",
+        back_populates="users",
+    )
+
     enrolled_courses = db.relationship(
         "Course", secondary="user_courses", back_populates="enrolled_users"
     )

@@ -23,6 +23,7 @@ import Error from '../components/errors/Error';
 import NotFound from '../components/errors/NotFound';
 import ContextProvider from '../context/ContextProvider';
 import ContextList from '../context/context_list';
+import NewNote from '../context/newNote';
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
                           </ContextProvider>
                         ),
                         children: [
+                          {
+                            path: "new",
+                            element: <NewNote />
+                          },
                           {
                             path: ":noteId",
                             element: (
