@@ -7,8 +7,8 @@ import Modal from '@mui/material/Modal';
 import FormComponent from '../components/form/form_component';
 import NoteCard from './note_card';
 
-const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast }) => {
-  const { name, id } = data;
+const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast, user }) => {
+  const { name, id, creator_id } = data;
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [validationSchema, setValidationSchema] = useState(null);
@@ -16,6 +16,7 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
   const initialFieldInfo = [
     { name: 'name', type: 'text', placeholder: 'Name', editable: true },
   ];
+  console.log(`user: ${user} and  creator_id: ${creator_id}and ${id}`)
   const [fieldInfo, setFieldInfo] = useState(initialFieldInfo);
   const [editingTopicId, setEditingTopicId] = useState(null); 
 
@@ -109,9 +110,11 @@ const TopicCard = ({ data, handlePatchContext, handleDeleteContext, showToast })
   }
   return (
     <>
-      <Button variant="contained" color="primary" onClick={() => { toggleEditMode(id); handleOpenModal() }}>
-        Update Topic Name
-      </Button>
+      {user.id === creator_id && (
+        <Button variant="contained" color="primary" onClick={() => { toggleEditMode(id); handleOpenModal() }}>
+          Update Topic Name
+        </Button>
+      )}
       <Button variant="contained" color="primary" onClick={() => setIsNoteCardVisible(!isNoteCardVisible)}>
         {isNoteCardVisible ? 'Hide Notes' : 'Show Notes'}
       </Button>

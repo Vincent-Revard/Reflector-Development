@@ -26,10 +26,10 @@ const ContextList = () => {
       switch (baseRoute) {
         case 'courses':
           return data.courses?.map(course => (
-            <ContextCard key={course.id} data={course} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast}>
+            <ContextCard key={course.id} data={course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast}>
               {course.topics?.map(topic => (
                 // Ensure that 'topic' is distinct from 'note'
-                <TopicCard key={topic.id} data={topic} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}>
+                <TopicCard key={topic.id} data={topic} user={user} courseId={course.id}   handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext}>
                   {topic.notes?.map(note => (
                     // Adjust how NoteCard displays its 'data' prop if necessary
                     <NoteCard key={note.id} data={note} courseId={course.id} topicId={topic.id} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} user={user} />

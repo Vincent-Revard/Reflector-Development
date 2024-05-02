@@ -17,20 +17,22 @@ const StyledButton = styled(Button)({
     margin: '10px',
 })
 
-const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePostContext, showToast }) => {
-    const { name, id } = data
+const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePostContext, showToast, topicId, user, courseId }) => {
+    const { name, id, creator_id } = data
     const [isEditMode, setIsEditMode] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [validationSchema, setValidationSchema] = useState(null)
     const initialFieldInfo = [
         { name: 'name', type: 'text', placeholder: 'Name', editable: true },
     ]
+    console.log(`user: ${user} and  creator_id: ${creator_id}and ${id}`)
     const [fieldInfo, setFieldInfo] = useState(initialFieldInfo)
     const [expanded, setExpanded] = useState(false) 
     const [isSubmitting, setIsSubmitting] = useState(false) 
 
 
-    const handleCardClick = () => {
+    const handleCardClick = (event) => {
+        event.stopPropagation()
         setExpanded(!expanded) 
     }
 
@@ -66,7 +68,7 @@ const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePost
             showToast('error', error)
         } else if (error && typeof error.message === 'string') {
             showToast('error', error.message)
-        } else if (typeof error === 'object' && error !== null) {
+        } else if (typeof error === 'object' && error !== null && Array.isArray(error[field])) {
             for (let field in error) {
                 error[field].forEach((message) => {
                     showToast('error', `${field}: ${message}`)
@@ -84,37 +86,35 @@ const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePost
             id: id,
             name: values.name,
         }
-        setIsSubmitting(setSubmitting)
+        setSubmitting(true)
         handlePatchContext(payload)
-        .then((res) => {
-            if (!res.ok) {
-                showToast('error', 'Update failed')
-            }
+            .then((res) => {
+                if (!res.ok) {
+                    showToast('error', 'Update failed')
+                }
 
-            showToast('success', 'Card updated successfully')
-            setIsEditMode(false)
-            setFormValues({
-                name: res.data.name,
+                showToast('success', 'Card updated successfully')
+                setIsEditMode(false)
+                setFormValues({
+                    name: res.data.name,
+                })
+                resetForm({
+                    values: {
+                        ...values,
+                    },
+                })
             })
-            resetForm({
-                values: {
-                    ...values,
-                },
+            .catch((error) => {
+                handleError(error)
+                setFormValues({
+                    name: name || '',
+                })
             })
-        })
-        .catch((error) => {
-            handleError(error)
-            setFormValues({
-                name: name || '',
+            .finally(() => {
+                setSubmitting(false)
+                setIsModalOpen(false)
             })
-        })
-        .finally(() => {
-            setSubmitting(false)
-            setIsModalOpen(false)
-        })
-
-    return { isSubmitting: setSubmitting }
-}
+    }
 
     const cancelEdit = () => {
         setIsEditMode(false)
@@ -124,7 +124,7 @@ const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePost
         })
     }
 
-    const FormComponentWrapper = ({ isModalOpen, handleCloseModal, fieldInfo, isSubmitting, cancelEdit, toggleEditable }) => (
+    const FormComponentWrapper = React.forwardRef(({ isModalOpen, handleCloseModal, fieldInfo, isSubmitting, cancelEdit, toggleEditable }) => (
         <Modal open={isModalOpen} onClose={handleCloseModal}>
             <FormComponent
                 isOpen={isModalOpen}
@@ -135,7 +135,7 @@ const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePost
                 toggleEditable={toggleEditable}
             />
         </Modal>
-    )
+    ))
 
     return (
         <>
@@ -144,33 +144,36 @@ const ContextCard = ({ data, handlePatchContext, handleDeleteContext, handlePost
                     <StyledButton variant="contained" color="primary" onClick={handleCardClick}>
                         {expanded ? 'Collapse Course' : 'Expand Course'}
                     </StyledButton>
-                    <StyledButton variant="contained" color="secondary" onClick={() => { toggleEditMode(); handleOpenModal() }}>
-                        Update Course Name
-                    </StyledButton>
-                        {isEditMode && (
-                            <Formik
-                                initialValues={formValues}
-                                validationSchema={validationSchema}
-                                onSubmit={onSubmit}
-                                enableReinitialize
-                            >
-                                <FormComponentWrapper
-                                    isModalOpen={isModalOpen}
-                                    handleCloseModal={handleCloseModal}
-                                    fieldInfo={fieldInfo}
-                                    isSubmitting={isSubmitting}
-                                    cancelEdit={cancelEdit}
-                                    toggleEditable={toggleEditable}
-                                />
-                            </Formik>
+                    {user.id === creator_id && (
+                        <StyledButton variant="contained" color="secondary" onClick={() => { toggleEditMode(); handleOpenModal() }}>
+                            Update Course Name
+                        </StyledButton>
+                    )}
+                    <Formik
+                        initialValues={formValues}
+                        validationSchema={validationSchema}
+                        onSubmit={onSubmit}
+                        enableReinitialize
+                    >
+                        {(formikProps) => (
+                            <FormComponentWrapper
+                                isModalOpen={isModalOpen}
+                                handleCloseModal={handleCloseModal}
+                                fieldInfo={fieldInfo}
+                                isSubmitting={isSubmitting}
+                                cancelEdit={cancelEdit}
+                                toggleEditable={toggleEditable}
+                                {...formikProps}
+                            />
                         )}
+                    </Formik>
                     {!isEditMode && (
                         <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'blue' }}>Course: {name}</Typography>
                     )}
                 </CardContent>
             </StyledCard>
             {expanded && data.topics && data.topics.map((topic, index) =>
-                <TopicCard key={index} data={topic} toggleEditMode={toggleEditMode} handleOpenModal={handleOpenModal}  />
+                <TopicCard key={index} data={topic} toggleEditMode={toggleEditMode} handleOpenModal={handleOpenModal} />
             )}
         </>
     )

@@ -5,7 +5,16 @@ import Modal from 'react-modal'
 const FormComponent = ({ fieldInfo, isSubmitting ,isOpen, onRequestClose, cancelEdit, toggleEditable }) => {
 
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose} ariaHideApp={false}>
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={onRequestClose}
+            ariaHideApp={false}
+            style={{
+                content: {
+                    zIndex: 2000,
+                },
+            }}
+        >
             <Form className='form-wrapper'>
                 <section>
                     {fieldInfo.map((field) => (

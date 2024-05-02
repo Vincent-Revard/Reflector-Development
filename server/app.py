@@ -15,6 +15,7 @@ from routes.auth.signup import Signup
 from routes.auth.verify import Verify
 from routes.user.usersindex import UsersIndex
 from routes.course.courses import CoursesIndex
+from routes.note.notesindex import NotesIndex
 
 
 api.add_resource(Signup, "/signup")
@@ -25,7 +26,7 @@ api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
 api.add_resource(CoursesIndex, "/courses", "/courses/<int:id>", endpoint="courses")
 api.add_resource(UsersIndex, "/profile", "/profile/<int:id>", endpoint="profile")
-
+api.add_resource(NotesIndex, "/courses/<int:course_id>/topics/<int:topic_id>/notes/<int:note_id>", endpoint='notes')
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
