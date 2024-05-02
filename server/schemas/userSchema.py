@@ -29,7 +29,16 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     email_verified = fields.Boolean(  # New field for email verification status
         metadata={"description": "The email verification status of the user"},
     )
-    
+    created_courses = fields.Nested(
+        "CourseSchema",
+        many=True,
+        exclude=("creator_id.creator.id", "creator.created.created_courses"),
+    )
+    created_topics = fields.Nested(
+        "TopicSchema",
+        many=True,
+        exclude=("creator_id.creator.id", "creator.created_topics"),
+    )
 
     @validates("email")
     def validate_email(self, value):
@@ -70,7 +79,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         setattr(loaded_instance, key, value)
 
         return loaded_instance
-    
+
 
 #!     do I want a user dictionary instead of object? reference!
 # def load(self, data, instance=None, *, partial=False, **kwargs):

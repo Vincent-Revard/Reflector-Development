@@ -22,6 +22,7 @@ from models.note import Note
 from models.topic import Topic
 from models.user import User
 from models.usercourse import UserCourse
+from models.usertopic import UserTopic
 
 #! IMPORT MODELS HERE AS NEEDED FOR SEEDING!
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
 
         for user in users:
             for _ in range(randint(2, 4)):  # Each user creates 2-4 courses
-                course = Course(name=fake.job(), user_id=user.id)
+                course = Course(name=fake.job(), creator_id=user.id)  # Updated this line
                 db.session.add(course)
                 db.session.commit()
                 user_course = UserCourse(user_id=user.id, course_id=course.id)
@@ -70,7 +71,7 @@ if __name__ == '__main__':
 
         for course in Course.query.all():
             for _ in range(randint(2, 4)):  # Each course has 2-4 topics
-                topic = Topic(name=fake.catch_phrase(), user_id=course.user_id)
+                topic = Topic(name=fake.catch_phrase(), creator_id=course.creator_id)  # Updated this line
                 db.session.add(topic)
                 db.session.commit()
                 course_topic = CourseTopic(course_id=course.id, topic_id=topic.id)
@@ -114,12 +115,25 @@ if __name__ == '__main__':
                     name=name,
                     title=fake.sentence(),
                     content=fake.paragraph(),
-                    user_id=topic.user_id,
+                    user_id=topic.creator_id,  # Updated this line
                     topic_id=topic.id,
                     category=category,
                 )
                 db.session.add(note)
             db.session.commit()
+
+        for user in User.query.all():
+            for _ in range(randint(1, 5)):  # Each user is associated with 1-5 topics
+                topic_name = fake.catch_phrase()
+                topic = Topic.query.filter_by(name=topic_name).first()
+                if not topic:
+                    topic = Topic(name=topic_name, creator_id=user.id)
+                    db.session.add(topic)
+                    db.session.commit()
+                user_topic = UserTopic(user_id=user.id, topic_id=topic.id)
+                db.session.add(user_topic)
+            db.session.commit()
+
 
         for user in users:
             for _ in range(randint(2, 4)):  # Each user creates 2-4 references

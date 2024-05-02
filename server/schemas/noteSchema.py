@@ -3,7 +3,6 @@ from config import ma
 
 from .userSchema import UserSchema
 from .notereferenceSchema import NoteReferenceSchema
-from .topicSchema import TopicSchema
 
 
 from . import Note
@@ -16,7 +15,7 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
     content = ma.auto_field()
     category = ma.auto_field()
     user = fields.Nested('UserSchema')
-    topic = fields.Nested('TopicSchema')
+    # topic = fields.Nested('TopicSchema')
     note_references = fields.Nested('NoteReferenceSchema', many=True)
 
     @post_load

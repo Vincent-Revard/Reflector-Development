@@ -30,7 +30,7 @@ class User(db.Model):
         secondary="user_topics",
         back_populates="users",
     )
-
+    
     enrolled_courses = db.relationship(
         "Course", secondary="user_courses", back_populates="enrolled_users"
     )

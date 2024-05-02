@@ -36,21 +36,26 @@ class CoursesIndex(BaseResource):
                 {
                     "id": course.id,
                     "name": course.name,
+                    "creator_id": course.creator_id,
                     "topics": [
                         {
                             "id": topic.id,
                             "name": topic.name,
+                            "creator_id": topic.creator_id,
                             "notes": [
                                 {
                                     "id": note.id,
                                     "name": note.name,
                                     "category": note.category,
-                                    "content": note.content
-                                } for note in topic.notes
-                            ]
-                        } for topic in course.topics
-                    ]
-                } for course in user.enrolled_courses
+                                    "content": note.content,
+                                }
+                                for note in topic.notes
+                            ],
+                        }
+                        for topic in course.topics
+                    ],
+                }
+                for course in user.enrolled_courses
             ]
             return {"courses": courses}, 200
         ipdb.set_trace()
