@@ -8,7 +8,7 @@ import ContextFormik from './context_formik';
 
 const NewNote = () => {
     const { courseId, topicId } = useParams();
-    const { handlePostContextById } = useProviderContext(); 
+    const { handlePostContext } = useProviderContext(); 
 
     const initialValues = {
         name: '',
@@ -27,7 +27,7 @@ const NewNote = () => {
     });
 
     const onSubmit = (values) => {
-        handlePostContextById(courseId, values, topicId); 
+        handlePostContext(courseId, values, topicId); 
     };
 
     const fieldInfo = [

@@ -19,7 +19,6 @@ from routes.note.notesindex import NotesIndex
 from routes.topic.topicsindex import TopicsIndex
 from routes.note.notesbyid import NotesById
 
-
 api.add_resource(Signup, "/signup")
 api.add_resource(CheckSession, "/check_session")
 api.add_resource(Login, "/login")

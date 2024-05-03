@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import NewNote from './NewNote';
+import NewNote from './newNote';
+
 import { useParams } from 'react-router-dom';
 
 import { Context } from './ContextProvider'; // Import the context

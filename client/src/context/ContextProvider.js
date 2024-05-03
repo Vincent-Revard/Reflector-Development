@@ -84,15 +84,15 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    const handlePostContext = async (newContent, topicId = null, noteId = null) => {
+    const handlePostContext = async (newContent, courseId=null ,topicId = null, noteId = null) => {
         let url;
 
         if (noteId) {
-            url = `/api/v1/${currentPage}/topics/${topicId}/notes/new`;
+            url = `/api/v1/${courseId}/topics/${topicId}/notes/new`;
         } else if (topicId) {
-            url = `/api/v1/${currentPage}/topics/new`;
+            url = `/api/v1/${courseId}/topics/new`;
         } else {
-            url = `/api/v1/${currentPage}/new`;
+            url = `/api/v1/${courseId}/new`;
         }
 
         const prevData = { ...data };
@@ -105,20 +105,40 @@ const ContextProvider = ({ children }) => {
             if (response.ok) {
                 const updatedData = {
                     ...data,
-                    [currentPage]: data[currentPage]?.map(item => item.id === responseData.id ? { ...item, ...responseData } : item)
+                    [currentPage]: [...data[currentPage], responseData]
                 };
                 setData(updatedData);
                 showToast('success', 'Item created successfully');
             } else {
-                throw new Error(responseData.message || 'An error occurred');
+                showToast('error', responseData.message || 'An error occurred');
             }
-
             return response;
         } catch (err) {
             showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
             setData(prevData);
+            return err.message;
         }
     }
+
+
+
+    //         ) {
+    //             const updatedData = {
+    //                 ...data,
+    //                 [currentPage]: data[currentPage]?.map(item => item.id === responseData.id ? { ...item, ...responseData } : item)
+    //             };
+    //             setData(updatedData);
+    //             showToast('success', 'Item created successfully');
+    //         } else {
+    //             throw new Error(responseData.message || 'An error occurred');
+    //         }
+
+    //         return response;
+    //     } catch (err) {
+    //         showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
+    //         setData(prevData);
+    //     }
+    // }
 
     const handleDeleteContext = async () => {
         // const userToDelete = profileData.find(user => user.id === id)
@@ -147,41 +167,6 @@ const ContextProvider = ({ children }) => {
     }
 
     //! CRUDById
-    const handlePostContextById = async (courseId, newContent, topicId = null, noteId = null) => {
-        let url;
-
-        if (noteId) {
-            url = `/api/v1/courses/${courseId}/topics/${topicId}/notes`;
-        } else if (topicId) {
-            url = `/api/v1/courses/${courseId}/topics`;
-        } else {
-            url = `/api/v1/courses`;
-        }
-
-        const prevData = { ...data };
-
-        try {
-            const csrfToken = getCookie('csrf_access_token');
-            const response = await postJSON(url, newContent, csrfToken);
-            const responseData = await response.json();
-
-            if (response.ok) {
-                const updatedData = {
-                    ...data,
-                    courses: data.courses?.map(course => course.id === courseId ? { ...course, ...responseData } : course)
-                };
-                setData(updatedData);
-                showToast('success', 'Item created successfully');
-            } else {
-                throw new Error(responseData.message || 'An error occurred');
-            }
-
-            return response;
-        } catch (err) {
-            showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
-            setData(prevData);
-        }
-    }
 
     const handlePatchContextById = async (courseId, updates, topicId = null, noteId = null) => {
         let itemToUpdate;
@@ -277,7 +262,7 @@ const ContextProvider = ({ children }) => {
 
     return (
         <Context.Provider value={{
-            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePostContextById, handlePatchContextById, handleDeleteContextById, handlePostContext
+            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext
         }}>
             {children}
         </Context.Provider>
