@@ -19,6 +19,8 @@ const ContextProvider = ({ children }) => {
     let currentPage = location.pathname.split('/')[1];
     if (currentPage === 'profile') {
         currentPage = location.pathname.slice(1);
+    } else if (currentPage === 'courses') {
+        currentPage = location.pathname.slice(1);
     }
 
     console.log('currentPage:', currentPage);
@@ -145,13 +147,13 @@ const ContextProvider = ({ children }) => {
     }
 
     //! CRUDById
-    const handlePostContextById = async (id, newContent, topicId = null, noteId = null) => {
+    const handlePostContextById = async (courseId, newContent, topicId = null, noteId = null) => {
         let url;
 
         if (noteId) {
-            url = `/api/v1/courses/${id}/topics/${topicId}/notes`;
+            url = `/api/v1/courses/${courseId}/topics/${topicId}/notes`;
         } else if (topicId) {
-            url = `/api/v1/courses/${id}/topics`;
+            url = `/api/v1/courses/${courseId}/topics`;
         } else {
             url = `/api/v1/courses`;
         }
@@ -166,7 +168,7 @@ const ContextProvider = ({ children }) => {
             if (response.ok) {
                 const updatedData = {
                     ...data,
-                    courses: data.courses?.map(course => course.id === id ? { ...course, ...responseData } : course)
+                    courses: data.courses?.map(course => course.id === courseId ? { ...course, ...responseData } : course)
                 };
                 setData(updatedData);
                 showToast('success', 'Item created successfully');
@@ -181,22 +183,22 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    const handlePatchContextById = async (id, updates, topicId = null, noteId = null) => {
+    const handlePatchContextById = async (courseId, updates, topicId = null, noteId = null) => {
         let itemToUpdate;
         let url;
 
         if (noteId) {
-            const courseToUpdate = data.courses?.find(course => course.id === id);
+            const courseToUpdate = data.courses?.find(course => course.id === courseId);
             const topicToUpdate = courseToUpdate?.topics?.find(topic => topic.id === topicId);
             itemToUpdate = topicToUpdate?.notes?.find(note => note.id === noteId);
-            url = `/api/v1/courses/${id}/topics/${topicId}/notes/${noteId}`;
+            url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
         } else if (topicId) {
-            const courseToUpdate = data.courses?.find(course => course.id === id);
+            const courseToUpdate = data.courses?.find(course => course.id === courseId);
             itemToUpdate = courseToUpdate?.topics?.find(topic => topic.id === topicId);
-            url = `/api/v1/courses/${id}/topics/${topicId}`;
+            url = `/api/v1/courses/${courseId}/topics/${topicId}`;
         } else {
-            itemToUpdate = data.courses?.find(course => course.id === id);
-            url = `/api/v1/courses/${id}`;
+            itemToUpdate = data.courses?.find(course => course.id === courseId);
+            url = `/api/v1/courses/${courseId}`;
         }
 
         if (!itemToUpdate) {
@@ -208,7 +210,7 @@ const ContextProvider = ({ children }) => {
         const updatedItem = { ...itemToUpdate, ...updates };
         const updatedData = {
             ...data,
-            courses: data.courses?.map(course => course.id === id ? updatedItem : course)
+            courses: data.courses?.map(course => course.id === courseId ? updatedItem : course)
         };
 
         try {
@@ -221,22 +223,22 @@ const ContextProvider = ({ children }) => {
             setData(prevData);
         }
     }
-    const handleDeleteContextById = async (id, topicId = null, noteId = null) => {
+    const handleDeleteContextById = async (courseId, topicId = null, noteId = null) => {
         let itemToDelete;
         let url;
 
         if (noteId) {
-            const courseToDelete = data.courses?.find(course => course.id === id);
+            const courseToDelete = data.courses?.find(course => course.id === courseId);
             const topicToDelete = courseToDelete?.topics?.find(topic => topic.id === topicId);
             itemToDelete = topicToDelete?.notes?.find(note => note.id === noteId);
-            url = `/api/v1/courses/${id}/topics/${topicId}/notes/${noteId}`;
+            url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
         } else if (topicId) {
-            const courseToDelete = data.courses?.find(course => course.id === id);
+            const courseToDelete = data.courses?.find(course => course.id === courseId);
             itemToDelete = courseToDelete?.topics?.find(topic => topic.id === topicId);
-            url = `/api/v1/courses/${id}/topics/${topicId}`;
+            url = `/api/v1/courses/${courseId}/topics/${topicId}`;
         } else {
-            itemToDelete = data.courses?.find(course => course.id === id);
-            url = `/api/v1/courses/${id}`;
+            itemToDelete = data.courses?.find(course => course.id === courseId);
+            url = `/api/v1/courses/${courseId}`;
         }
 
         if (!itemToDelete) {
@@ -253,7 +255,7 @@ const ContextProvider = ({ children }) => {
             if (response.ok) {
                 const updatedData = {
                     ...data,
-                    courses: data.courses?.filter(course => course.id !== id)
+                    courses: data.courses?.filter(course => course.id !== courseId)
                 };
                 setData(updatedData);
                 showToast('success', 'Item deleted successfully');

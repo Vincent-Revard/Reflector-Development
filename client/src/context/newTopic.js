@@ -6,37 +6,31 @@ import { useParams } from 'react-router-dom';
 import { useProviderContext } from './ContextProvider';
 import ContextFormik from './context_formik';
 
-const NewNote = () => {
-    const { courseId, topicId } = useParams();
-    const { handlePostContextById } = useProviderContext(); 
+
+const NewTopic = () => {
+    const { courseId } = useParams();
+    const { handlePostContextById } = useProviderContext();
 
     const initialValues = {
         name: '',
         title: '',
         category: '',
-        content: '',
-        reference: '',
     };
 
     const validationSchema = yup.object().shape({
         name: yup.string().required("Please enter a name"),
         title: yup.string().required("Please enter a title"),
         category: yup.string().required("Please enter a category"),
-        content: yup.string().required("Please enter content"),
-        reference: yup.string().required("Please enter a reference"), // new field
     });
 
     const onSubmit = (values) => {
-        handlePostContextById(courseId, values, topicId); 
+        handlePostContextById(courseId, values);
     };
 
     const fieldInfo = [
         { name: 'name', type: 'text', label: 'Name', placeholder: 'Enter name', editable: true },
         { name: 'title', type: 'text', label: 'Title', placeholder: 'Enter title', editable: true },
         { name: 'category', type: 'text', label: 'Category', placeholder: 'Enter category', editable: true },
-        { name: 'content', type: 'text', label: 'Content', placeholder: 'Enter content', editable: true },
-        { name: 'reference', type: 'text', label: 'Reference', placeholder: 'Enter reference', editable: true }, 
-
     ];
 
     return (
@@ -49,4 +43,4 @@ const NewNote = () => {
     );
 };
 
-export default NewNote;
+export default NewTopic;

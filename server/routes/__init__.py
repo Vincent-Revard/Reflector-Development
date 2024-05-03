@@ -106,14 +106,14 @@ def before_request():
     try:
         id = request.view_args.get("id")
         print(id)
-        ipdb.set_trace()
+        # ipdb.set_trace()
         if id is not None:
             record = get_instance_by_id(path_dict.get(request.endpoint), id)
             print(record)
             key_name = request.endpoint.split("byid")[0]
-            ipdb.set_trace()
+            # ipdb.set_trace()
             setattr(g, key_name, record)
-            ipdb.set_trace()
+            # ipdb.set_trace()
         else:
             key_name = request.endpoint
             setattr(g, key_name, None)
@@ -132,9 +132,9 @@ def before_request():
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
 
-    ipdb.set_trace()
+    # ipdb.set_trace()
     identity = jwt_data["sub"]
-    ipdb.set_trace()
+    # ipdb.set_trace()
     return get_instance_by_id(User, identity)
 
 

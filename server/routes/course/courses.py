@@ -58,21 +58,21 @@ class CoursesIndex(BaseResource):
                 for course in user.enrolled_courses
             ]
             return {"courses": courses}, 200
-        ipdb.set_trace()
+        # ipdb.set_trace()
         return super().get(id, condition)
 
     @jwt_required_modified
     def delete(self, id=None):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
-        ipdb.set_trace()
+        # ipdb.set_trace()
         return super().delete(id)
 
     @jwt_required_modified
     def patch(self, id):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
-        ipdb.set_trace()
+        # ipdb.set_trace()
 
         return super().patch(g.courses.id)
 
@@ -81,6 +81,6 @@ class CoursesIndex(BaseResource):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
 
-        ipdb.set_trace()
+        # ipdb.set_trace()
 
         return super().post()

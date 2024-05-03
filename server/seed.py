@@ -94,12 +94,18 @@ if __name__ == '__main__':
         for topic in Topic.query.all():
             for _ in range(randint(2, 4)):  # Each topic is associated with 2-4 courses
                 course = rc(Course.query.all())
-                try:
-                    course_topic = CourseTopic(course_id=course.id, topic_id=topic.id)
-                    db.session.add(course_topic)
-                    db.session.commit()
-                except IntegrityError:
-                    db.session.rollback()
+                ((ret,),) = db.session.query(
+                    exists()
+                    .where(CourseTopic.course_id == course.id)
+                    .where(CourseTopic.topic_id == topic.id)
+                )
+                if not ret:
+                    try:
+                        course_topic = CourseTopic(course_id=course.id, topic_id=topic.id)
+                        db.session.add(course_topic)
+                        db.session.commit()
+                    except IntegrityError:
+                        db.session.rollback()
 
         for topic in Topic.query.all():
             for _ in range(randint(5, 10)):  # Each topic has 5-10 notes
@@ -111,11 +117,12 @@ if __name__ == '__main__':
                 category = fake.catch_phrase()
                 if category is None:
                     category = "default_category"
+                note_creator = rc(users)  # Randomly select a user to be the creator of the note
                 note = Note(
                     name=name,
                     title=fake.sentence(),
                     content=fake.paragraph(),
-                    user_id=topic.creator_id,  # Updated this line
+                    user_id=note_creator.id,  # Set the note creator to the randomly selected user
                     topic_id=topic.id,
                     category=category,
                 )
@@ -130,10 +137,10 @@ if __name__ == '__main__':
                     topic = Topic(name=topic_name, creator_id=user.id)
                     db.session.add(topic)
                     db.session.commit()
-                user_topic = UserTopic(user_id=user.id, topic_id=topic.id)
-                db.session.add(user_topic)
+                    course = rc(Course.query.all())  # Randomly select a course
+                    user_topic = UserTopic(user_id=user.id, topic_id=topic.id, course_id=course.id)
+                    db.session.add(user_topic)
             db.session.commit()
-
 
         for user in users:
             for _ in range(randint(2, 4)):  # Each user creates 2-4 references

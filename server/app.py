@@ -16,6 +16,8 @@ from routes.auth.verify import Verify
 from routes.user.usersindex import UsersIndex
 from routes.course.courses import CoursesIndex
 from routes.note.notesindex import NotesIndex
+from routes.topic.topicsindex import TopicsIndex
+from routes.note.notesbyid import NotesById
 
 
 api.add_resource(Signup, "/signup")
@@ -26,7 +28,21 @@ api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
 api.add_resource(CoursesIndex, "/courses", "/courses/<int:id>", endpoint="courses")
 api.add_resource(UsersIndex, "/profile", "/profile/<int:id>", endpoint="profile")
-api.add_resource(NotesIndex, "/courses/<int:course_id>/topics/<int:topic_id>/notes/<int:note_id>", endpoint='notes')
+api.add_resource(NotesIndex, "/courses/<int:course_id>/topics/<int:topic_id>/notes", endpoint='notes')
+api.add_resource(
+    NotesById,
+    "/courses/<int:course_id>/topics/<int:topic_id>/notes/<int:note_id>",
+    endpoint="notes_by_id",
+)
+api.add_resource(
+    TopicsIndex,
+    "/courses/<int:course_id>/topics",
+    "/courses/<int:course_id>/topics/<int:id>",
+    endpoint="topics",
+)
+api.add_resource(NotesIndex, "/notes/new", endpoint="new_note")
+# api.add_resource(NotesById, "/notes/<int:id>/edit", endpoint="notes_by_id")
+
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

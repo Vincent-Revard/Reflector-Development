@@ -24,6 +24,10 @@ import NotFound from '../components/errors/NotFound';
 import ContextProvider from '../context/ContextProvider';
 import ContextList from '../context/context_list';
 import NewNote from '../context/newNote';
+import EditableCard from '../context/editable_card';
+import NewCourse from '../context/newCourse';
+import NewTopic from '../context/newTopic';
+import NoteCard from '../context/note_card';
 
 const router = createBrowserRouter([
   {
@@ -45,6 +49,12 @@ const router = createBrowserRouter([
         ),
         children: [
           {
+            path: "new",
+            element: (
+              <ContextProvider>
+                <NewCourse />
+              </ContextProvider>
+            ),
             path: ":courseId",
             element: (
               <ContextProvider>
@@ -52,6 +62,14 @@ const router = createBrowserRouter([
               </ContextProvider>
             ),
             children: [
+              {
+                path: "edit",
+                element: (
+                  <ContextProvider>
+                    <EditableCard />
+                  </ContextProvider>
+                )
+              },
               {
                 path: "topics",
                 element: (
@@ -61,6 +79,12 @@ const router = createBrowserRouter([
                 ),
                 children: [
                   {
+                    path: "new",
+                    element: (
+                      <ContextProvider>
+                        <NewTopic />
+                      </ContextProvider>
+                    ),
                     path: ":topicId",
                     element: (
                       <ContextProvider>
@@ -68,6 +92,14 @@ const router = createBrowserRouter([
                       </ContextProvider>
                     ),
                     children: [
+                      {
+                        path: "edit",
+                        element: (
+                          <ContextProvider>
+                            <EditableCard />
+                          </ContextProvider>
+                        )
+                      },
                       {
                         path: "notes",
                         element: (
@@ -78,15 +110,33 @@ const router = createBrowserRouter([
                         children: [
                           {
                             path: "new",
-                            element: <NewNote />
+                            element: (
+                              <ContextProvider>
+                                <ContextList >
+                                  <NewNote />
+                                </ContextList >
+                              </ContextProvider>
+                            )
                           },
                           {
                             path: ":noteId",
                             element: (
                               <ContextProvider>
-                                <ContextList />
+                                <ContextList >
+                                  <NoteCard />
+                                </ContextList >
                               </ContextProvider>
-                            )
+                            ),
+                            children: [
+                              {
+                                path: "edit",
+                                element: (
+                                  <ContextProvider>
+                                    <EditableCard />
+                                  </ContextProvider>
+                                )
+                              }
+                            ]
                           }
                         ]
                       }

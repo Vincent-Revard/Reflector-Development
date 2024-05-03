@@ -6,3 +6,4 @@ class UserTopic(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
     topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), primary_key=True)
