@@ -1,8 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useFetchJSON } from '../utils/useFetchJSON';
 import { useAuth } from './AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useToast } from './ToastContext';
+
+
 // ProfileContext
 const Context = createContext();
 
@@ -22,9 +24,11 @@ const ContextProvider = ({ children }) => {
     } else if (currentPage === 'courses') {
         currentPage = location.pathname.slice(1);
     }
+    const params = useParams();
 
     console.log('currentPage:', currentPage);
 
+    
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -84,16 +88,12 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    const handlePostContext = async (newContent, courseId=null ,topicId = null, noteId = null) => {
-        let url;
+    const handlePostContext = async (newContent) => {
 
-        if (noteId) {
-            url = `/api/v1/${courseId}/topics/${topicId}/notes/new`;
-        } else if (topicId) {
-            url = `/api/v1/${courseId}/topics/new`;
-        } else {
-            url = `/api/v1/${courseId}/new`;
-        }
+        let pathname = location.pathname.endsWith('/new')
+            ? location.pathname.slice(0, -4)
+            : location.pathname;
+        const url = `/api/v1${pathname}`;
 
         const prevData = { ...data };
 
@@ -119,26 +119,6 @@ const ContextProvider = ({ children }) => {
             return err.message;
         }
     }
-
-
-
-    //         ) {
-    //             const updatedData = {
-    //                 ...data,
-    //                 [currentPage]: data[currentPage]?.map(item => item.id === responseData.id ? { ...item, ...responseData } : item)
-    //             };
-    //             setData(updatedData);
-    //             showToast('success', 'Item created successfully');
-    //         } else {
-    //             throw new Error(responseData.message || 'An error occurred');
-    //         }
-
-    //         return response;
-    //     } catch (err) {
-    //         showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
-    //         setData(prevData);
-    //     }
-    // }
 
     const handleDeleteContext = async () => {
         // const userToDelete = profileData.find(user => user.id === id)

@@ -38,13 +38,13 @@ const TopicCard = ({ data, courseId }) => {
                   New Topic
                 </StyledButton>
               </Link>
-              <Link to={`/courses/${courseId}/topics/${data.id}/notes/new`}>
-                <StyledButton variant="contained" color="primary">
-                  New Note
-                </StyledButton>
-              </Link>
             </>
           )}
+          <Link to={`/courses/${courseId}/topics/${data.id}/notes/new`}>
+            <StyledButton variant="contained" color="primary">
+              New Note
+            </StyledButton>
+          </Link>
           <StyledButton variant="contained" color="primary" onClick={handleCardClick}>
             {expanded ? 'Collapse Topic' : 'Expand Topic'}
           </StyledButton>
@@ -61,6 +61,5 @@ const TopicCard = ({ data, courseId }) => {
     </>
   );
 };
-
 
 export default TopicCard;

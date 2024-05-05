@@ -26,9 +26,9 @@ class NotesById(BaseResource):
     def get(self, course_id=None, topic_id=None, note_id=None):
         user_id = get_jwt_identity()
         ipdb.set_trace()
-        note = Note.query.filter_by(id=note_id, user_id=user_id).first()
-        if note is None:
-            return {"message": "Note not found"}, 404
+        if course_id and topic_id and note_id:
+            note = Note.query.filter_by(course_id=course_id, topic_id=topic_id, note_id=note_id).first()
+            return {"note": self.schema.dump(note)}, 200
         return super().get(note_id)
 
     @jwt_required_modified

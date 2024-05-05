@@ -54,7 +54,9 @@ const router = createBrowserRouter([
               <ContextProvider>
                 <NewCourse />
               </ContextProvider>
-            ),
+            )
+          },
+          {
             path: ":courseId",
             element: (
               <ContextProvider>
@@ -84,7 +86,9 @@ const router = createBrowserRouter([
                       <ContextProvider>
                         <NewTopic />
                       </ContextProvider>
-                    ),
+                    )
+                  },
+                  {
                     path: ":topicId",
                     element: (
                       <ContextProvider>
@@ -145,7 +149,7 @@ const router = createBrowserRouter([
                 ]
               }
             ]
-          }
+          },
         ]
       },
       {
