@@ -1,4 +1,4 @@
-from marshmallow import fields, post_load
+from marshmallow import fields, post_load, post_dump
 from config import ma
 
 from .userSchema import UserSchema
@@ -14,9 +14,14 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
 
     content = ma.auto_field()
     category = ma.auto_field()
-    user = fields.Nested('UserSchema')
-    # topic = fields.Nested('TopicSchema')
-    note_references = fields.Nested('NoteReferenceSchema', many=True)
+    topic = fields.Nested("TopicSchema")
+    references = fields.Nested("ReferenceSchema", many=True)
+
+    @post_dump
+    def remove_empty_references(self, data, **kwargs):
+        if "references" in data and not data["references"]:
+            data.pop("references")
+        return data
 
     @post_load
     def make_note(self, data, **kwargs):

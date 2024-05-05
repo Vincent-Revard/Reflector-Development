@@ -13,7 +13,15 @@ from flask_mail import Mail, Message
 # from schemas.courseSchema import CourseSchema
 # from schemas.noteSchema import NoteSchema
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from marshmallow import ValidationError, fields, validates, ValidationError, pre_load, post_load
+from marshmallow import (
+    ValidationError,
+    fields,
+    validates,
+    ValidationError,
+    pre_load,
+    post_load,
+    post_dump,
+)
 from sqlalchemy import select
 from marshmallow.validate import Length
 from email_validator import validate_email, EmailNotValidError
@@ -184,35 +192,49 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
 
     content = ma.auto_field()
     category = ma.auto_field()
-    user = fields.Nested("UserSchema")
-    # topic = fields.Nested('TopicSchema')
-    note_references = fields.Nested("NoteReferenceSchema", many=True)
+    topic = fields.Nested('TopicSchema')
+    references = fields.Nested("ReferenceSchema", many=True)
+    
+    @post_dump
+    def remove_empty_references(self, data, **kwargs):
+        if 'references' in data and not data['references']:
+            data.pop('references')
+        return data
 
     @post_load
     def make_note(self, data, **kwargs):
         return data
-    class ReferenceSchema(ma.SQLAlchemyAutoSchema):
-        class Meta:
-            model = Reference
-            load_instance = True
+class ReferenceSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Reference
+        load_instance = True
+        exclude = ("user", "note_references")
 
-    user = fields.Nested("UserSchema")
-    note_references = fields.Nested('NoteReferenceSchema', many=True)
+    id = fields.Int()
+    name = fields.Str()
+    title = fields.Str()
+    user_id = fields.Int()
+    author_last = fields.Str()
+    author_first = fields.Str()
+    organization_name = fields.Str()
+    container_name = fields.Str()
+    publication_day = fields.Int()
+    publication_month = fields.Str()
+    publication_year = fields.Int()
+    url = fields.Str()
+    access_day = fields.Int()
+    access_month = fields.Str()
+    access_year = fields.Int()
 
 class TopicSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Topic
         load_instance = True
-        exclude = ("creator.created_topics",)
+        exclude = ("creator",)
 
     id = ma.auto_field()
-    creator_id = fields.Integer(attribute="creator.id")
-    creator = fields.Nested(
-        "UserSchema", only=("id",), many=False,
-    )
+    creator_id = ma.auto_field()
     name = ma.auto_field()
-    notes = fields.Nested("NoteSchema", many=True)
-    courses = fields.Nested("CourseSchema", many=True)
 
     @post_load
     def make_topic(self, data, **kwargs):
@@ -258,9 +280,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         validate=[Length(min=2), Length(max=50)],
         metadata={"description": "The unique username of the user"},
     )
-    # password_hash = ma.auto_field("_password_hash", load_only=True, required=True)
     password = fields.Str(load_only=True, required=True, validate=Length(min=8))
-    # _password_hash = fields.Str(dump_only=True)
     email = fields.Str(
         metadata={"description": "The email of the user"},
     )
@@ -344,7 +364,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 #     return data
 
 
-notes = fields.Nested("NoteSchema", many=True, exclude=('user_id',))
+# notes = fields.Nested("NoteSchema", many=True, exclude=('user_id',))
 user_courses = fields.Nested("UserCourseSchema", many=True, exclude=("user_id",))
 # references = fields.Nested('ReferenceSchema', many=True, exclude=('user_id',))
 

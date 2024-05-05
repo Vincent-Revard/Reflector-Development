@@ -44,6 +44,11 @@ api.add_resource(
     "/courses/<int:course_id>/topics/<int:id>",
     endpoint="topics",
 )
+api.add_resource(
+    NotesById,
+    "/courses/<int:course_id>/topics/<int:topic_id>/notes/<int:note_id>/edit",
+    endpoint="note_edit",
+)
 
 # api.add_resource(NotesById, "/notes/<int:id>/edit", endpoint="notes_by_id")
 

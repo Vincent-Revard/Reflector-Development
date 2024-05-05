@@ -16,5 +16,5 @@ class NoteReference(db.Model):
     reference_id = db.Column(
         db.Integer, db.ForeignKey("references.id"), primary_key=True
     )
-    note = db.relationship("Note", back_populates="note_references")
+    note = db.relationship("Note", back_populates="references")
     reference = db.relationship("Reference", back_populates="note_references")

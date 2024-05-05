@@ -8,7 +8,7 @@ from . import (
     flask_bcrypt,
 )
 
-from .notereference import NoteReference
+from .note import Note
 
 class Reference(db.Model):
     __tablename__ = "references"

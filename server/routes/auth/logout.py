@@ -25,7 +25,7 @@ class Logout(Resource):
             response = make_response({"message": "Logout successful"}, 200)
             unset_jwt_cookies(response)
             jwt_redis_blocklist.set(
-                jti, "", ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+                jti, None, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
             )
             return response
         except Exception as e:

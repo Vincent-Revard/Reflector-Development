@@ -7,6 +7,7 @@ from flask_jwt_extended import (
     create_access_token,
     get_jwt,
 )
+import ipdb
 
 
 def jwt_required_modified(f):
@@ -16,8 +17,11 @@ def jwt_required_modified(f):
 
         # Check if JWT exists and is valid
         try:
+            ipdb.set_trace()
             verify_jwt_in_request()
             jti = get_jwt()["jti"]
+            ipdb.set_trace()
+
             entry = redis_client.get("blacklist:" + jti)
             if entry is not None:
                 return {"msg": "Token is revoked"}, 401

@@ -17,7 +17,7 @@ class User(db.Model):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     _password_hash = db.Column(db.String(100), nullable=False)
-    email_verified = db.Column(db.Boolean, default=False)  # 
+    email_verified = db.Column(db.Boolean, default=False)
 
     notes = db.relationship("Note", back_populates="user", lazy=True)
     references = db.relationship("Reference", back_populates="user", lazy=True)

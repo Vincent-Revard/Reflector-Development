@@ -18,10 +18,18 @@ const StyledButton = styled(Button)({
 
 const TopicCard = ({ data, courseId }) => {
     const [expanded, setExpanded] = useState(false);
+    const [expandedNoteId, setExpandedNoteId] = useState(null);
+
     const { user } = useAuth();
+
+  
     const handleCardClick = () => {
       setExpanded(!expanded);
     };
+
+  const handleNoteClick = (noteId) => {
+    setExpandedNoteId(expandedNoteId === noteId ? null : noteId);
+  };
   return (
     <>
       <StyledCard>
@@ -33,13 +41,13 @@ const TopicCard = ({ data, courseId }) => {
                   Edit Topic
                 </StyledButton>
               </Link>
-              <Link to={`/courses/${courseId}/topics/new`}>
-                <StyledButton variant="contained" color="primary">
-                  New Topic
-                </StyledButton>
-              </Link>
             </>
           )}
+          <Link to={`/courses/${courseId}/topics/new`}>
+            <StyledButton variant="contained" color="primary">
+              New Topic
+            </StyledButton>
+          </Link>
           <Link to={`/courses/${courseId}/topics/${data.id}/notes/new`}>
             <StyledButton variant="contained" color="primary">
               New Note
@@ -49,17 +57,38 @@ const TopicCard = ({ data, courseId }) => {
             {expanded ? 'Collapse Topic' : 'Expand Topic'}
           </StyledButton>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'blue' }}>Topic: {data.name}</Typography>
-        </CardContent>
-      </StyledCard>
-      {
-        expanded && data.notes && data.notes.map(note =>
-          <Link key={note.id} to={`/courses/${courseId}/topics/${data.id}/notes/${note.id}`}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'blue' }}>Note: {note.name}</Typography>
-          </Link>
-        )
-      }
-    </>
-  );
+                {
+                  expanded && data.notes && data.notes.map(note =>
+                    <div key={note.id}>
+                      <Typography variant="h6" sx={{
+                        fontWeight: 'bold', color: 'blue', cursor: 'pointer',
+                        '&:hover': {
+                          color: 'darkblue',
+                        }
+                      }}
+                        title="Click to view note details"
+                        onClick={() => handleNoteClick(note.id)}>
+                        Note: {note.name}
+                      </Typography>
+                      {expandedNoteId === note.id && (
+                        <>
+                          <Typography variant="body1" sx={{ color: 'black', marginTop: '1em', marginBottom: '1em' }}>
+                            Note Content: {note.content}
+                          </Typography>
+                          <Link to={`/courses/${courseId}/topics/${data.id}/notes/${note.id}`}>
+                            <StyledButton variant="contained" color="primary">
+                              View Additional Note Details
+                            </StyledButton>
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  )
+                }
+              </CardContent>
+            </StyledCard>
+          </>
+          );
 };
 
 export default TopicCard;

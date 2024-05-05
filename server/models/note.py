@@ -25,12 +25,7 @@ class Note(db.Model):
     references = db.relationship(
         "NoteReference", back_populates="note"
     )
-    # Define back reference to user
-    note_references = db.relationship(
-        "NoteReference", back_populates="note", overlaps="references"
-    )
     user = db.relationship("User", back_populates="notes")
-    # Define back reference to topic
     topic = db.relationship("Topic", back_populates="notes")
 
     references_proxy = association_proxy("references", "title")

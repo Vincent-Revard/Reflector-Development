@@ -11,13 +11,8 @@ class TopicSchema(ma.SQLAlchemyAutoSchema):
         exclude = ("creator", "creator.created_courses")
 
     id = ma.auto_field()
-    creator_id = fields.Integer(attribute="creator.id")
-    creator = fields.Nested(
-        "UserSchema", only=("id",), many=False,
-    )
+    creator_id = ma.auto_field()
     name = ma.auto_field()
-    notes = fields.Nested("NoteSchema", many=True)
-    courses = fields.Nested("CourseSchema", many=True)
 
     @post_load
     def make_topic(self, data, **kwargs):

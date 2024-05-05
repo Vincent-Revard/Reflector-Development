@@ -127,7 +127,9 @@ const router = createBrowserRouter([
                             element: (
                               <ContextProvider>
                                 <ContextList >
+                                  {console.log('NoteCard route hit')}
                                   <NoteCard />
+                                  {console.log('NoteCardx2 route hit')}
                                 </ContextList >
                               </ContextProvider>
                             ),
@@ -136,7 +138,7 @@ const router = createBrowserRouter([
                                 path: "edit",
                                 element: (
                                   <ContextProvider>
-                                    <EditableCard />
+                                    <NewNote />
                                   </ContextProvider>
                                 )
                               }

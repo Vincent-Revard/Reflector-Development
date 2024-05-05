@@ -3,6 +3,8 @@ import { useFetchJSON } from '../utils/useFetchJSON';
 import { useAuth } from './AuthContext';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useToast } from './ToastContext';
+import { CircularProgress } from '@mui/material';
+
 
 
 // ProfileContext
@@ -63,7 +65,7 @@ const ContextProvider = ({ children }) => {
                 abortController.abort(); // Abort the fetch request if the component is unmounted
             }
         }
-    }, [currentPage, showToast, user])
+    }, [currentPage, showToast, user, params.noteId, params.topicId, params.courseId])
 
 
 
@@ -151,6 +153,7 @@ const ContextProvider = ({ children }) => {
     const handlePatchContextById = async (courseId, updates, topicId = null, noteId = null) => {
         let itemToUpdate;
         let url;
+        debugger
 
         if (noteId) {
             const courseToUpdate = data.courses?.find(course => course.id === courseId);
@@ -235,16 +238,11 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    if (isLoading) {
-        if (!user)
-            return <div>Loading...</div>; //! add custom loading component from library
-    }
-
     return (
         <Context.Provider value={{
             data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext
         }}>
-            {children}
+            {isLoading ? <CircularProgress /> : children}
         </Context.Provider>
     );
 };
