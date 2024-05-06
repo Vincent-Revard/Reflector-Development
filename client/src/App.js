@@ -17,7 +17,6 @@ function App() {
   return (
     <>
       <Header user={user} updateUser={updateUser} logout={logout} />
-      <h1>This is my container location for home</h1>;
       <Outlet user={user} updateUser={updateUser} logout={logout}/>
       <Footer />
     </>

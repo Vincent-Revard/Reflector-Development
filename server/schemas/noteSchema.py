@@ -12,8 +12,10 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
         model = Note
         load_instance = True
 
-    content = ma.auto_field()
+    name = ma.auto_field()
     category = ma.auto_field()
+    content = ma.auto_field()
+    title = ma.auto_field()
     topic = fields.Nested("TopicSchema")
     references = fields.Nested("ReferenceSchema", many=True)
 
@@ -23,6 +25,6 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
             data.pop("references")
         return data
 
-    @post_load
-    def make_note(self, data, **kwargs):
-        return data
+    # @post_load
+    # def make_note(self, data, **kwargs):
+    #     return {c.name: getattr(data, c.name) for c in data.__table__.columns}

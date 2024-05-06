@@ -1,27 +1,19 @@
+import { Container, Typography, Box, Link } from '@mui/material';
 
 const Footer = () => {
   return (
-    <footer style={styles.footer}>
-      <div style={styles.container}>
-        <p>some footers text</p>
-        {/* Add any additional content here */}
-      </div>
-    </footer>
+    <Box sx={{ bgcolor: '#333', color: '#fff', p: 2, mt: 2, textAlign: 'center' }}>
+      <Container maxWidth="lg">
+        <Typography>
+          &#x26A1; This site was built with &#128150; by
+          <Link href='https://github.com/Vincent-Revard' color="inherit" underline="hover" target='_blank' rel='noopener noreferrer'>
+            👨‍🎤 Vincent Revard
+          </Link>
+          &nbsp; for educational purposes. &#x26A1;
+        </Typography>
+      </Container>
+    </Box>
   );
-};
-
-const styles = {
-  footer: {
-    backgroundColor: "#333",
-    color: "#fff",
-    padding: "20px",
-    marginTop: "20px",
-    textAlign: "center",
-  },
-  container: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
 };
 
 export default Footer;

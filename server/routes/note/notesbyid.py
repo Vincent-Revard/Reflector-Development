@@ -26,7 +26,6 @@ class NotesById(BaseResource):
     schema = NoteSchema()
 
     @jwt_required_modified
-
     def get(self, course_id=None, topic_id=None, note_id=None):
         user_id = get_jwt_identity()
         user = db.session.get(User, user_id)
@@ -67,6 +66,42 @@ class NotesById(BaseResource):
         return {"message": "Topic ID or note ID not provided"}, 400
 
     @jwt_required_modified
+    def post(self, course_id=None, topic_id=None):
+        user_id = get_jwt_identity()
+        user = db.session.get(User, user_id)
+
+        if not user:
+            return {"message": "User not found"}, 404
+
+        if course_id and topic_id:
+            # Check if the user is enrolled in the course
+            if any(course.id == course_id for course in user.enrolled_courses):
+                # Get the data from the request
+                data = request.get_json()
+                # Extract the 'note' data
+                note_data = data.get("note")
+                if not note_data:
+                    return {"message": "No note data provided"}, 400
+                # Validate the data
+                errors = self.schema.validate(note_data)
+                if errors:
+                    return errors, 422
+                # Load the data
+                note_data = self.schema.load(note_data)
+
+                # Create a new note
+                note = Note(**note_data)
+                db.session.add(note)
+                db.session.commit()
+
+                return {"message": "Note created successfully", "note": self.schema.dump(note)}, 201
+            else:
+                return {"message": "User is not enrolled in the course"}, 400
+
+        return {"message": "Invalid request"}, 400
+
+
+    @jwt_required_modified
     def delete(self, course_id=None, topic_id=None, note_id=None):
         user_id = get_jwt_identity()
         user = db.session.get(User, user_id)
@@ -80,7 +115,11 @@ class NotesById(BaseResource):
                 # Fetch the note
                 note = Note.query.filter_by(topic_id=topic_id, id=note_id).first()
                 if note:
-                    return super().delete(note_id)
+                    # Delete the note
+                    db.session.delete(note)
+                    db.session.commit()
+
+                    return {"message": "Note deleted successfully"}, 200
                 else:
                     return {"message": "Note not found"}, 404
             else:
@@ -95,21 +134,42 @@ class NotesById(BaseResource):
 
         if not user:
             return {"message": "User not found"}, 404
-
+        ipdb.set_trace()
         if course_id and topic_id and note_id:
             # Check if the user is enrolled in the course
             if any(course.id == course_id for course in user.enrolled_courses):
                 # Fetch the note
                 note = Note.query.filter_by(topic_id=topic_id, id=note_id).first()
                 if note:
-                    return super().patch(note_id)
-                else:
-                    return {"message": "Note not found"}, 404
+                    # Get the data from the request
+                    data = request.get_json()
+                    ipdb.set_trace()
+                    # Extract the 'note' data
+                    note_data = data.get("note")
+                    if not note_data:
+                        return {"message": "No note data provided"}, 400
+                    # Validate the data
+                    errors = self.schema.validate(note_data, partial=True)
+                    if errors:
+                        return errors, 422
+                    # Load the data
+                    note_data = self.schema.load(note_data, partial=True)
+
+                    # Fetch the note
+                    note = Note.query.filter_by(topic_id=topic_id, id=note_id).first()
+                    if note:
+                        # Convert note_data to a dictionary
+                        note_data_dict = note_data.__dict__
+                        # Update the note
+                        for key, value in note_data_dict.items():
+                            if hasattr(note, key):
+                                setattr(note, key, value)
+                        db.session.commit()
+
+                        return {"message": "Note updated successfully"}, 200
+                    else:
+                        return {"message": "Note not found"}, 404
             else:
                 return {"message": "User is not enrolled in the course"}, 400
 
         return {"message": "Invalid request"}, 400
-
-    @jwt_required_modified
-    def post(self, course_id=None, topic_id=None):
-        return {"message": "Method not allowed"}, 405

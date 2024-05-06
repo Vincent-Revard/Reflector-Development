@@ -78,6 +78,7 @@ from flask_jwt_extended.exceptions import NoAuthorizationError
 def not_found(error):
     return {"error": error.description}, 404
 
+
 # Setup our redis connection for storing the blocklisted tokens. You will probably
 # want your redis instance configured to persist data to disk, so that a restart
 # does not cause your application to forget that a JWT was revoked
@@ -88,8 +89,9 @@ jwt_redis_blocklist = redis.StrictRedis(
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     jti = jwt_payload["jti"]
-    token_in_redis = jwt_redis_blocklist.get(jti)
+    token_in_redis = jwt_redis_blocklist.get("blacklist:" + jti)
     return token_in_redis is not None
+
 
 @app.before_request
 def before_request():
@@ -104,6 +106,7 @@ def before_request():
         "profile": User,
         "references": Reference,
         "notes": Note,
+        "notesbyid": Note,
         "topics": Topic,
         "login": User,
         "signup": User,
@@ -114,14 +117,14 @@ def before_request():
     try:
         id = request.view_args.get("id")
         print(id)
-        # ipdb.set_trace()
+        ipdb.set_trace()
         if id is not None:
             record = get_instance_by_id(path_dict.get(request.endpoint), id)
             print(record)
             key_name = request.endpoint.split("byid")[0]
-            # ipdb.set_trace()
+            ipdb.set_trace()
             setattr(g, key_name, record)
-            # ipdb.set_trace()
+            ipdb.set_trace()
         else:
             key_name = request.endpoint
             setattr(g, key_name, None)
@@ -190,8 +193,10 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
         model = Note
         load_instance = True
 
-    content = ma.auto_field()
+    name = ma.auto_field()
     category = ma.auto_field()
+    content = ma.auto_field()
+    title = ma.auto_field()
     topic = fields.Nested('TopicSchema')
     references = fields.Nested("ReferenceSchema", many=True)
     
@@ -204,6 +209,7 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
     @post_load
     def make_note(self, data, **kwargs):
         return data
+
 class ReferenceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Reference

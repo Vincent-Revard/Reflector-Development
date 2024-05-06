@@ -12,18 +12,17 @@ class BaseResource(Resource):
     schema = None
 
     def get(self, id=None, condition=None):
-        
+
         try:
             if id is None and condition is None:
                 instances = get_all(self.model)
-                
+
                 return (
                     self.schema.dump(instances, many=True),
                     200,
                 )  # Use the schema to serialize the instances
             elif condition is not None:
                 instances = get_all_by_condition(self.model, condition)
-                
 
                 return (
                     self.schema.dump(instances, many=True),
@@ -33,7 +32,7 @@ class BaseResource(Resource):
                 instance = get_instance_by_id(self.model, id)
                 if instance is None:
                     return {"errors": f"{self.model.__name__} not found"}, 404
-                
+
                 return (
                     self.schema.dump(instance),
                     200,
@@ -70,30 +69,51 @@ class BaseResource(Resource):
             return {"message": "Invalid data"}, 422
 
     def patch(self, id):
+        # try:
+        #     ipdb.set_trace()
+
+        #     data = self.schema.load(request.json)
+        #     # Check if data is a User instance (object not dictionary)
+        #     if isinstance(data, User):
+        #         ipdb.set_trace()
+
+        #         # Convert the User instance to a dictionary
+        #         data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
+        #     else:
+        #         # Convert data to a dictionary if it's not already one
+        #         data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
+        #         ipdb.set_trace()
+        #     instance = get_instance_by_id(self.model, id)
+        #     if instance is None:
+        #         return {"errors": f"{self.model.__name__} not found"}, 404
+        #     ipdb.set_trace()
+
+        #     for key, value in data.items():
+        #         if value is not None:
+        #             setattr(instance, key, value)
+        #     db.session.commit()
+        #     ipdb.set_trace()
+        #     return {self.model.__name__.lower(): self.schema.dump(instance)}, 200
+        # except ValidationError as e:
+        #     return {"message": str(e)}, 422
+        # except IntegrityError:
+        #     db.session.rollback()
+        #     return {"message": "Invalid data"}, 422
         try:
-            ipdb.set_trace()
-
             data = self.schema.load(request.json)
-                # Check if data is a User instance (object not dictionary)
             if isinstance(data, User):
-                ipdb.set_trace()
-
                 # Convert the User instance to a dictionary
                 data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
-            ipdb.set_trace()
 
             instance = get_instance_by_id(self.model, id)
             if instance is None:
                 return {"errors": f"{self.model.__name__} not found"}, 404
             ipdb.set_trace()
-
             for key, value in data.items():
                 if value is not None:
                     setattr(instance, key, value)
             db.session.commit()
-            ipdb.set_trace()
-
-            return self.schema.dump(instance), 200
+            return {self.model.__name__.lower(): self.schema.dump(instance)}, 200
         except ValidationError as e:
             return {"message": str(e)}, 422
         except IntegrityError:

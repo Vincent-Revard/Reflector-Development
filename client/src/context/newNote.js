@@ -1,25 +1,27 @@
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from "yup";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProviderContext } from './ContextProvider';
 import { useEffect, useState } from 'react';
 import { TextField, Switch, FormControlLabel } from '@mui/material';
+
 const NewNote = () => {
     const { courseId, topicId, noteId } = useParams();
     const { handlePostContext, handlePatchContextById, data } = useProviderContext();
     const [editableFields, setEditableFields] = useState({});
+    const navigate = useNavigate();
     const [validationSchema, setValidationSchema] = useState(yup.object());
     const [initialValues, setInitialValues] = useState({
-        name: '',
-        title: '',
-        category: '',
-        content: '',
+        name: data.note.name || '',
+        title: data.note.title || '',
+        category: data.note.category || '',
+        content: data.note.content || '',
         topic: {
-            id: '',
-            creator_id: '',
-            name: '',
+            id: data.note.topic?.id || '',
+            creator_id: data.note.topic?.creator_id || '',
+            name: data.note.topic?.name || '',
         },
-        references: [],
+        references: data.note.references || [],
     });
 
     useEffect(() => {
@@ -62,19 +64,33 @@ const NewNote = () => {
     }, [noteId, courseId, topicId, data, editableFields]);
 
     const onSubmit = (values, { setSubmitting }) => {
+        // Create a new object that only includes the fields that were edited
+        const editedValues = Object.keys(values).reduce((result, key) => {
+            if (editableFields[key]) {
+                result[key] = values[key];
+            }
+            return result;
+        }, {});
+
         if (noteId) {
-            handlePatchContextById(courseId, values, topicId, noteId)
+            handlePatchContextById(courseId, editedValues, topicId, noteId)
                 .then(() => {
                     setSubmitting(false);
+                    // showToast('success', 'Note updated successfully');
+                    setTimeout(() => {
+                        navigate(`/courses/${courseId}/topics/${topicId}/notes/${noteId}`);
+                    }, 2000); // 2000 ms delay before navigation
                 })
                 .catch(error => {
+                    // showToast('error', `Update failed: ${error.message}`);
                     console.error(error);
                     setSubmitting(false);
                 });
         } else {
-            handlePostContext(courseId, values, topicId)
+            handlePostContext(courseId, editedValues, topicId)
                 .then(() => {
                     setSubmitting(false);
+                    navigate(`/courses`); 
                 })
                 .catch(error => {
                     console.error(error);

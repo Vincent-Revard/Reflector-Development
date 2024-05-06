@@ -1,15 +1,16 @@
 
 
 export const useFetchJSON = () => {
-    const handleRequest = async (url, method, body = null, csrfToken = null) => {
+    const handleRequest = async (url, method, body = null, csrfToken = null, Authorization = null) => {
         const headers = {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken,
+            'Authorization': Authorization,
         }
         const configObj = {
             method,
             headers,
-            body: body ? JSON.stringify(body) : null,
+            body: body ? JSON.stringify({ ...body, csrf_token: csrfToken }) : JSON.stringify({ csrf_token: csrfToken }),
         }
         try {
             const res = await fetch(url, configObj)
@@ -35,9 +36,18 @@ export const useFetchJSON = () => {
         return await handleRequest(`${url}`, 'PATCH', formData, csrfToken)
     }
 
-    const deleteJSON = async (url, csrfToken) => {
-        debugger
-        return await handleRequest(`${url}`, 'DELETE', csrfToken)
+    const deleteJSON = async (url, csrfToken, Authorization) => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Authorization': Authorization,
+        }
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: headers,
+            credentials: 'include',
+        });
+        return response;
     }
 
     return { postJSON, patchJSON, deleteJSON }

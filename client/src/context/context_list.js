@@ -28,14 +28,19 @@ const ContextList = () => {
     if (baseRoute !== 'courses') {
       return <h1>You need to log in to view this page!</h1>;
     }
-    if (courseId && topicId && noteId) {
-      if (currentPage.includes('edit')) {
+    if (courseId && topicId) {
+      if (currentPage.includes('new')) {
         return <NewNote />;
       }
-      if (data?.note?.id === Number(noteId)) {
-        return <NoteCard key={data.note.id} note={data.note} courseId={courseId} topicId={topicId} />;
-      } else {
-        console.log('noteId from route params does not match noteId from data');
+      if (noteId) {
+        if (currentPage.includes('edit')) {
+          return <NewNote />;
+        }
+        if (data?.note?.id === Number(noteId)) {
+          return <NoteCard key={data.note.id} note={data.note} courseId={courseId} topicId={topicId} />;
+        } else {
+          console.log('noteId from route params does not match noteId from data');
+        }
       }
     }
     if (courseId && topicId) {

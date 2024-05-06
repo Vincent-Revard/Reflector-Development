@@ -21,6 +21,32 @@ export const AuthProvider = ({ children }) => {
     const parts = value.split(`; ${name}=`)
     if (parts.length === 2) return parts.pop().split(';').shift()
   }
+const logout = useCallback(() => {
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-CSRF-TOKEN': getCookie('csrf_access_token'),
+  }
+  fetch("/api/v1/logout", {
+    method: "DELETE",
+    headers: headers,
+  })
+    .then(resp => {
+      if (resp.ok) {
+        document.cookie = 'access_token_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        setUser(null)
+        onUnauthorized()
+      } else {
+        throw new Error('Logout failed');
+      }
+    })
+    .catch(err => showToast(err.message))
+}, [setUser, onUnauthorized, showToast]);
+
+const value = useMemo(() => ({
+  user,
+  updateUser: setUser,
+  logout
+}), [user, setUser, logout]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -35,7 +61,7 @@ export const AuthProvider = ({ children }) => {
           },
         });
       } catch (error) {
-        showToast(`Error: ${error.message}`);
+        showToast(`error: ${error.message}`);
       }
       if (response && response.ok) {
         const data = await response.json();
@@ -43,26 +69,25 @@ export const AuthProvider = ({ children }) => {
           setUser(data);
         }
       } else {
-        // Session check failed, try to refresh the session
         let refreshResponse;
         try {
           refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
             method: "POST",
             headers: {
-              "X-CSRFToken": getCookie('csrf_access_token'),
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getCookie('csrf_refresh_token')}, Bearer ${getCookie('access_token_cookie')}`
-            }
+              'Authorization': `Bearer ${getCookie('refresh_token_cookie')}`
+            },
+            body: JSON.stringify({ csrf_token: getCookie('csrf_access_token') })
           });
         } catch (error) {
-          showToast(`Error: ${error.message}`);
-          onUnauthorized();
+          showToast(`error: ${error.message}`);
+          logout();
         }
 
         if (refreshResponse && refreshResponse.ok) {
           const refreshData = await refreshResponse.json();
           if (refreshData.msg === 'Token has expired') {
-            onUnauthorized();
+            logout();
           } else {
             setUser(refreshData);
           }
@@ -75,34 +100,8 @@ export const AuthProvider = ({ children }) => {
       checkSession();
       setSessionChecked(true)
     }
-  }, [showToast, onUnauthorized, sessionChecked]);
+  }, [showToast, onUnauthorized, sessionChecked, logout]);
 
-  const logout = useCallback(() => {
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': getCookie('csrf_access_token'),
-    }
-    fetch("/api/v1/logout", {
-      method: "DELETE",
-      headers: headers,
-    })
-      .then(resp => {
-        if (resp.ok) {
-          document.cookie = 'access_token_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          setUser(null)
-          onUnauthorized()
-        } else {
-          throw new Error('Logout failed');
-        }
-      })
-      .catch(err => showToast(err))
-  }, [setUser, onUnauthorized, showToast]);
-
-  const value = useMemo(() => ({
-    user,
-    updateUser: setUser,
-    logout
-  }), [user, setUser, logout]);
 
   return (
     <AuthContext.Provider value={value}>
