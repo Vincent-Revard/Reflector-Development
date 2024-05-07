@@ -86,21 +86,22 @@ const NewNote = () => {
 
         if (location.pathname.endsWith('/new')) {
             promise = handlePostContext('note', courseId, editedValues, topicId)
-                .then(() => {
+                .then((response) => {
                     showToast('success', 'Item created successfully');
                     setTimeout(() => {
-                        navigate(`/courses`);
+                        navigate(`/courses/${courseId}/topics/${topicId}/notes/${response.note.id}`);
                     }, 2000); // 2 seconds delay
                 })
                 .catch(error => {
                     showToast('error', `Error: ${error.message}`);
                 });
         } else if (noteId) {
-            promise = handlePatchContextById(courseId, editedValues, topicId, noteId)
-                .then(() => {
-                    showToast('success', 'Item updated successfully');
+            promise = handlePostContext('note', courseId, editedValues, topicId)
+                .then((response) => {
+                    showToast('success', 'Item created successfully');
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}/topics/${topicId}/notes/${noteId}`);
+                        // Use the noteId from the response to navigate
+                        navigate(`/courses/${courseId}/topics/${topicId}/notes/${response.data.noteId}`);
                     }, 2000); // 2 seconds delay
                 })
                 .catch(error => {

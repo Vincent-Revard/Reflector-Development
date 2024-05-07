@@ -88,4 +88,4 @@ class NotesIndex(BaseResource):
             db.session.rollback()
             return {"message": "Failed to create note"}, 500
 
-        return {"message": "Note created successfully"}, 200
+        return {"message": "Note created successfully", "note": self.schema.dump(note)}, 200

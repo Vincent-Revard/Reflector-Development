@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AppBar, Toolbar, IconButton, List, ListItem, ListItemText, Drawer, ButtonBase } from '@mui/material'
+import { AppBar, Toolbar, IconButton, List, ListItem, ListItemText, Drawer, ButtonBase, Typography } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 
 function Header({ user, logout }) {
@@ -15,6 +15,11 @@ function Header({ user, logout }) {
         <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => setMenu(!menu)}>
           <MenuIcon />
         </IconButton>
+        {user && (
+          <Typography variant="h6" color="inherit" component="div">
+            Welcome, {user.username}!
+          </Typography>
+        )}
         <Drawer anchor="right" open={menu} onClose={() => setMenu(!menu)}>
           <List>
             {user ? (

@@ -6,8 +6,6 @@ import { useToast } from './ToastContext';
 import { CircularProgress } from '@mui/material';
 import { StyleSheetConsumer } from 'styled-components';
 
-
-
 // ProfileContext
 const Context = createContext();
 
@@ -39,7 +37,8 @@ const ContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        if (user && !currentPage.endsWith('notes/new')) {
+        if (user) {
+        // if (user && !currentPage.endsWith('notes/new')) {
             let abortController = new AbortController(); // Create an instance of AbortController
             (async () => {
                 setIsLoading(true);
@@ -125,7 +124,7 @@ const ContextProvider = ({ children }) => {
             if (responseBody.message.includes('created successfully')) {
                 const updatedData = {
                     ...data,
-                    [currentPage]: [...data[currentPage], responseBody]
+                    [currentPage]: Array.isArray(data[currentPage]) ? [...data[currentPage], responseBody] : [responseBody]
                 };
                 setData(updatedData);
                 showToast('success', 'Item created successfully');
