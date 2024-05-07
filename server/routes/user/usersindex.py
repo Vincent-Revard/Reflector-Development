@@ -13,44 +13,44 @@ class UsersIndex(BaseResource):
     model = User
     schema = UserUpdateSchema()
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def get(self, id):
-        ipdb.set_trace()
+        # ipdb.set_trace()
         if g.profile is None:
             return {"message": "Unauthorized"}, 401
 
         return super().get(id)
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def delete(self, id):
         if g.profile is None:
             return {"message": "Unauthorized"}, 401
         return super().delete(g.profile.id)
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def patch(self, id, csrfToken=None):
         # id = request.view_args["id"]
         if g.profile is None:
             return {"message": "Unauthorized"}, 401
 
         # Get the current password from the request data
-        ipdb.set_trace()
+        # ipdb.set_trace()
         current_password = request.json.get("current_password")
-        ipdb.set_trace()
+        # ipdb.set_trace()
         if not current_password:
             return {"message": "Current password is required"}, 400
-        ipdb.set_trace()
+        # ipdb.set_trace()
 
         # Check if the current password matches the stored password
         if not g.profile.authenticate(current_password):
             return {"message": "Current password is incorrect"}, 400
-        ipdb.set_trace()
+        # ipdb.set_trace()
 
         # Hash the new password before storing it
         new_password = request.json.get("password")
         if new_password:
             g.profile.password = new_password
-        ipdb.set_trace()
+        # ipdb.set_trace()
 
         # Validate username and email
         username = request.json.get("username")

@@ -20,16 +20,16 @@ from .. import (
     Course,
     db
 )
+from flask_jwt_extended import current_user
 
 class NotesById(BaseResource):
     model = Note
     schema = NoteSchema()
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def get(self, course_id=None, topic_id=None, note_id=None):
-        user_id = get_jwt_identity()
-        user = db.session.get(User, user_id)
-
+        user = current_user
+        ipdb.set_trace()
         if not user:
             return {"message": "User not found"}, 404
 
@@ -54,7 +54,7 @@ class NotesById(BaseResource):
                     course.id in (course.id for course in user.enrolled_courses)
                     for course in note.topic.courses
                 ):
-                    ipdb.set_trace()
+                    # ipdb.set_trace()
                     return {"note": self.schema.dump(note)}, 200
                 else:
                     return {
@@ -65,46 +65,9 @@ class NotesById(BaseResource):
 
         return {"message": "Topic ID or note ID not provided"}, 400
 
-    @jwt_required_modified
-    def post(self, course_id=None, topic_id=None):
-        user_id = get_jwt_identity()
-        user = db.session.get(User, user_id)
-
-        if not user:
-            return {"message": "User not found"}, 404
-
-        if course_id and topic_id:
-            # Check if the user is enrolled in the course
-            if any(course.id == course_id for course in user.enrolled_courses):
-                # Get the data from the request
-                data = request.get_json()
-                # Extract the 'note' data
-                note_data = data.get("note")
-                if not note_data:
-                    return {"message": "No note data provided"}, 400
-                # Validate the data
-                errors = self.schema.validate(note_data)
-                if errors:
-                    return errors, 422
-                # Load the data
-                note_data = self.schema.load(note_data)
-
-                # Create a new note
-                note = Note(**note_data)
-                db.session.add(note)
-                db.session.commit()
-
-                return {"message": "Note created successfully", "note": self.schema.dump(note)}, 201
-            else:
-                return {"message": "User is not enrolled in the course"}, 400
-
-        return {"message": "Invalid request"}, 400
-
-
-    @jwt_required_modified
+    @jwt_required_modified()
     def delete(self, course_id=None, topic_id=None, note_id=None):
-        user_id = get_jwt_identity()
-        user = db.session.get(User, user_id)
+        user = current_user
 
         if not user:
             return {"message": "User not found"}, 404
@@ -127,11 +90,9 @@ class NotesById(BaseResource):
 
         return {"message": "Invalid request"}, 400
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def patch(self, course_id=None, topic_id=None, note_id=None):
-        user_id = get_jwt_identity()
-        user = db.session.get(User, user_id)
-
+        user = current_user
         if not user:
             return {"message": "User not found"}, 404
         ipdb.set_trace()

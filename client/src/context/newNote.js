@@ -4,24 +4,35 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useProviderContext } from './ContextProvider';
 import { useEffect, useState } from 'react';
 import { TextField, Switch, FormControlLabel } from '@mui/material';
+import { useLocation } from 'react-router-dom';
+
 
 const NewNote = () => {
     const { courseId, topicId, noteId } = useParams();
-    const { handlePostContext, handlePatchContextById, data } = useProviderContext();
-    const [editableFields, setEditableFields] = useState({});
+    const { handlePostContext, handlePatchContextById, data, showToast } = useProviderContext();
     const navigate = useNavigate();
+    const location = useLocation();
+
+
+    const [editableFields, setEditableFields] = useState(noteId ? {} : {
+        name: true,
+        title: true,
+        category: true,
+        content: true,
+    });
+
     const [validationSchema, setValidationSchema] = useState(yup.object());
     const [initialValues, setInitialValues] = useState({
-        name: data.note.name || '',
-        title: data.note.title || '',
-        category: data.note.category || '',
-        content: data.note.content || '',
+        name: data?.note?.name || '',
+        title: data?.note?.title || '',
+        category: data?.note?.category || '',
+        content: data?.note?.content || '',
         topic: {
-            id: data.note.topic?.id || '',
-            creator_id: data.note.topic?.creator_id || '',
-            name: data.note.topic?.name || '',
+            id: data?.note?.topic?.id || '',
+            creator_id: data?.note?.topic?.creator_id || '',
+            name: data?.note?.topic?.name || '',
         },
-        references: data.note.references || [],
+        references: data?.note?.references || [],
     });
 
     useEffect(() => {
@@ -64,7 +75,6 @@ const NewNote = () => {
     }, [noteId, courseId, topicId, data, editableFields]);
 
     const onSubmit = (values, { setSubmitting }) => {
-        // Create a new object that only includes the fields that were edited
         const editedValues = Object.keys(values).reduce((result, key) => {
             if (editableFields[key]) {
                 result[key] = values[key];
@@ -72,33 +82,38 @@ const NewNote = () => {
             return result;
         }, {});
 
-        if (noteId) {
-            handlePatchContextById(courseId, editedValues, topicId, noteId)
+        let promise;
+
+        if (location.pathname.endsWith('/new')) {
+            promise = handlePostContext('note', courseId, editedValues, topicId)
                 .then(() => {
-                    setSubmitting(false);
-                    // showToast('success', 'Note updated successfully');
+                    showToast('success', 'Item created successfully');
+                    setTimeout(() => {
+                        navigate(`/courses`);
+                    }, 2000); // 2 seconds delay
+                })
+                .catch(error => {
+                    showToast('error', `Error: ${error.message}`);
+                });
+        } else if (noteId) {
+            promise = handlePatchContextById(courseId, editedValues, topicId, noteId)
+                .then(() => {
+                    showToast('success', 'Item updated successfully');
                     setTimeout(() => {
                         navigate(`/courses/${courseId}/topics/${topicId}/notes/${noteId}`);
-                    }, 2000); // 2000 ms delay before navigation
+                    }, 2000); // 2 seconds delay
                 })
                 .catch(error => {
-                    // showToast('error', `Update failed: ${error.message}`);
-                    console.error(error);
-                    setSubmitting(false);
-                });
-        } else {
-            handlePostContext(courseId, editedValues, topicId)
-                .then(() => {
-                    setSubmitting(false);
-                    navigate(`/courses`); 
-                })
-                .catch(error => {
-                    console.error(error);
-                    setSubmitting(false);
+                    showToast('error', `Error: ${error.message}`);
                 });
         }
-    };
 
+        if (promise) {
+            promise.finally(() => {
+                setSubmitting(false);
+            });
+        }
+    };
     const fieldInfo = [
         { name: 'name', type: 'text', label: 'Name', placeholder: 'Enter name' },
         { name: 'title', type: 'text', label: 'Title', placeholder: 'Enter title' },
@@ -120,17 +135,19 @@ const NewNote = () => {
                 <Form>
                     {fieldInfo.map(field => (
                         <div key={field.name}>
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={editableFields[field.name] || false}
-                                        onChange={() => setEditableFields({ ...editableFields, [field.name]: !editableFields[field.name] })}
-                                        name={field.name}
-                                        color="primary"
-                                    />
-                                }
-                                label="Editable"
-                            />
+                            {noteId && (
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={editableFields[field.name] || false}
+                                            onChange={() => setEditableFields({ ...editableFields, [field.name]: !editableFields[field.name] })}
+                                            name={field.name}
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Editable"
+                                />
+                            )}
                             <TextField
                                 id={field.name}
                                 name={field.name}

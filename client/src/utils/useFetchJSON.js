@@ -10,7 +10,7 @@ export const useFetchJSON = () => {
         const configObj = {
             method,
             headers,
-            body: body ? JSON.stringify({ ...body, csrf_token: csrfToken }) : JSON.stringify({ csrf_token: csrfToken }),
+            body: body ? JSON.stringify({ ...body }) : JSON.stringify({ csrf_token: csrfToken }),
         }
         try {
             const res = await fetch(url, configObj)
@@ -28,6 +28,7 @@ export const useFetchJSON = () => {
     }
 
     const postJSON = async (url, formData, csrfToken) => {
+        debugger
         return await handleRequest(url, 'POST', formData, csrfToken )
     }
 

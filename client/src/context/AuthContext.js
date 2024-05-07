@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useMemo, useCall
 import { useToast } from './ToastContext'
 import { useUnauthorized } from '..'
 import CircularProgress from '@mui/material/CircularProgress';
+import { Navigate } from 'react-router-dom';
 
 
 const AuthContext = createContext()
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }) => {
     const parts = value.split(`; ${name}=`)
     if (parts.length === 2) return parts.pop().split(';').shift()
   }
+
 const logout = useCallback(() => {
   const headers = {
     'Content-Type': 'application/json',
@@ -42,11 +44,11 @@ const logout = useCallback(() => {
     .catch(err => showToast(err.message))
 }, [setUser, onUnauthorized, showToast]);
 
-const value = useMemo(() => ({
+  const value = useMemo(() => ({
   user,
   updateUser: setUser,
   logout
-}), [user, setUser, logout]);
+  }), [user, setUser, logout, ]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -75,24 +77,26 @@ const value = useMemo(() => ({
             method: "POST",
             headers: {
               'Content-Type': 'application/json',
+              "X-CSRFToken": getCookie('csrf_refresh_token'),
               'Authorization': `Bearer ${getCookie('refresh_token_cookie')}`
             },
-            body: JSON.stringify({ csrf_token: getCookie('csrf_access_token') })
+            body: JSON.stringify({ csrf_token: getCookie('csrf_refresh_token') })
           });
         } catch (error) {
           showToast(`error: ${error.message}`);
+          Navigate('/registration')
           logout();
         }
-
-        if (refreshResponse && refreshResponse.ok) {
-          const refreshData = await refreshResponse.json();
-          if (refreshData.msg === 'Token has expired') {
-            logout();
-          } else {
-            setUser(refreshData);
+          if (refreshResponse && refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            if (refreshData.msg === 'Token has expired') {
+              setUser(null)
+              Navigate('/registration')
+            } else {
+              setUser(refreshData);
+            }
           }
         }
-      }
       setCheckingSession(false);
     };
 

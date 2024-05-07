@@ -15,6 +15,7 @@ from .. import (
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
+from flask_jwt_extended import current_user
 
 import ipdb
 
@@ -22,10 +23,12 @@ class CoursesIndex(BaseResource):
     model = Course
     schema = CourseSchema()
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def get(self, id=None, condition=None):
         if id is None:
-            user_id = get_jwt_identity()
+            user_id = current_user.id
+
+            # user_id = get_jwt_identity()
             user = User.query.options(
                 joinedload(User.enrolled_courses)
                 .joinedload(Course.course_topics)
@@ -61,14 +64,14 @@ class CoursesIndex(BaseResource):
         # ipdb.set_trace()
         return super().get(id, condition)
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def delete(self, id=None):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
         # ipdb.set_trace()
         return super().delete(id)
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def patch(self, id):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
@@ -76,7 +79,7 @@ class CoursesIndex(BaseResource):
 
         return super().patch(g.courses.id)
 
-    @jwt_required_modified
+    @jwt_required_modified()
     def post(self):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401

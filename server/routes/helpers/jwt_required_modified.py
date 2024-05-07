@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import jsonify
 from flask_jwt_extended.exceptions import NoAuthorizationError
+from jwt.exceptions import ExpiredSignatureError
 from flask_jwt_extended import (
     verify_jwt_in_request,
     get_jwt_identity,
@@ -10,38 +11,42 @@ from flask_jwt_extended import (
 import ipdb
 
 
-def jwt_required_modified(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        from config import redis_client
+def jwt_required_modified(**kwargs):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs_inner):
+            from config import redis_client
 
-        # Check if JWT exists and is valid
-        try:
-            ipdb.set_trace()
-            verify_jwt_in_request()
-            jti = get_jwt()["jti"]
-            ipdb.set_trace()
+            # Check if JWT exists and is valid
+            try:
+                verify_jwt_in_request(**kwargs)
+                jti = get_jwt()["jti"]
 
-            entry = redis_client.get("blacklist:" + jti)
-            if entry is not None:
-                return {"msg": "Token is revoked"}, 401
-            return f(*args, **kwargs)
-        except NoAuthorizationError:
-            # If JWT is expired, get the identity of the expired JWT
-            old_jwt_identity = get_jwt_identity()
+                entry = redis_client.get("blacklist:" + jti)
+                if entry is not None:
+                    return {"msg": "Token is revoked"}, 401
+                return f(*args, **kwargs_inner)
+            except NoAuthorizationError:
+                return {"msg": "No authorization token provided"}, 401
+            except ExpiredSignatureError:
+                try:
+                    # If JWT is expired, get the identity of the expired JWT
+                    old_jwt_identity = get_jwt_identity()
+                    # Ensure old_jwt_identity is a string
+                    if not isinstance(old_jwt_identity, str):
+                        old_jwt_identity = str(old_jwt_identity)
+                    # Create a new JWT
+                    new_access_token = create_access_token(identity=old_jwt_identity)
+                    # Add old JWT to blacklist
+                    redis_client.set("blacklist:" + old_jwt_identity, True)
+                    # Return new JWT to the user
+                    resp = jsonify(
+                        {"refresh": True, "new_access_token": new_access_token}
+                    )
+                    return resp, 401
+                except RuntimeError:
+                    return {"msg": "Token has expired"}, 401
 
-            # Ensure old_jwt_identity is a string
-            if not isinstance(old_jwt_identity, str):
-                old_jwt_identity = str(old_jwt_identity)
-
-            # Create a new JWT
-            new_access_token = create_access_token(identity=old_jwt_identity)
-
-            # Add old JWT to blacklist
-            redis_client.set("blacklist:" + old_jwt_identity, True)
-
-            # Return new JWT to the user
-            resp = jsonify({"refresh": True, "new_access_token": new_access_token})
-            return resp, 401
+        return wrapper
 
     return decorator

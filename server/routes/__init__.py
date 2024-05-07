@@ -4,6 +4,7 @@ from flask_restful import Resource
 from werkzeug.exceptions import NotFound
 from .helpers.generate_csrf_token import generate_csrf_token
 from .helpers.jwt_required_modified import jwt_required_modified
+from .helpers.jwt_required_logout import jwt_required_logout
 import json
 from flask_marshmallow import Marshmallow
 from flask_mail import Mail, Message
@@ -99,9 +100,7 @@ def before_request():
     path_dict = {
         "coursesbyid": Course,
         "courses": Course,
-        "topicbyid": Topic,
         "referencebyid": Reference,
-        "notebyid": Note,
         "profilebyid": User,
         "profile": User,
         "references": Reference,
@@ -112,19 +111,20 @@ def before_request():
         "signup": User,
         # "quizzes": Quiz,
         # "quizzesbyid": Quiz,
+        "refresh": User
     }
 
     try:
         id = request.view_args.get("id")
         print(id)
-        ipdb.set_trace()
+        # ipdb.set_trace()
         if id is not None:
             record = get_instance_by_id(path_dict.get(request.endpoint), id)
             print(record)
             key_name = request.endpoint.split("byid")[0]
-            ipdb.set_trace()
+            # ipdb.set_trace()
             setattr(g, key_name, record)
-            ipdb.set_trace()
+            # ipdb.set_trace()
         else:
             key_name = request.endpoint
             setattr(g, key_name, None)

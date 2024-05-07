@@ -32,7 +32,7 @@ class CheckSession(Resource):
     #         return user_data, 200
     #     else:
     #         return {"message": "Please log in"}, 401
-    @jwt_required_modified
+    @jwt_required_modified()
     def get(self):
         if current_user:
             user_data = UserSchema().dump(current_user)

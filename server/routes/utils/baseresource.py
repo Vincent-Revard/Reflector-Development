@@ -108,7 +108,7 @@ class BaseResource(Resource):
             instance = get_instance_by_id(self.model, id)
             if instance is None:
                 return {"errors": f"{self.model.__name__} not found"}, 404
-            ipdb.set_trace()
+            # ipdb.set_trace()
             for key, value in data.items():
                 if value is not None:
                     setattr(instance, key, value)

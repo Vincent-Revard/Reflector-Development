@@ -10,25 +10,6 @@ import App from "./App";
 import Modal from 'react-modal'
 Modal.setAppElement('#root')
 
-// const container = document.getElementById("root");
-// const root = createRoot(container);
-
-// const handleUnauthorized = useCallback(() => {
-//   router.navigate("/registration");
-// }, []);
-// root.render(
-
-
-//   <ToastProvider> 
-//     <AuthProvider onUnauthorized={handleUnauthorized}> 
-//       <RouterProvider router={router}>
-//         <App />
-//       </RouterProvider>
-//     </AuthProvider>
-//   </ToastProvider>
-// );
-// Create a new context for the unauthorized handler
-
 const UnauthorizedContext = createContext();
 
 export const useUnauthorized = () => useContext(UnauthorizedContext);

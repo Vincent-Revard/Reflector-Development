@@ -44,9 +44,6 @@ const NoteCard = ({ note, courseId, topicId }) => {
             });
         setOpen(false);
     };
-    if (!note) {
-        return <CircularProgress />;
-    }
 
     return (
         <StyledCard>

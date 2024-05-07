@@ -12,28 +12,14 @@ from .. import (
     request,
     ipdb,
     jwt_required_modified,
+    jwt_required_logout,
     jwt_redis_blocklist,
     app
 )
 
 class Logout(Resource):
 
-    # @jwt_required_modified
-    # def delete(self):
-    #     try:
-    #         ipdb.set_trace()
-    #         jti = get_jwt()["jti"]
-    #         response = make_response({"message": "Logout successful"}, 200)
-    #         ipdb.set_trace()
-    #         unset_jwt_cookies(response)
-    #         jwt_redis_blocklist.set(
-    #             jti, None, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
-    #         )
-    #         ipdb.set_trace()
-    #         return response
-    #     except Exception as e:
-    #         return {"message": str(e)}, 422
-    @jwt_required_modified
+    @jwt_required_logout()
     def delete(self):
         try:
             jti = get_jwt()["jti"]

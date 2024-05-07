@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useToast } from './ToastContext';
 import { CircularProgress } from '@mui/material';
+import { StyleSheetConsumer } from 'styled-components';
 
 
 
@@ -14,7 +15,7 @@ export const useProviderContext = () => useContext(Context);
 
 const ContextProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
-    const { logout, user, onUnauthorized } = useAuth();
+    const { logout, user, updateUser } = useAuth();
     const { showToast } = useToast();
     const [data, setData] = useState({});
     const { postJSON, deleteJSON, patchJSON } = useFetchJSON();
@@ -30,7 +31,7 @@ const ContextProvider = ({ children }) => {
 
     console.log('currentPage:', currentPage);
 
-    
+
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -38,7 +39,7 @@ const ContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        if (user) {
+        if (user && !currentPage.endsWith('notes/new')) {
             let abortController = new AbortController(); // Create an instance of AbortController
             (async () => {
                 setIsLoading(true);
@@ -47,13 +48,13 @@ const ContextProvider = ({ children }) => {
                     if (res.ok) {
                         const data = await res.json()
                         setData(data)
-                        console.log(data)
                         showToast('success', 'Data Fetch Successful')
                         setIsLoading(false);
                     }
                 } catch (err) {
                     if (err.name === 'AbortError') {
                         console.log('Fetch aborted')
+                        setIsLoading(false);
                     } else {
                         showToast('error', err.message)
                         setIsLoading(false);
@@ -65,7 +66,7 @@ const ContextProvider = ({ children }) => {
                 abortController.abort(); // Abort the fetch request if the component is unmounted
             }
         }
-    }, [currentPage, showToast, user, params.noteId, params.topicId, params.courseId])
+    }, [currentPage, showToast, user, params.topicId, params.courseId])
 
 
 
@@ -79,42 +80,59 @@ const ContextProvider = ({ children }) => {
         console.log(csrfToken)
         // setProfileData(profileData.map(user => user.id === id ? { ...user, ...updates } : user));
         // debugger
+        setData({ ...data, ...updatesWithoutPasswords });
         try {
-            setData({ ...data, ...updatesWithoutPasswords });
-            const response = await patchJSON(`/api/v1/${currentPage}`, updates, csrfToken);
-            return response
+            const responseBody = await patchJSON(`/api/v1/${currentPage}`, updates, csrfToken);
+
+            if (responseBody.message === 'Item updated successfully') {
+                showToast('success', 'Item updated successfully');
+            } else {
+                throw new Error(responseBody.message || 'An error occurred');
+            }
+            return responseBody;
         } catch (err) {
-            // debugger
             showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
             setData(prevProfileData);
         }
     }
 
-    const handlePostContext = async (newContent) => {
-
-        let pathname = location.pathname.endsWith('/new')
-            ? location.pathname.slice(0, -4)
-            : location.pathname;
-        const url = `/api/v1${pathname}`;
-
+    const handlePostContext = async (type, courseId, newContent, topicId = null) => {
+        let url;
         const prevData = { ...data };
+        debugger
+        switch (type) {
+            case 'course':
+                debugger
+                url = `/api/v1/courses/new`;
+                break;
+            case 'topic':
+                url = `/api/v1/courses/${courseId}/topics/new`;
+                break;
+            case 'note':
+                if (!topicId) {
+                    throw new Error('Topic ID is required to post a new note');
+                }
+                url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/new`;
+                break;
+            default:
+                throw new Error('Invalid type');
+        }
 
         try {
             const csrfToken = getCookie('csrf_access_token');
-            const response = await postJSON(url, newContent, csrfToken);
-            const responseData = await response.json();
+            const responseBody = await postJSON(url, newContent, csrfToken);
 
-            if (response.ok) {
+            if (responseBody.message.includes('created successfully')) {
                 const updatedData = {
                     ...data,
-                    [currentPage]: [...data[currentPage], responseData]
+                    [currentPage]: [...data[currentPage], responseBody]
                 };
                 setData(updatedData);
                 showToast('success', 'Item created successfully');
             } else {
-                showToast('error', responseData.message || 'An error occurred');
+                throw new Error(responseBody.message || 'An error occurred');
             }
-            return response;
+            return responseBody;
         } catch (err) {
             showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
             setData(prevData);
@@ -136,12 +154,11 @@ const ContextProvider = ({ children }) => {
                     'X-CSRF-TOKEN': csrfToken,
                 },
             });
-            return resp.json().then(data => {
-                if (resp.status === 204) {
-                    showToast('success', 'User deleted successfully')
-                    logout()
-                }
-            });
+            if (resp.status === 204) {
+                showToast('success', 'User deleted successfully')
+                updateUser(null)
+                return;
+            }
         } catch (err) {
             showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
             setData(userToDelete)
@@ -149,120 +166,120 @@ const ContextProvider = ({ children }) => {
     }
 
     //! CRUDById
-        const handlePatchContextById = async (courseId, updates, topicId = null, noteId = null) => {
+    const handlePatchContextById = async (courseId, updates, topicId = null, noteId = null) => {
         let itemToUpdate;
         let url;
         let prevData = { ...data };
         let updatedData;
         debugger
 
-            if (noteId) {
-                itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
-                url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
-                updatedData = {
-                    ...prevData,
-                    note: {
-                        ...itemToUpdate,
-                        ...updates
-                    }
-                };
-            } else if (topicId) {
-                itemToUpdate = data?.topics?.find(topic => topic.id === topicId);
-                url = `/api/v1/courses/${courseId}/topics/${topicId}`;
-                updatedData = {
-                    ...prevData,
-                    topics: prevData.topics.map(topic =>
-                        topic.id === topicId ? { ...topic, ...updates } : topic
-                    )
-                };
-            } else {
-                itemToUpdate = data.courses?.find(course => course.id === courseId);
-                url = `/api/v1/courses/${courseId}`;
-                updatedData = {
-                    ...prevData,
-                    courses: prevData.courses.map(course =>
-                        course.id === courseId ? { ...course, ...updates } : course
-                    )
-                };
-            }
-
-            if (!itemToUpdate) {
-                showToast('error', 'Item not found');
-                return;
-            }
-
-            try {
-                setData(updatedData);
-                const csrfToken = getCookie('csrf_access_token')
-                const Authorization = `Bearer ${getCookie('access_token_cookie')}`
-                const response = await patchJSON(url, updatedData, csrfToken, Authorization);
-                if (response.ok) {
-                    showToast('success', 'Item updated successfully');
-                } else {
-                    throw new Error('An error occurred');
+        if (noteId) {
+            itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
+            url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
+            updatedData = {
+                ...prevData,
+                note: {
+                    ...itemToUpdate,
+                    ...updates
                 }
-                return response;
-            } catch (error) {
-                showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
-                setData(prevData);
-                return error;
-            }
+            };
+        } else if (topicId) {
+            itemToUpdate = data?.topics?.find(topic => topic.id === topicId);
+            url = `/api/v1/courses/${courseId}/topics/${topicId}`;
+            updatedData = {
+                ...prevData,
+                topics: prevData.topics.map(topic =>
+                    topic.id === topicId ? { ...topic, ...updates } : topic
+                )
+            };
+        } else {
+            itemToUpdate = data.courses?.find(course => course.id === courseId);
+            url = `/api/v1/courses/${courseId}`;
+            updatedData = {
+                ...prevData,
+                courses: prevData.courses.map(course =>
+                    course.id === courseId ? { ...course, ...updates } : course
+                )
+            };
         }
 
+        if (!itemToUpdate) {
+            showToast('error', 'Item not found');
+            return;
+        }
 
-        const handleDeleteContextById = async (courseId, topicId = null, noteId = null) => {
-            let itemToDelete;
-            let url;
-            let prevData = { ...data };
-            let updatedData;
+        try {
+            setData(updatedData);
+            const csrfToken = getCookie('csrf_access_token')
+            const Authorization = `Bearer ${getCookie('access_token_cookie')}`
+            const responseBody = await patchJSON(url, updatedData, csrfToken, Authorization);
 
-            if (noteId) {
-                itemToDelete = data?.note?.id === Number(noteId) ? data?.note : null;
-                url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
-                updatedData = {
-                    ...prevData,
-                    note: null
-                };
-            } else if (topicId) {
-                itemToDelete = data?.topics?.find(topic => topic.id === topicId);
-                url = `/api/v1/courses/${courseId}/topics/${topicId}`;
-                updatedData = {
-                    ...prevData,
-                    topics: prevData.topics.filter(topic => topic.id !== topicId)
-                };
+            if (responseBody.message === 'Note updated successfully') {
+                showToast('success', 'Item updated successfully');
             } else {
-                itemToDelete = data.courses?.find(course => course.id === courseId);
-                url = `/api/v1/courses/${courseId}`;
-                updatedData = {
-                    ...prevData,
-                    courses: prevData.courses.filter(course => course.id !== courseId)
-                };
+                throw new Error('An error occurred');
             }
-
-            if (!itemToDelete) {
-                showToast('error', 'Item not found');
-                return;
-            }
-
-            try {
-                setData(updatedData);
-                const csrfToken = getCookie('csrf_access_token');
-                const Authorization = `Bearer ${getCookie('access_token_cookie')}`;
-                const response = await deleteJSON(url, csrfToken, Authorization);
-                return response.then(res => {
-                    if (res.ok) {
-                        showToast('success', 'Item deleted successfully');
-                        return res;
-                    } else {
-                        throw new Error('An error occurred');
-                    }
-                });
-            } catch (error) {
-                showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
-                setData(prevData);
-                return error;
-            }
+            return responseBody;
+        } catch (error) {
+            showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
+            setData(prevData);
+            return error;
         }
+    }
+
+
+    const handleDeleteContextById = async (courseId, topicId = null, noteId = null) => {
+        let itemToDelete;
+        let url;
+        let prevData = { ...data };
+        let updatedData;
+
+        if (noteId) {
+            itemToDelete = data?.note?.id === Number(noteId) ? data?.note : null;
+            url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
+            updatedData = {
+                ...prevData,
+                note: null
+            };
+        } else if (topicId) {
+            itemToDelete = data?.topics?.find(topic => topic.id === topicId);
+            url = `/api/v1/courses/${courseId}/topics/${topicId}`;
+            updatedData = {
+                ...prevData,
+                topics: prevData.topics.filter(topic => topic.id !== topicId)
+            };
+        } else {
+            itemToDelete = data.courses?.find(course => course.id === courseId);
+            url = `/api/v1/courses/${courseId}`;
+            updatedData = {
+                ...prevData,
+                courses: prevData.courses.filter(course => course.id !== courseId)
+            };
+        }
+
+        if (!itemToDelete) {
+            showToast('error', 'Item not found');
+            return;
+        }
+
+        try {
+            setData(updatedData);
+            const csrfToken = getCookie('csrf_access_token');
+            const Authorization = `Bearer ${getCookie('access_token_cookie')}`;
+            const responseBody = await deleteJSON(url, csrfToken, Authorization);
+
+            if (responseBody.message === 'Item deleted successfully') {
+                showToast('success', 'Item deleted successfully');
+            } else {
+                throw new Error('An error occurred');
+            }
+            return responseBody;
+        } catch (error) {
+            showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
+            setData(prevData);
+            return error;
+        }
+    }
 
     return (
         <Context.Provider value={{
