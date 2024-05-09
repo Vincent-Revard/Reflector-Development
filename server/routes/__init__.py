@@ -123,6 +123,7 @@ def before_request():
             key_name = request.endpoint.split("byid")[0]
             # ipdb.set_trace()
             setattr(g, key_name, record)
+            ipdb.set_trace()
             # ipdb.set_trace()
         else:
             key_name = request.endpoint

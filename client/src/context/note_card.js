@@ -1,20 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
-import { styled } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography, Grid, Box, Paper } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import NewNote from './newNote';
 import { useProviderContext } from './ContextProvider';
 import { useToast } from './ToastContext';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
-// const StyledCard = styled(Card)({
-//     margin: '20px 0',
-//     padding: '20px',
-//     backgroundColor: '#f5f5f5',
-//     borderRadius: '15px',
-// });
 
 const NoteCard = ({ note, courseId, topicId }) => {
     const handleDeleteContextById = useProviderContext().handleDeleteContextById
@@ -47,14 +37,14 @@ const NoteCard = ({ note, courseId, topicId }) => {
     };
 
     return (
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Grid container spacing={2}>
+            <Grid item xs={12}>
+                <Typography variant="h6">Topic: {note.topic?.name}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'blue' }}>Note: {note.name}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <Typography variant="body1">Category: {note.category}</Typography>
-                <Typography variant="body1">Content: {note.content}</Typography>
                 <Typography variant="body1">Title: {note.title}</Typography>
+                <Typography variant="body1">Category: {note.category}</Typography>
                 <Typography variant="body1">Note References:</Typography>
                 <ul>
                     {note.references && note.references.length > 0 ? (
@@ -65,42 +55,49 @@ const NoteCard = ({ note, courseId, topicId }) => {
                         <li>No attached references!</li>
                     )}
                 </ul>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <Box sx={{ mt: 4 }}>
+                    <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+                        <Typography variant="body1">Content: {note.content}</Typography>
+                    </Paper>
+                </Box>
+            </Grid>
+            <Grid item xs={12}>
+                <Link to={`/courses/${courseId}/topics/${topicId}/notes`}>
+                    <Button variant="contained" color="primary">
+                        Back to Notes
+                    </Button>
+                </Link>
                 <Link to={`/courses/${courseId}/topics/${topicId}/notes/${note.id}/edit`}>
                     <Button variant="contained" color="primary">
                         Edit Note
                     </Button>
                 </Link>
-                <div>
-                    <Button variant="outlined" color="error" onClick={handleClickOpen}>
-                        Delete Note
-                    </Button>
-                    <Dialog
-                        open={open}
-                        onClose={handleClose}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
-                    >
-                        <DialogTitle id="alert-dialog-title">{"Delete Note"}</DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id="alert-dialog-description">
-                                Are you sure you want to delete this note? This action cannot be undone.
-                            </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button onClick={() => { handleDelete(note.id) }} autoFocus>
-                                Delete
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                </div>
-                <Link to="/courses/8/topics/3/notes/new" style={{ textDecoration: 'none' }}>
-                    <Button variant="contained" color="primary">
-                        Create New Note
-                    </Button>
-                </Link>
-            </AccordionDetails>
-        </Accordion>
+                <Button variant="outlined" color="error" onClick={handleClickOpen}>
+                    Delete Note
+                </Button>
+                <Dialog
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">{"Delete Note"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete this note? This action cannot be undone.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <Button onClick={() => { handleDelete(note.id) }} autoFocus>
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Grid>
+        </Grid>
     );
 }
 

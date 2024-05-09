@@ -9,6 +9,7 @@ from sqlalchemy.sql import text
 import redis
 from sqlalchemy import exists
 from sqlalchemy.exc import IntegrityError
+from flask_redis import FlaskRedis
 
 
 # Local imports
@@ -42,9 +43,11 @@ if __name__ == '__main__':
         CourseTopic.query.delete()
 
         db.session.commit()
-
-        r = redis.Redis(host='localhost', port=6379, db=0)  # Connect to your Redis instance
-        r.flushall()  # Clear all data in Redis
+        redis_store = FlaskRedis(app)
+        # r = redis.Redis(host='localhost', port=6379, db=0)  # Connect to your Redis instance
+        # r.flushall()  # Clear all data in Redis
+        # Use the Redis connection
+        redis_store.flushall()  # Clear all data in Redis
 
         # Create some users
         users = []
@@ -71,12 +74,27 @@ if __name__ == '__main__':
 
         for course in Course.query.all():
             for _ in range(randint(2, 4)):  # Each course has 2-4 topics
-                topic = Topic(name=fake.catch_phrase(), creator_id=course.creator_id)  # Updated this line
+                topic = Topic(
+                    name=fake.catch_phrase(), creator_id=course.creator_id
+                )  # Updated this line
                 db.session.add(topic)
                 db.session.commit()
                 course_topic = CourseTopic(course_id=course.id, topic_id=topic.id)
                 db.session.add(course_topic)
-            db.session.commit()
+                db.session.commit()
+
+                # Create a note for the topic
+                note_creator = rc(users)  # Randomly select a user to be the creator of the note
+                note = Note(
+                    name=fake.first_name(),
+                    title=fake.sentence(),
+                    content=fake.paragraph(),
+                    user_id=note_creator.id,  # Set the note creator to the randomly selected user
+                    topic_id=topic.id,
+                    category=fake.catch_phrase(),
+                )
+                db.session.add(note)
+                db.session.commit()
 
         for user in users:
             for _ in range(randint(2, 4)):  # Each user enrolls in 2-4 courses

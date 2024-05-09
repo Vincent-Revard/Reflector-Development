@@ -4,14 +4,15 @@ from .. import (
     Course,
     g,
     BaseResource,
-    jwt_required_modified,
     get_related_data,
     User,
     UserCourse,
     CourseTopic,
     Topic,
     get_jwt_identity,
-    
+    jwt_required,
+    ValidationError,
+    db
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -23,7 +24,7 @@ class CoursesIndex(BaseResource):
     model = Course
     schema = CourseSchema()
 
-    @jwt_required_modified()
+    @jwt_required()
     def get(self, id=None, condition=None):
         if id is None:
             user_id = current_user.id
@@ -52,7 +53,7 @@ class CoursesIndex(BaseResource):
                                     "category": note.category,
                                     "content": note.content,
                                 }
-                                for note in topic.notes
+                                for note in topic.notes if note.user_id == user_id
                             ],
                         }
                         for topic in course.topics
@@ -64,14 +65,14 @@ class CoursesIndex(BaseResource):
         # ipdb.set_trace()
         return super().get(id, condition)
 
-    @jwt_required_modified()
+    @jwt_required()
     def delete(self, id=None):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
         # ipdb.set_trace()
         return super().delete(id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def patch(self, id):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
@@ -79,7 +80,7 @@ class CoursesIndex(BaseResource):
 
         return super().patch(g.courses.id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def post(self, course_id=None):
         course_data = request.get_json()
         if not course_data:

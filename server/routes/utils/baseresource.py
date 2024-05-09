@@ -1,6 +1,7 @@
 from .. import Resource, request, IntegrityError, ValidationError
 from ..helpers.query_helpers import get_all, get_all_by_condition, get_instance_by_id, get_one_by_condition
 from sqlalchemy import and_
+from flask_jwt_extended import jwt_required
 
 from models.user import User
 
@@ -40,7 +41,8 @@ class BaseResource(Resource):
         except Exception as e:
             db.session.rollback()
             return {"errors": str(e)}, 400
-
+        
+    @jwt_required()
     def delete(self, id=None):
         try:
             instance = get_instance_by_id(self.model, id)

@@ -15,7 +15,6 @@ from .. import (
     redis_client,
     mail,
     Message,
-    jwt_required,
 )
 import ipdb
 import json

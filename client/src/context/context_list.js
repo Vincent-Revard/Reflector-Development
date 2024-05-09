@@ -15,15 +15,19 @@ import SearchAndAddCourseOrTopic from './search_or_add_course_and_topic';
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/material';
 import Button from '@mui/material/Button';
+import { CircularProgress } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import NoteIndexCard from './note_index_card';
+
 const StyledButton = styled(Button)({
   margin: '10px',
 });
 
 const ContextList = () => {
-  const { data, handlePatchContext, handleDeleteContext, currentPage, showToast } = useProviderContext();
+  const { data, handlePatchContext, handleDeleteContext, currentPage, showToast, isLoading } = useProviderContext();
   const { courseId, topicId, noteId } = useParams();
   const navigate = useNavigate();
-  const user = useAuth().user;
+  const { user , checkingRefresh } = useAuth();
   console.log(user)
 
 
@@ -48,6 +52,11 @@ const ContextList = () => {
           console.log('noteId from route params does not match noteId from data');
         }
       }
+    }
+    if (courseId && topicId && !noteId) {
+      return data?.notes?.map(note => (
+        <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
+      ));
     }
     if (courseId && topicId) {
       // Render the topic with the given topicId in the course with the given courseId
@@ -76,19 +85,44 @@ const ContextList = () => {
       </div>
     );
   }, [data, currentPage, handleDeleteContext, handlePatchContext, showToast, user, courseId, topicId, noteId])
+  
+  if (isLoading) {
+    return <CircularProgress />; 
+  }
 
   return (
+    // <Container className="user-profile-container">
+    //   {user && data && !checkingRefresh ? renderComponent :
+    //     (!checkingRefresh && user === null) ?
+    //       (<Typography variant="h5">
+    //         Oops! Your session has expired. Please login again. Redirecting you to the sign in page...
+    //         {setTimeout(() => navigate('/registration'), 3000)}
+    //       </Typography>) :
+    //       (<Typography variant="h5">
+    //         Sorry, you don't have access to this page. Taking you back to the previous page...
+    //         {setTimeout(() => navigate(-1), 3000)}
+    //       </Typography>)
+    //   }
+    // </Container>
     <Container className="user-profile-container">
-      {user && data ? renderComponent :
-        user === null ?
-          (<Typography variant="h1">
-            Your session has expired. You need to login again. You are being redirected to the sign in page.
-            {setTimeout(() => navigate('/registration'), 3000)}
+      {user && data && !checkingRefresh ? renderComponent :
+        (!checkingRefresh && user === null) ?
+          (<Typography variant="h5">
+            Oops! Your session has expired. Please login again.
+            <Stack spacing={2} direction="row">
+              <Button variant="contained" onClick={() => navigate('/registration')}>Go to Sign In</Button>
+              <Button variant="contained" onClick={() => navigate('/')}>Return Home</Button>
+            </Stack>
           </Typography>) :
-          (<Typography variant="h1">
-            You are attemping to view a page you do not have access to. You are being redirected back a page.
-            {setTimeout(() => navigate(-1), 3000)}
-          </Typography>)
+          ((!checkingRefresh && user) || (!checkingRefresh && user === null && !data)) ?
+          (<Typography variant="h5">
+            Sorry, you don't have access to this page.
+            <Stack spacing={2} direction="row">
+              <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
+              <Button variant="contained" onClick={() => navigate('/')}>Return Home</Button>
+            </Stack>
+            </Typography>) :
+            null
       }
     </Container>
   );

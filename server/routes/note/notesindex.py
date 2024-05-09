@@ -6,57 +6,51 @@ from .. import (
     request,
     NoteSchema,
     Note,
-    g,
     BaseResource,
-    jwt_required_modified,
-    get_related_data,
     User,
     UserCourse,
     CourseTopic,
     Topic,
-    get_jwt_identity,
     Course,
     db,
-    redis_client,
-    get_jwt,
-    json,
     get_instance_by_id,
     ValidationError,
+    jwt_required
 )
 from flask_jwt_extended import current_user
-
 
 class NotesIndex(BaseResource):
     model = Note
     schema = NoteSchema()
 
-    @jwt_required_modified()
-    def get(self, course_id=None, topic_id=None, note_id=None):
-        if id is None:
-            user_id = current_user.id
-            user = User.query.options(
-                joinedload(User.enrolled_courses)
-                .joinedload(Course.course_topics)
-                .joinedload(CourseTopic.topic)
-                .joinedload(Topic.notes)
-            ).get(user_id)
-            notes = []
-            for course in user.enrolled_courses:
-                for topic in course.topics:
-                    notes.extend(topic.notes)
-            return {"notes": self.schema.dump(notes, many=True)}, 200
-        # ipdb.set_trace()
-        return super().get()
 
-    @jwt_required_modified()
+    @jwt_required()
+    def get(self, course_id=None, topic_id=None, note_id=None):
+        user_id = current_user.id
+        user = db.session.query(User).get(user_id)
+        if course_id is not None and topic_id is not None:
+            course = db.session.query(Course).get(course_id)
+            if course not in user.enrolled_courses:
+                return {"message": "User not enrolled in this course"}, 400
+            topic = db.session.query(Topic).get(topic_id)
+            if topic not in course.topics:
+                return {"message": "Topic not associated with this course"}, 400
+            notes = Note.query.filter_by(user_id=user_id, topic_id=topic_id).all()
+            return {"notes": self.schema.dump(notes, many=True)}, 200
+        else:
+            notes = Note.query.filter_by(user_id=user_id).all()
+            return {"notes": self.schema.dump(notes, many=True)}, 200
+
+    @jwt_required()
     def delete(self, course_id=None, topic_id=None, id=None):
         user_id = current_user.id
+        ipdb.set_trace()
         note = get_instance_by_id(Note, id)
         if note is None or note.user_id != user_id:
             return {"message": "Unauthorized"}, 401
         return super().delete(id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def patch(self, course_id=None, topic_id=None, id=None):
 
         note = get_instance_by_id(Note, id)
@@ -64,12 +58,12 @@ class NotesIndex(BaseResource):
             return {"message": "Unauthorized"}, 401
         return super().patch(id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def post(self, course_id=None, topic_id=None):
         note_data = request.get_json()
         if not note_data:
             return {"message": "Invalid data"}, 400
-        
+
         try:
             note = self.schema.load(note_data)
         except ValidationError as err:

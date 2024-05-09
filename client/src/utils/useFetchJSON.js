@@ -48,6 +48,7 @@ export const useFetchJSON = () => {
             headers: headers,
             credentials: 'include',
         });
+        debugger
         return response;
     }
 
