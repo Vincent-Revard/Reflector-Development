@@ -15,11 +15,15 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // });
 
 
-const TopicCard = ({ data, courseId }) => {
+const TopicCard = ({ topic, courseId }) => {
     const [expanded, setExpanded] = useState(false);
-    const [expandedNoteId, setExpandedNoteId] = useState(null);
+  const [expandedNoteId, setExpandedNoteId] = useState(null);
 
-    const { user } = useAuth();
+  const { user } = useAuth();
+  console.log(user)
+  console.log(user.id)
+  console.log(topic.id)
+
 
   
     const handleCardClick = () => {
@@ -29,14 +33,15 @@ const TopicCard = ({ data, courseId }) => {
   const handleNoteClick = (noteId) => {
     setExpandedNoteId(expandedNoteId === noteId ? null : noteId);
   };
+  // console.log('topic_card: user.id'`${user?.id}` ,'data.creator_id:'`${data.creator_id}`)
   return (
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'blue' }}>Topic: {data.name}</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'blue' }}>Topic: {topic.name}</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        {user.id === data.creator_id && (
-          <Link to={`/courses/${courseId}/topics/${data.id}/edit`}>
+        {user.id === topic.creator_id && (
+          <Link to={`/courses/${courseId}/topics/${topic.id}/edit`}>
             <Button variant="contained" color="primary">
               Edit Topic
             </Button>
@@ -47,21 +52,21 @@ const TopicCard = ({ data, courseId }) => {
             New Topic
           </Button>
         </Link> */}
-        <Link to={`/courses/${courseId}/topics/${data.id}/notes/new`}>
+        <Link to={`/courses/${courseId}/topics/${topic.id}/notes/new`}>
           <Button variant="contained" color="primary">
             New Note
           </Button>
         </Link>
-        <Link to={`/courses/${courseId}/topics/enroll`}>
+        {/* <Link to={`/courses/${courseId}/topics/enroll`}>
           <Button variant="contained" color="primary">
           Add a topic to this course
           </Button>
-        </Link>
+        </Link> */}
         <Button variant="contained" color="primary" onClick={handleCardClick}>
           {expanded ? 'Collapse Topic' : 'Expand Topic'}
         </Button>
         {
-          expanded && data.notes && data.notes.map(note =>
+          expanded && topic.notes && topic.notes.map(note =>
             <div key={note.id}>
               <Typography variant="h6" sx={{
                 fontWeight: 'bold', color: 'blue', cursor: 'pointer',
@@ -78,7 +83,7 @@ const TopicCard = ({ data, courseId }) => {
                   <Typography variant="body1" sx={{ color: 'black', marginTop: '1em', marginBottom: '1em' }}>
                     Note Content: {note.content}
                   </Typography>
-                  <Link to={`/courses/${courseId}/topics/${data.id}/notes/${note.id}`}>
+                  <Link to={`/courses/${courseId}/topics/${topic.id}/notes/${note.id}`}>
                     <Button variant="contained" color="primary">
                       View Additional Note Details
                     </Button>

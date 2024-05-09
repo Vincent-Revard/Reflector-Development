@@ -31,7 +31,10 @@ class EnrollInCourseOrTopic(BaseResource):
     user_schema = UserSchema()
 
     # Get the current endpoint
-
+    
+##!new_user_course = UserCourse(user_id=user.id, course_id=course.id)
+# db.session.add(new_user_course)
+# db.session.commit()
 
     @jwt_required()
     def get(self, course_id=None, topic_id=None):

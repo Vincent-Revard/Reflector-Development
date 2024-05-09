@@ -53,7 +53,7 @@ const ContextProvider = ({ children }) => {
                         showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast immediately
                     } else {
                         showToast('error', err.message) // Show the error toast immediately
-                        if (err.message.includes('not found')) {
+                        if (err.message.includes('404')) {
                             navigate(-1); // Navigate back a page
                         } else if (err.message.includes('500') && retryCount < 3) {
                             // Retry after 2 seconds if server error and retry count is less than 3
@@ -195,22 +195,24 @@ const ContextProvider = ({ children }) => {
                 }
             };
         } else if (topicId) {
-            itemToUpdate = data?.topics?.find(topic => topic.id === topicId);
+            itemToUpdate = data?.topic?.id === Number(topicId) ? data?.topic : null;
             url = `/api/v1/courses/${courseId}/topics/${topicId}`;
             updatedData = {
                 ...prevData,
-                topics: prevData.topics.map(topic =>
-                    topic.id === topicId ? { ...topic, ...updates } : topic
-                )
+                topic: {
+                    ...itemToUpdate,
+                    ...updates
+                }
             };
         } else {
-            itemToUpdate = data.courses?.find(course => course.id === courseId);
+            itemToUpdate = data?.course?.id === Number(courseId) ? data?.course : null;
             url = `/api/v1/courses/${courseId}`;
             updatedData = {
                 ...prevData,
-                courses: prevData.courses.map(course =>
-                    course.id === courseId ? { ...course, ...updates } : course
-                )
+                course: {
+                    ...itemToUpdate,
+                    ...updates
+                }
             };
         }
 

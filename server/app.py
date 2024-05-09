@@ -28,7 +28,7 @@ api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
-api.add_resource(CoursesIndex, "/courses", "/courses/<int:id>", endpoint="courses")
+api.add_resource(CoursesIndex, "/courses", endpoint="courses")
 api.add_resource(UsersIndex, "/profile", "/profile/<int:id>", endpoint="profile")
 api.add_resource(
     NotesIndex, "/courses/<int:course_id>/topics/<int:topic_id>/notes", endpoint="notes"
@@ -47,7 +47,6 @@ api.add_resource(
 api.add_resource(
     TopicsIndex,
     "/courses/<int:course_id>/topics",
-    "/courses/<int:course_id>/topics/<int:id>",
     endpoint="topics",
 )
 api.add_resource(
@@ -72,15 +71,15 @@ api.add_resource(
 
 api.add_resource(
     CourseById,
-    "/courses/<int:id>",
-    "/courses/<int:id>/edit",
+    "/courses/<int:course_id>",
+    "/courses/<int:course_id>/edit",
     endpoint="course_by_id",
 )
 
 api.add_resource(
     TopicsById,
-    "/courses/<int:course_id>/topics/<int:id>",
-    "/courses/<int:course_id>/topics/<int:id>/edit",
+    "/courses/<int:course_id>/topics/<int:topic_id>",
+    "/courses/<int:course_id>/topics/<int:topic_id>/edit",
     endpoint="topics_by_id",
 )
 

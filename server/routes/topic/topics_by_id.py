@@ -26,22 +26,45 @@ from flask_jwt_extended import current_user
 
 class TopicsById(BaseResource):
     model = Topic
-    schema = TopicSchema
+    schema = TopicSchema()
+
 
     @jwt_required()
-    def get(self, topic_id=None):
+    def get(self, topic_id=None, course_id=None):
         user = current_user
         if not user:
             return {"message": "User not found"}, 404
 
-        if topic_id:
-            topic = Topic.query.filter_by(id=topic_id).first()
-            if topic:
-                return {"topic": self.schema.dump(topic)}, 200
-            else:
-                return {"message": f"Could not find Topic with id #{topic_id}"}, 404
+        if topic_id and course_id:
+            user_course = UserCourse.query.filter_by(
+                user_id=user.id, course_id=course_id
+            ).first()
+            if not user_course:
+                return {"message": "User not enrolled in the course"}, 404
 
-        return {"message": "Topic ID not provided"}, 400
+            course_topic = CourseTopic.query.filter_by(
+                course_id=course_id, topic_id=topic_id
+            ).first()
+            if not course_topic:
+                return {"message": "Topic not found in the course"}, 404
+
+            # Fetch all the notes for the topic
+            notes = (
+                db.session.query(Note)
+                .options(
+                    joinedload(Note.topic).joinedload(Topic.courses),
+                    joinedload(Note.references),
+                )
+                .filter_by(topic_id=topic_id, user_id=user.id)
+                .all()
+            )
+
+            if notes:
+                return {"notes": [self.schema.dump(note) for note in notes]}, 200
+            else:
+                return {"message": f"No notes found for Topic with id #{topic_id}"}, 404
+
+        return {"message": "Topic ID or Course ID not provided"}, 400
 
     @jwt_required()
     def patch(self, topic_id=None):
