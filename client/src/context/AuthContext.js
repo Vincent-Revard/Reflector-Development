@@ -3,10 +3,8 @@ import { useToast } from './ToastContext'
 import { useUnauthorized } from '..'
 import CircularProgress from '@mui/material/CircularProgress';
 
-
 const AuthContext = createContext()
 export const useAuth = () => useContext(AuthContext)
-
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -16,12 +14,17 @@ export const AuthProvider = ({ children }) => {
   const { showToast } = useToast()
   const onUnauthorized = useUnauthorized()
   const [sessionChecked, setSessionChecked] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   function getCookie(name) {
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
     if (parts.length === 2) return parts.pop().split(';').shift()
   }
+  
+  const triggerRefresh = useCallback(() => {
+    setRefreshTrigger(prev => !prev);
+  }, []);
 
 const logout = useCallback(() => {
   const headers = {
@@ -48,72 +51,9 @@ const logout = useCallback(() => {
   user,
   updateUser: setUser,
   logout,
-  checkingRefresh
-  }), [user, setUser, logout, checkingRefresh ]);
-
-  // useEffect(() => {
-  //   const checkSession = async () => {
-  //     setCheckingSession(true);
-  //     let response;
-  //     try {
-  //       response = await fetch('http://localhost:3000/api/v1/check_session', {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           "X-CSRF-TOKEN": getCookie('csrf_access_token'),
-  //           'Authorization': `Bearer ${getCookie('csrf_access_token')}`
-  //         },
-  //       });
-  //       if (response.ok) {
-  //         const data = await response.json();
-  //         if (data.status !== '401') {
-  //           setUser(data);
-  //         }
-  //       }
-  //     } catch (error) {
-  //       showToast(`error`, `${error.message}`);
-  //     }
-
-  //     if (!response || !response.ok) {
-  //       let refreshResponse;
-  //       try {
-  //         refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
-  //           method: "POST",
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //             "X-CSRF-TOKEN": (getCookie('csrf_access_token'), getCookie('csrf_refresh_token')),
-  //             'Authorization': `Bearer ${getCookie('refresh_token_cookie')}`
-  //           },
-  //         });
-  //         if (!refreshResponse.ok) {
-  //           const errorData = await refreshResponse.json();
-  //           showToast(`error`, `${errorData.msg}`);
-  //         } else {
-  //           const refreshData = await refreshResponse.json();
-  //           if (refreshData.msg === 'Token has expired') {
-  //             setUser(null)
-  //             // navigate('/registration')
-  //           } else {
-  //             setUser(refreshData);
-  //           }
-  //         }
-  //       } catch (error) {
-  //         showToast(`error`, `${error.message}`);
-  //         // navigate('/registration')
-  //         try {
-  //           await logout();
-  //         } catch (logoutError) {
-  //           showToast(`error`, `${logoutError.message}`);
-  //         }
-  //       }
-  //     }
-  //     setCheckingSession(false);
-  //   };
-
-  //   if (!sessionChecked) {
-  //     checkSession();
-  //     setSessionChecked(true)
-  //   }
-  // }, [showToast, onUnauthorized, sessionChecked, logout]);
+  checkingRefresh,
+  triggerRefresh
+  }), [user, setUser, logout, checkingRefresh, triggerRefresh ]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -180,7 +120,7 @@ const logout = useCallback(() => {
       checkSession();
       setSessionChecked(true)
     }
-  }, [showToast, onUnauthorized, sessionChecked, logout]);
+  }, [showToast, onUnauthorized, sessionChecked, logout, refreshTrigger]);
 
 
   return (

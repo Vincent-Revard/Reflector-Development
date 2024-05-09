@@ -4,7 +4,6 @@ import { useAuth } from './AuthContext';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useToast } from './ToastContext';
 import { CircularProgress } from '@mui/material';
-import { StyleSheetConsumer } from 'styled-components';
 
 // ProfileContext
 const Context = createContext();
@@ -13,7 +12,7 @@ export const useProviderContext = () => useContext(Context);
 
 const ContextProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
-    const { logout, user, updateUser } = useAuth();
+    const { logout, user, updateUser, triggerRefresh } = useAuth();
     const { showToast } = useToast();
     const [data, setData] = useState({});
     const { postJSON, deleteJSON, patchJSON } = useFetchJSON();
@@ -28,7 +27,6 @@ const ContextProvider = ({ children }) => {
     const params = useParams();
 
     console.log('currentPage:', currentPage);
-
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -63,7 +61,7 @@ const ContextProvider = ({ children }) => {
                         } else if (err.message.includes('401')) {
                             // Handle unauthorized error
                             showToast('error', err.message);
-                            user ? navigate('/') : navigate('/registration');
+                            !user ? navigate('/') : triggerRefresh()
                         }
                     }
                 } finally {
@@ -74,16 +72,13 @@ const ContextProvider = ({ children }) => {
                         }, 2000)
                     }
                 }
-
                 return () => {
                     abortController.abort(); // Abort the fetch request if the component is unmounted
                 }
             }
         }
-
         fetchData();
-
-    }, [currentPage, showToast, user, navigate])
+    }, [currentPage, showToast, user, navigate, triggerRefresh])
 
 
     const handlePatchContext = async (updates) => {

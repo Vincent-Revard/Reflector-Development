@@ -54,9 +54,18 @@ const ContextList = () => {
       }
     }
     if (courseId && topicId && !noteId) {
-      return data?.notes?.map(note => (
-        <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
-      ));
+      return (
+        <>
+          <Link to={`/course/${courseId}/topic/${topicId}/new`}>
+            <StyledButton variant="contained" color="primary">
+              New Note
+            </StyledButton>
+          </Link>
+          {data?.notes?.map(note => (
+            <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
+          ))}
+        </>
+      );
     }
     if (courseId && topicId) {
       // Render the topic with the given topicId in the course with the given courseId
@@ -91,19 +100,6 @@ const ContextList = () => {
   }
 
   return (
-    // <Container className="user-profile-container">
-    //   {user && data && !checkingRefresh ? renderComponent :
-    //     (!checkingRefresh && user === null) ?
-    //       (<Typography variant="h5">
-    //         Oops! Your session has expired. Please login again. Redirecting you to the sign in page...
-    //         {setTimeout(() => navigate('/registration'), 3000)}
-    //       </Typography>) :
-    //       (<Typography variant="h5">
-    //         Sorry, you don't have access to this page. Taking you back to the previous page...
-    //         {setTimeout(() => navigate(-1), 3000)}
-    //       </Typography>)
-    //   }
-    // </Container>
     <Container className="user-profile-container">
       {user && data && !checkingRefresh ? renderComponent :
         (!checkingRefresh && user === null) ?

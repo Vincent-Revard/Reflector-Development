@@ -121,7 +121,7 @@ const NewNote = () => {
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
-                                        disabled={field.name !== 'content' && !editEnabled}
+                                        disabled={field.name !== 'content' && !editEnabled && !location.pathname.endsWith('/new')}
                                     />
                                 </Grid>
                             ))}
