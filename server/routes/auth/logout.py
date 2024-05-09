@@ -18,15 +18,18 @@ from .. import (
 
 class Logout(Resource):
 
-    @jwt_required_logout()
+    @jwt_required(optional=True)
     def delete(self):
         try:
-            jti = get_jwt()["jti"]
+            jti = get_jwt().get("jti")
+            if jti:
+                jwt_redis_blocklist.set(
+                    "blacklist:" + jti,
+                    "blocked",
+                    ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"],
+                )
             response = make_response({"message": "Logout successful"}, 200)
             unset_jwt_cookies(response)
-            jwt_redis_blocklist.set(
-                "blacklist:" + jti, "blocked", ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
-            )
             return response
         except Exception as e:
             return {"message": str(e)}, 422
