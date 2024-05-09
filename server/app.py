@@ -18,6 +18,9 @@ from routes.course.courses import CoursesIndex
 from routes.note.notesindex import NotesIndex
 from routes.topic.topicsindex import TopicsIndex
 from routes.note.notesbyid import NotesById
+from routes.enrollment.enroll_course_or_topic import EnrollInCourseOrTopic
+from routes.course.coursebyid import CourseById
+from routes.topic.topics_by_id import TopicsById
 
 api.add_resource(Signup, "/signup")
 api.add_resource(CheckSession, "/check_session")
@@ -27,7 +30,10 @@ api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
 api.add_resource(CoursesIndex, "/courses", "/courses/<int:id>", endpoint="courses")
 api.add_resource(UsersIndex, "/profile", "/profile/<int:id>", endpoint="profile")
-api.add_resource(NotesIndex, "/courses/<int:course_id>/topics/<int:topic_id>/notes", endpoint='notes')
+api.add_resource(
+    NotesIndex, "/courses/<int:course_id>/topics/<int:topic_id>/notes", endpoint="notes"
+)
+
 api.add_resource(
     NotesById,
     "/courses/<int:course_id>/topics/<int:topic_id>/notes/<int:note_id>",
@@ -49,8 +55,34 @@ api.add_resource(
     "/courses/<int:course_id>/topics/<int:topic_id>/notes/<int:note_id>/edit",
     endpoint="note_edit",
 )
+api.add_resource(
+    EnrollInCourseOrTopic,
+    "/courses/enroll",
+    "/courses/<int:course_id>/enroll",
+    "/courses/<int:course_id>/unenroll",
+    endpoint="enroll_in_course",
+)
+api.add_resource(
+    EnrollInCourseOrTopic,
+    "/courses/<int:course_id>/topics/enroll",
+    "/courses/<int:course_id>/topics/<int:topic_id>/enroll",
+    "/courses/<int:course_id>/topics/<int:topic_id>/unenroll",
+    endpoint="enroll_in_topic",
+)
 
-# api.add_resource(NotesById, "/notes/<int:id>/edit", endpoint="notes_by_id")
+api.add_resource(
+    CourseById,
+    "/courses/<int:id>",
+    "/courses/<int:id>/edit",
+    endpoint="course_by_id",
+)
+
+api.add_resource(
+    TopicsById,
+    "/courses/<int:course_id>/topics/<int:id>",
+    "/courses/<int:course_id>/topics/<int:id>/edit",
+    endpoint="topics_by_id",
+)
 
 
 if __name__ == "__main__":

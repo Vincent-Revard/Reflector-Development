@@ -7,7 +7,7 @@ import { useUnauthorized } from '../..';
 function VerifyPage() {
     const { token } = useParams();
     const { updateUser, user, logout } = useAuth();
-    const { toast } = useToast();
+    const { showToast } = useToast();
     const onUnauthorized = useUnauthorized();
     const navigate = useNavigate();
 
@@ -30,18 +30,18 @@ function VerifyPage() {
                 if (resp.ok) {
                     const user = await resp.json();
                     updateUser(user);
-                    toast.success("Your account email has been verified.");
-                    navigate('/home');
+                    showToast('success', "Your account email has been verified.");
+                    navigate('/');
                 } else {
-                    toast.error("Your session has expired. Please log in again.");
+                    showToast('error', "Your session has expired. Please log in again.");
                     logout();
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('error:', error);
             }
         }
         verifyUser();
-    }, [token, updateUser, onUnauthorized, toast, navigate])
+    }, [token, updateUser, onUnauthorized, logout, showToast, navigate])
 
     return (
     <div>

@@ -23,7 +23,7 @@ from marshmallow import (
     post_load,
     post_dump,
 )
-from sqlalchemy import select
+from sqlalchemy import select, not_
 from marshmallow.validate import Length
 from email_validator import validate_email, EmailNotValidError
 from routes.utils.baseresource import BaseResource
@@ -58,18 +58,17 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
+    current_user,
     get_jwt_identity,
     set_access_cookies,
     set_refresh_cookies,
     unset_jwt_cookies,
     unset_refresh_cookies,
     unset_access_cookies,
-    current_user,
     get_jwt,
     verify_jwt_in_request,
-    decode_token,
-    jwt_required,
-)
+    decode_token
+    )
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
 

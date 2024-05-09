@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Button, Card, CardContent, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
 import { styled } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import NewNote from './newNote';
 import { useProviderContext } from './ContextProvider';
 import { useToast } from './ToastContext';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const StyledCard = styled(Card)({
-    margin: '20px 0',
-    padding: '20px',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '15px',
-});
+// const StyledCard = styled(Card)({
+//     margin: '20px 0',
+//     padding: '20px',
+//     backgroundColor: '#f5f5f5',
+//     borderRadius: '15px',
+// });
 
 const NoteCard = ({ note, courseId, topicId }) => {
     const handleDeleteContextById = useProviderContext().handleDeleteContextById
@@ -46,9 +47,11 @@ const NoteCard = ({ note, courseId, topicId }) => {
     };
 
     return (
-        <StyledCard>
-            <CardContent>
+        <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'blue' }}>Note: {note.name}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
                 <Typography variant="body1">Category: {note.category}</Typography>
                 <Typography variant="body1">Content: {note.content}</Typography>
                 <Typography variant="body1">Title: {note.title}</Typography>
@@ -96,9 +99,9 @@ const NoteCard = ({ note, courseId, topicId }) => {
                         Create New Note
                     </Button>
                 </Link>
-            </CardContent>
-        </StyledCard>
+            </AccordionDetails>
+        </Accordion>
     );
 }
 
-export default NoteCard
+export default NoteCard;

@@ -1,37 +1,41 @@
 
 import React, { useState } from 'react';
-import { Button, Card, CardContent, Typography } from '@mui/material';
+import { Button, Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
 import { styled } from '@mui/material';
 import TopicCard from './topic_card';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import SearchAndAddCourseOrTopic from './search_or_add_course_and_topic';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const StyledCard = styled(Card)({
-    margin: '20px 0',
-    padding: '20px',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '15px',
-});
+
+
+// const StyledCard = styled(Card)({
+//     margin: '20px 0',
+//     padding: '20px',
+//     backgroundColor: '#f5f5f5',
+//     borderRadius: '15px',
+// });
 
 const StyledButton = styled(Button)({
     margin: '10px',
 });
 
 const CourseCard = ({ data, courseId }) => {
-    const [expanded, setExpanded] = useState(false);
     const user = useAuth();
 
-    const handleCardClick = () => {
-        setExpanded(!expanded);
-    };
 
     return (
-        <>
-            <StyledCard>
-                <CardContent>
-                    <StyledButton variant="contained" color="primary" onClick={handleCardClick}>
-                        {expanded ? 'Collapse Course' : 'Expand Course'}
-                    </StyledButton>
+        <div>
+            <Accordion>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                >
+                    <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'blue' }}>Course: {data.name}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
                     {user.id === data.creator_id && (
                         <Link to={`/courses/${courseId}/edit`}>
                             <StyledButton variant="contained" color="secondary">
@@ -39,15 +43,17 @@ const CourseCard = ({ data, courseId }) => {
                             </StyledButton>
                         </Link>
                     )}
-                    <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'blue' }}>Course: {data.name}</Typography>
-                </CardContent>
-            </StyledCard>
-            {
-                expanded && data.topics && data.topics.map(topic =>
-                    <TopicCard key={topic.id} data={topic} courseId={data.id} />
-                )
-            }
-        </>
+                    {data.topics && data.topics.map(topic =>
+                        <TopicCard key={topic.id} data={topic} courseId={data.id} />
+                    )}
+                    <Link to={`/courses/${courseId}/topics/new`}>
+                        <StyledButton variant="contained" color="primary">
+                            Add Topic
+                        </StyledButton>
+                    </Link>
+                </AccordionDetails>
+            </Accordion>
+        </div>
     );
 };
 

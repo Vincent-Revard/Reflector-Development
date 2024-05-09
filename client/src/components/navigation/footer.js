@@ -9,7 +9,7 @@ const Footer = () => {
           <Link href='https://github.com/Vincent-Revard' color="inherit" underline="hover" target='_blank' rel='noopener noreferrer'>
             👨‍🎤 Vincent Revard
           </Link>
-          &nbsp; for educational purposes. &#x26A1;
+          &#x26A1;
         </Typography>
       </Container>
     </Box>

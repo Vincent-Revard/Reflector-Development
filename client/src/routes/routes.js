@@ -24,10 +24,9 @@ import NotFound from '../components/errors/NotFound';
 import ContextProvider from '../context/ContextProvider';
 import ContextList from '../context/context_list';
 import NewNote from '../context/newNote';
-import EditableCard from '../context/editable_card';
-import NewCourse from '../context/newCourse';
-import NewTopic from '../context/newTopic';
 import NoteCard from '../context/note_card';
+import EnrollUnenrollCourseOrTopic from '../context/enroll_unenroll_course_or_topic';
+import NewCourseOrTopic from '../context/new_course_or_topic_form';
 
 const router = createBrowserRouter([
   {
@@ -52,7 +51,7 @@ const router = createBrowserRouter([
             path: "new",
             element: (
               <ContextProvider>
-                <NewCourse />
+                <NewCourseOrTopic />
               </ContextProvider>
             )
           },
@@ -68,9 +67,17 @@ const router = createBrowserRouter([
                 path: "edit",
                 element: (
                   <ContextProvider>
-                    <EditableCard />
+                    <NewCourseOrTopic />
                   </ContextProvider>
                 )
+              },
+              {
+                path: "enroll",
+                element: <EnrollUnenrollCourseOrTopic />
+              },
+              {
+                path: "unenroll",
+                element: <EnrollUnenrollCourseOrTopic />
               },
               {
                 path: "topics",
@@ -84,7 +91,7 @@ const router = createBrowserRouter([
                     path: "new",
                     element: (
                       <ContextProvider>
-                        <NewTopic />
+                        <NewCourseOrTopic />
                       </ContextProvider>
                     )
                   },
@@ -100,9 +107,17 @@ const router = createBrowserRouter([
                         path: "edit",
                         element: (
                           <ContextProvider>
-                            <EditableCard />
+                            <NewCourseOrTopic />
                           </ContextProvider>
                         )
+                      },
+                      {
+                        path: "enroll",
+                        element: <EnrollUnenrollCourseOrTopic />
+                      },
+                      {
+                        path: "unenroll",
+                        element: <EnrollUnenrollCourseOrTopic />
                       },
                       {
                         path: "notes",

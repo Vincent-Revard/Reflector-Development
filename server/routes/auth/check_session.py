@@ -10,7 +10,6 @@ from .. import (
     TopicSchema,
     NoteSchema,
     UserSchema,
-    jwt_required_modified
 )
 
 
@@ -32,7 +31,7 @@ class CheckSession(Resource):
     #         return user_data, 200
     #     else:
     #         return {"message": "Please log in"}, 401
-    @jwt_required_modified()
+    @jwt_required()
     def get(self):
         if current_user:
             user_data = UserSchema().dump(current_user)

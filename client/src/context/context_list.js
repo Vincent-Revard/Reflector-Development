@@ -6,16 +6,26 @@ import UserProfileDetail from '../components/profile/user_profile_detail';
 import { useAuth } from './AuthContext';
 import { useProviderContext } from './ContextProvider';
 import CourseCard from './course_card';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import TopicCard from './topic_card';
 import { Container, Typography } from '@mui/material';
 import NoteCard from './note_card';
 import NewNote from './newNote';
+import SearchAndAddCourseOrTopic from './search_or_add_course_and_topic';
+import { Link } from 'react-router-dom';
+import { styled } from '@mui/material';
+import Button from '@mui/material/Button';
+const StyledButton = styled(Button)({
+  margin: '10px',
+});
 
 const ContextList = () => {
   const { data, handlePatchContext, handleDeleteContext, currentPage, showToast } = useProviderContext();
-  const { user } = useAuth();
   const { courseId, topicId, noteId } = useParams();
+  const navigate = useNavigate();
+  const user = useAuth().user;
+  console.log(user)
+
 
   const renderComponent = useMemo(() => {
     console.log('renderComponent function called with data:', data);
@@ -23,10 +33,6 @@ const ContextList = () => {
 
     if (baseRoute.includes('profile')) {
       return data?.id && <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    }
-
-    if (baseRoute !== 'courses') {
-      return <h1>You need to log in to view this page!</h1>;
     }
     if (courseId && topicId) {
       if (currentPage.includes('new')) {
@@ -47,18 +53,43 @@ const ContextList = () => {
       // Render the topic with the given topicId in the course with the given courseId
       return null;
     }
+    if (currentPage.includes('courses/enroll')) {
+      return <SearchAndAddCourseOrTopic allNames={data.courses} type='courses/enroll' />;
+    }
+    if (courseId && currentPage.includes('topics/enroll')) {
+      return <SearchAndAddCourseOrTopic allNames={data.topics} type={`course/${courseId}/topics/enroll`} />;
+    }
     if (courseId) {
       // Render the course with the given courseId
       return null;
     }
-    return data?.courses?.map(course => (
-      course?.id && <CourseCard key={course.id} data={course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />
-    ));
+    return (
+      <div>
+        <Link to={`/courses/enroll`}>
+          <StyledButton variant="contained" color="primary">
+            Add courses to your course list
+          </StyledButton>
+        </Link>
+        {data?.courses?.map(course => (
+          course?.id && <CourseCard key={course.id} data={course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />
+        ))}
+      </div>
+    );
   }, [data, currentPage, handleDeleteContext, handlePatchContext, showToast, user, courseId, topicId, noteId])
 
   return (
     <Container className="user-profile-container">
-      {user && data ? renderComponent : <Typography variant="h1">You need to log in to view this page!</Typography>}
+      {user && data ? renderComponent :
+        user === null ?
+          (<Typography variant="h1">
+            Your session has expired. You need to login again. You are being redirected to the sign in page.
+            {setTimeout(() => navigate('/registration'), 3000)}
+          </Typography>) :
+          (<Typography variant="h1">
+            You are attemping to view a page you do not have access to. You are being redirected back a page.
+            {setTimeout(() => navigate(-1), 3000)}
+          </Typography>)
+      }
     </Container>
   );
 };

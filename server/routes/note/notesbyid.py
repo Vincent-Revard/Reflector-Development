@@ -76,7 +76,7 @@ class NotesById(BaseResource):
             # Check if the user is enrolled in the course
             if any(course.id == course_id for course in user.enrolled_courses):
                 # Fetch the note
-                note = Note.query.filter_by(topic_id=topic_id, id=note_id).first()
+                note = Note.query.filter_by(topic_id=topic_id, id=note_id, user_id=current_user.id).first()
                 if note:
                     # Delete the note
                     db.session.delete(note)
@@ -100,7 +100,9 @@ class NotesById(BaseResource):
             # Check if the user is enrolled in the course
             if any(course.id == course_id for course in user.enrolled_courses):
                 # Fetch the note
-                note = Note.query.filter_by(topic_id=topic_id, id=note_id).first()
+                note = Note.query.filter_by(
+                    topic_id=topic_id, id=note_id, user_id=current_user.id
+                ).first()
                 if note:
                     # Get the data from the request
                     data = request.get_json()

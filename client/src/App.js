@@ -10,7 +10,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 function App() {
   const { user, updateUser, logout } = useAuth()
-  const Navigate = useNavigate();
 
 
   return (

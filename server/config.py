@@ -5,6 +5,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+
 # from flask_session import Session
 from flask_marshmallow import Marshmallow
 from flask_restful import Api
@@ -24,8 +25,8 @@ from flask_mail import Mail
 
 app = Flask(__name__)
 # app.secret_key = b"Y\xf1Xz\x00\xad|eQ\x80t \xca\x1a\x10K"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 
 #! Flask_Session setup below!
@@ -45,15 +46,15 @@ app.config["JWT_COOKIE_SECURE"] = False
 app.config["JWT_CSRF_IN_COOKIES"] = True
 # app.config["JWT_COOKIE_CSRF_PROTECT"] = True
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=20)
-app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=5)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=1)
 
 # ? MAIL SERVER SETUP
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = "noreply.reflector@gmail.com"
+app.config["MAIL_USERNAME"] = environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = environ.get("SMTP_PASS")
-app.config["MAIL_DEFAULT_SENDER"] = "noreply.reflector@gmail.com"
+app.config["MAIL_DEFAULT_SENDER"] = environ.get("MAIL_DEFAULT_SENDER")
 app.config["SECRET_KEY"] = environ.get("SECRET_KEY")
 
 #! Extensions Setup
@@ -74,7 +75,7 @@ jwt = JWTManager(app)
 
 # Instantiate CORS if not using proxy
 # CORS(app)
-app.config["REDIS_URL"] = "redis://localhost:6379/0"  # Update with your Redis URL
-redis_client = FlaskRedis(app)
+app.config["REDIS_URL"] = environ.get("REDIS_URL")  # Update with your Redis URL
+redis_client = FlaskRedis(app, decode_responses=True)
 
 mail = Mail(app)

@@ -80,10 +80,34 @@ class CoursesIndex(BaseResource):
         return super().patch(g.courses.id)
 
     @jwt_required_modified()
-    def post(self):
-        if g.courses is None:
-            return {"message": "Unauthorized"}, 401
+    def post(self, course_id=None):
+        course_data = request.get_json()
+        if not course_data:
+            return {"message": "Invalid data"}, 400
 
-        # ipdb.set_trace()
+        try:
+            course = self.schema.load(course_data)
+        except ValidationError as err:
+            return {"message": "Invalid data", "errors": err.messages}, 400
 
-        return super().post()
+        user_id = current_user.id
+
+        if course_id:
+            # If course_id is provided, create a new topic associated with the course
+            topic = Topic(course_id=course_id, **course_data)
+            db.session.add(topic)
+        else:
+            # If course_id is not provided, create a new course
+            course = Course(creator_id=user_id, **course_data)
+            db.session.add(course)
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return {"message": "Failed to create"}, 500
+
+        return {
+            "message": "Created successfully",
+            "course": self.schema.dump(course),
+        }, 200

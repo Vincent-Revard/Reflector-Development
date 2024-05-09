@@ -17,11 +17,12 @@ from .. import (
 )
 from json import loads, dumps
 import ipdb
+import json
 
 
 class Refresh(Resource):
 
-    @jwt_required_modified(refresh=True)
+    @jwt_required(refresh=True)
     def post(self):
         refresh_token = request.cookies.get("refresh_token_cookie")
 
@@ -29,28 +30,22 @@ class Refresh(Resource):
         if user_session is None:
             return {"msg": "Invalid refresh token"}, 401
 
+        # Parse the user session data from a JSON string to a dictionary
+        user_session_dict = json.loads(user_session)
+
         # Check if user_session has "user_id" key
-        if "user_id" not in user_session:
+        if "user_id" not in user_session_dict:
             return {"msg": "Invalid user session"}, 401
 
         new_access_token = create_access_token(
-            identity=user_session["user_id"], fresh=False
-        )
-        new_refresh_token = create_refresh_token(identity=user_session["user_id"])
-
-        # Store the new refresh token in Redis
-        redis_client.set(
-            new_refresh_token, user_session, ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+            identity=user_session_dict["user_id"], fresh=False
         )
 
-        # Store the new access token in Redis
         redis_client.set(
             new_access_token, user_session, ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
         )
 
         response = make_response(user_schema.dump(current_user), 200)
         set_access_cookies(response, new_access_token)
-        set_refresh_cookies(
-            response, new_refresh_token
-        )
+
         return response

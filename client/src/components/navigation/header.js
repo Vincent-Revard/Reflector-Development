@@ -8,6 +8,10 @@ function Header({ user, logout }) {
   const closeMenu = () => {
     setMenu(false);
   }
+  const handleLogout = () => {
+    logout();
+    closeMenu();
+  }
 
   return (
     <AppBar position="static">
@@ -25,7 +29,7 @@ function Header({ user, logout }) {
             {user ? (
               <>
                 <ListItem>
-                  <ButtonBase onClick={logout}>
+                  <ButtonBase onClick={handleLogout}>
                     <ListItemText primary="Logout" />
                   </ButtonBase>
                 </ListItem>

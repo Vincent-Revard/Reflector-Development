@@ -6,73 +6,39 @@ import { useEffect, useState } from 'react';
 import { TextField, Switch, FormControlLabel } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 
-
-const NewNote = () => {
-    const { courseId, topicId, noteId } = useParams();
+const NewCourseOrTopic = ({ type }) => {
+    const { id } = useParams();
     const { handlePostContext, handlePatchContextById, data, showToast } = useProviderContext();
     const navigate = useNavigate();
     const location = useLocation();
 
-
-    const [editableFields, setEditableFields] = useState(noteId ? {} : {
+    const [editableFields, setEditableFields] = useState(id ? {} : {
         name: true,
-        title: true,
-        category: true,
-        content: true,
+        creator_id: true,
     });
 
     const [validationSchema, setValidationSchema] = useState(yup.object());
     const [initialValues, setInitialValues] = useState({
-        name: data?.note?.name || '',
-        title: data?.note?.title || '',
-        category: data?.note?.category || '',
-        content: data?.note?.content || '',
-        topic: {
-            id: data?.note?.topic?.id || '',
-            creator_id: data?.note?.topic?.creator_id || '',
-            name: data?.note?.topic?.name || '',
-        },
-        references: data?.note?.references || [],
+        name: data?.[type]?.name || '',
+        creator_id: data?.[type]?.creator_id || '',
     });
 
     useEffect(() => {
-        if (noteId && data && data.note) {
+        if (id && data && data[type]) {
             const newInitialValues = {
-                name: data.note.name || '',
-                title: data.note.title || '',
-                category: data.note.category || '',
-                content: data.note.content || '',
-                topic: {
-                    id: data.note.topic?.id || '',
-                    creator_id: data.note.topic?.creator_id || '',
-                    name: data.note.topic?.name || '',
-                },
-                references: data.note.references || [],
+                name: data[type].name || '',
+                creator_id: data[type].creator_id || '',
             };
 
             let newValidationSchema = yup.object().shape({
                 name: editableFields.name ? yup.string().required("Please enter a name") : yup.string(),
-                title: editableFields.title ? yup.string().required("Please enter a title") : yup.string(),
-                category: editableFields.category ? yup.string().required("Please enter a category") : yup.string(),
-                content: editableFields.content ? yup.string().required("Please enter content") : yup.string(),
+                creator_id: editableFields.creator_id ? yup.number().required("Please enter a creator id") : yup.number(),
             });
-
-            if (data.note.references && editableFields.references) {
-                newValidationSchema = newValidationSchema.shape({
-                    references: yup.array().of(
-                        yup.object().shape({
-                            id: yup.number().required(),
-                            name: yup.string().required(),
-                            // Add other fields as necessary
-                        })
-                    ).required("Please enter references"),
-                });
-            }
 
             setInitialValues(newInitialValues);
             setValidationSchema(newValidationSchema);
         }
-    }, [noteId, courseId, topicId, data, editableFields]);
+    }, [id, data, editableFields, type]);
 
     const onSubmit = (values, { setSubmitting }) => {
         const editedValues = Object.keys(values).reduce((result, key) => {
@@ -85,23 +51,22 @@ const NewNote = () => {
         let promise;
 
         if (location.pathname.endsWith('/new')) {
-            promise = handlePostContext('note', courseId, editedValues, topicId)
+            promise = handlePostContext(type, editedValues)
                 .then((response) => {
                     showToast('success', 'Item created successfully');
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}/topics/${topicId}/notes/${response.note.id}`);
+                        navigate(`/${type}s/${response[type].id}`);
                     }, 2000); // 2 seconds delay
                 })
                 .catch(error => {
                     showToast('error', `Error: ${error.message}`);
                 });
-        } else if (noteId) {
-            promise = handlePatchContextById('note', courseId, noteId, editedValues, topicId)
+        } else if (id) {
+            promise = handlePatchContextById(type, id, editedValues)
                 .then((response) => {
                     showToast('success', 'Item updated successfully');
-                    debugger
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}/topics/${topicId}/notes/${noteId}`);
+                        navigate(`/${type}s/${response.data.id}`);
                     }, 2000); // 2 seconds delay
                 })
                 .catch(error => {
@@ -115,16 +80,10 @@ const NewNote = () => {
             });
         }
     };
-    const fieldInfo = [
-        { name: 'name', type: 'text', label: 'Name', placeholder: 'Enter name' },
-        { name: 'title', type: 'text', label: 'Title', placeholder: 'Enter title' },
-        { name: 'category', type: 'text', label: 'Category', placeholder: 'Enter category' },
-        { name: 'content', type: 'text', label: 'Content', placeholder: 'Enter content' },
-    ];
 
-    if (initialValues.references) {
-        fieldInfo.push({ name: 'references', type: 'text', label: 'Reference', placeholder: 'Enter references' });
-    }
+    const fieldInfo = [
+        { name: 'name', type: 'text', label: 'Name', placeholder: `Enter ${type} name` },
+    ];
 
     return (
         <Formik
@@ -136,7 +95,7 @@ const NewNote = () => {
                 <Form>
                     {fieldInfo.map(field => (
                         <div key={field.name}>
-                            {noteId && (
+                            {id && (
                                 <FormControlLabel
                                     control={
                                         <Switch
@@ -159,8 +118,6 @@ const NewNote = () => {
                                 error={touched[field.name] && Boolean(errors[field.name])}
                                 helperText={touched[field.name] && errors[field.name]}
                                 fullWidth
-                                multiline={field.name === 'content'}
-                                maxRows={field.name === 'content' ? 10 : undefined}
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
@@ -170,11 +127,11 @@ const NewNote = () => {
                             />
                         </div>
                     ))}
-                    <button type="submit" disabled={isSubmitting}>{noteId ? 'Update' : 'Submit'}</button>
+                    <button type="submit" disabled={isSubmitting}>{id ? 'Update' : 'Submit'}</button>
                 </Form>
             )}
         </Formik>
     );
 }
 
-export default NewNote;
+export default NewCourseOrTopic;

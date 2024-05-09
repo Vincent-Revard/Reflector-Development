@@ -11,7 +11,6 @@ from .. import (
     jwt_required,
     request,
     ipdb,
-    jwt_required_modified,
     jwt_required_logout,
     jwt_redis_blocklist,
     app

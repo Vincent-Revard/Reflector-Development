@@ -13,7 +13,7 @@ class UsersIndex(BaseResource):
     model = User
     schema = UserUpdateSchema()
 
-    @jwt_required_modified()
+    @jwt_required()
     def get(self, id):
         # ipdb.set_trace()
         if g.profile is None:
@@ -21,13 +21,13 @@ class UsersIndex(BaseResource):
 
         return super().get(id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def delete(self, id):
         if g.profile is None:
             return {"message": "Unauthorized"}, 401
         return super().delete(g.profile.id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def patch(self, id, csrfToken=None):
         # id = request.view_args["id"]
         if g.profile is None:

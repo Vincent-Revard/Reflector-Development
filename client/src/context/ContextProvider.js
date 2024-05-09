@@ -37,6 +37,7 @@ const ContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
+        let isMounted = true;
         if (user) {
         // if (user && !currentPage.endsWith('notes/new')) {
             let abortController = new AbortController(); // Create an instance of AbortController
@@ -44,19 +45,30 @@ const ContextProvider = ({ children }) => {
                 setIsLoading(true);
                 try {
                     const res = await fetch(`/api/v1/${currentPage}`, { signal: abortController.signal }) // Pass the signal to the fetch request
-                    if (res.ok) {
+                    if (!res.ok) { // If the response is not ok
+                        const errorData = await res.json() // Convert the error response to JSON
+                        throw new Error(errorData.message) // Throw an error with the server's error message
+                    }
+                    if (isMounted) {
                         const data = await res.json()
                         setData(data)
-                        showToast('success', 'Data Fetch Successful')
-                        setIsLoading(false);
+                        setTimeout(() => {
+                            showToast('success', 'Data Fetch Successful') // Show the success toast after 4 seconds
+                            setIsLoading(false);
+                        }, 4000)
                     }
                 } catch (err) {
                     if (err.name === 'AbortError') {
-                        console.log('Fetch aborted')
-                        setIsLoading(false);
+                        setTimeout(() => {
+                            showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast after 4 seconds
+                            setIsLoading(false);
+                        }, 4000)
                     } else {
-                        showToast('error', err.message)
-                        setIsLoading(false);
+                        setTimeout(() => {
+                            showToast('error', err.message) // Show the error toast after 4 seconds
+                            setIsLoading(false);
+                            navigate(-1) // Navigate after showing the error toast
+                        }, 4000)
                     }
                 }
             })()
@@ -65,7 +77,7 @@ const ContextProvider = ({ children }) => {
                 abortController.abort(); // Abort the fetch request if the component is unmounted
             }
         }
-    }, [currentPage, showToast, user, params.topicId, params.courseId])
+    }, [currentPage, showToast, user, params.topicId, params.courseId, navigate])
 
 
 
@@ -174,6 +186,7 @@ const ContextProvider = ({ children }) => {
 
         if (noteId) {
             itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
+            console.log('noteId:', noteId, 'itemToUpdate:', itemToUpdate);
             url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
             updatedData = {
                 ...prevData,
@@ -284,7 +297,7 @@ const ContextProvider = ({ children }) => {
         <Context.Provider value={{
             data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext
         }}>
-            {isLoading ? <CircularProgress /> : children}
+            {children}
         </Context.Provider>
     );
 };

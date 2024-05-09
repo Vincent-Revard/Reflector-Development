@@ -11,7 +11,7 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Note
         load_instance = True
-
+    user_id = ma.auto_field()
     name = ma.auto_field()
     category = ma.auto_field()
     content = ma.auto_field()

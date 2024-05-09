@@ -2,7 +2,6 @@ import React, { createContext, useState, useContext, useEffect, useMemo, useCall
 import { useToast } from './ToastContext'
 import { useUnauthorized } from '..'
 import CircularProgress from '@mui/material/CircularProgress';
-import { Navigate } from 'react-router-dom';
 
 
 const AuthContext = createContext()
@@ -58,45 +57,49 @@ const logout = useCallback(() => {
         response = await fetch('http://localhost:3000/api/v1/check_session', {
           headers: {
             'Content-Type': 'application/json',
-            "X-CSRFToken": getCookie('csrf_access_token'),
+            "X-CSRF-TOKEN": getCookie('csrf_access_token'),
             'Authorization': `Bearer ${getCookie('csrf_access_token')}`
           },
         });
-      } catch (error) {
-        showToast(`error: ${error.message}`);
-      }
-      if (response && response.ok) {
-        const data = await response.json();
-        if (data.status !== '401') {
-          setUser(data);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status !== '401') {
+            setUser(data);
+          }
         }
-      } else {
+      } catch (error) {
+      }
+      if (!response || !response.ok) {
         let refreshResponse;
         try {
           refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
             method: "POST",
             headers: {
               'Content-Type': 'application/json',
-              "X-CSRFToken": getCookie('csrf_refresh_token'),
+              "X-CSRF-TOKEN": (getCookie('csrf_access_token'), getCookie('csrf_refresh_token')),
               'Authorization': `Bearer ${getCookie('refresh_token_cookie')}`
             },
-            body: JSON.stringify({ csrf_token: getCookie('csrf_refresh_token') })
+            // body: JSON.stringify({ csrf_token: getCookie('csrf_refresh_token') })
           });
-        } catch (error) {
-          showToast(`error: ${error.message}`);
-          Navigate('/registration')
-          logout();
-        }
-          if (refreshResponse && refreshResponse.ok) {
+          if (!refreshResponse.ok) {
+            const errorData = await refreshResponse.json();
+            showToast(`error`, `${errorData.msg}`);
+          } else {
             const refreshData = await refreshResponse.json();
             if (refreshData.msg === 'Token has expired') {
               setUser(null)
-              Navigate('/registration')
+              // navigate('/registration')
             } else {
               setUser(refreshData);
             }
           }
+        } catch (error) {
+          showToast(`error`, `${error.message}`);
+          setUser(null)
+          // navigate('/registration')
+          logout();
         }
+      }
       setCheckingSession(false);
     };
 
