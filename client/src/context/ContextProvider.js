@@ -35,49 +35,6 @@ const ContextProvider = ({ children }) => {
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
-
-    // useEffect(() => {
-    //     let isMounted = true;
-    //     if (user) {
-    //     // if (user && !currentPage.endsWith('notes/new')) {
-    //         let abortController = new AbortController(); // Create an instance of AbortController
-    //         (async () => {
-    //             setIsLoading(true);
-    //             try {
-    //                 const res = await fetch(`/api/v1/${currentPage}`, { signal: abortController.signal }) // Pass the signal to the fetch request
-    //                 if (!res.ok) { // If the response is not ok
-    //                     const errorData = await res.json() // Convert the error response to JSON
-    //                     throw new Error(errorData.message) // Throw an error with the server's error message
-    //                 }
-    //                 if (isMounted) {
-    //                     const data = await res.json()
-    //                     setData(data)
-    //                     setTimeout(() => {
-    //                         showToast('success', `${ currentPage } Data Fetch Successful`) // Show the success toast after 4 seconds
-    //                         setIsLoading(false);
-    //                     }, 4000)
-    //                 }
-    //             } catch (err) {
-    //                 if (err.name === 'AbortError') {
-    //                     setTimeout(() => {
-    //                         showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast after 4 seconds
-    //                         setIsLoading(false);
-    //                     }, 4000)
-    //                 } else {
-    //                     setTimeout(() => {
-    //                         showToast('error', err.message) // Show the error toast after 4 seconds
-    //                         setIsLoading(false);
-    //                         // navigate(-1) // Navigate after showing the error toast
-    //                     }, 4000)
-    //                 }
-    //             }
-    //         })()
-
-    //         return () => {
-    //             abortController.abort(); // Abort the fetch request if the component is unmounted
-    //         }
-    //     }
-    // }, [currentPage, showToast, user, params.topicId, params.courseId, navigate])
     useEffect(() => {
         let isMounted = true;
         const fetchData = async (retryCount = 0) => {
@@ -229,6 +186,7 @@ const ContextProvider = ({ children }) => {
         let url;
         let prevData = { ...data };
         let updatedData;
+        debugger
 
         if (noteId) {
             itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
@@ -262,6 +220,7 @@ const ContextProvider = ({ children }) => {
         }
 
         if (!itemToUpdate) {
+            debugger
             showToast('error', 'Item not found');
             return;
         }
@@ -273,12 +232,14 @@ const ContextProvider = ({ children }) => {
             const responseBody = await patchJSON(url, updatedData, csrfToken, Authorization);
 
             if (responseBody.message === 'Note updated successfully') {
+                debugger
                 showToast('success', 'Item updated successfully');
             } else {
                 throw new Error('An error occurred');
             }
             return responseBody;
         } catch (error) {
+            debugger
             showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
             setData(prevData);
             return error;

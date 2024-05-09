@@ -17,6 +17,7 @@ import { styled } from '@mui/material';
 import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import Stack from '@mui/material/Stack';
+import NoteIndexCard from './note_index_card';
 
 const StyledButton = styled(Button)({
   margin: '10px',
@@ -51,6 +52,11 @@ const ContextList = () => {
           console.log('noteId from route params does not match noteId from data');
         }
       }
+    }
+    if (courseId && topicId && !noteId) {
+      return data?.notes?.map(note => (
+        <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
+      ));
     }
     if (courseId && topicId) {
       // Render the topic with the given topicId in the course with the given courseId

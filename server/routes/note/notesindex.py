@@ -19,28 +19,27 @@ from .. import (
 )
 from flask_jwt_extended import current_user
 
-
 class NotesIndex(BaseResource):
     model = Note
     schema = NoteSchema()
 
+
     @jwt_required()
     def get(self, course_id=None, topic_id=None, note_id=None):
-        if id is None:
-            user_id = current_user.id
-            user = User.query.options(
-                joinedload(User.enrolled_courses)
-                .joinedload(Course.course_topics)
-                .joinedload(CourseTopic.topic)
-                .joinedload(Topic.notes)
-            ).get(user_id)
-            notes = []
-            for course in user.enrolled_courses:
-                for topic in course.topics:
-                    notes.extend(topic.notes)
+        user_id = current_user.id
+        user = db.session.query(User).get(user_id)
+        if course_id is not None and topic_id is not None:
+            course = db.session.query(Course).get(course_id)
+            if course not in user.enrolled_courses:
+                return {"message": "User not enrolled in this course"}, 400
+            topic = db.session.query(Topic).get(topic_id)
+            if topic not in course.topics:
+                return {"message": "Topic not associated with this course"}, 400
+            notes = Note.query.filter_by(user_id=user_id, topic_id=topic_id).all()
             return {"notes": self.schema.dump(notes, many=True)}, 200
-        # ipdb.set_trace()
-        return super().get()
+        else:
+            notes = Note.query.filter_by(user_id=user_id).all()
+            return {"notes": self.schema.dump(notes, many=True)}, 200
 
     @jwt_required()
     def delete(self, course_id=None, topic_id=None, id=None):
