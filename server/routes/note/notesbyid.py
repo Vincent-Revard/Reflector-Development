@@ -10,7 +10,7 @@ from .. import (
     Note,
     g,
     BaseResource,
-    jwt_required_modified,
+    jwt_required,
     get_related_data,
     User,
     UserCourse,
@@ -18,7 +18,7 @@ from .. import (
     Topic,
     get_jwt_identity,
     Course,
-    db
+    db,
 )
 from flask_jwt_extended import current_user
 
@@ -26,10 +26,9 @@ class NotesById(BaseResource):
     model = Note
     schema = NoteSchema()
 
-    @jwt_required_modified()
+    @jwt_required()
     def get(self, course_id=None, topic_id=None, note_id=None):
         user = current_user
-        ipdb.set_trace()
         if not user:
             return {"message": "User not found"}, 404
 
@@ -43,18 +42,16 @@ class NotesById(BaseResource):
                         Note.references
                     ),  # Add this line to include the references
                 )
-                .filter_by(id=note_id)
+                .filter_by(id=note_id, user_id=user.id)
                 .first()
             )
-            ipdb.set_trace()
-
+            ipdb.set_trace
             if note and note.topic_id == topic_id:
                 # Check if the user is enrolled in any of the courses associated with the note's topic
                 if any(
                     course.id in (course.id for course in user.enrolled_courses)
                     for course in note.topic.courses
                 ):
-                    # ipdb.set_trace()
                     return {"note": self.schema.dump(note)}, 200
                 else:
                     return {
@@ -65,18 +62,20 @@ class NotesById(BaseResource):
 
         return {"message": "Topic ID or note ID not provided"}, 400
 
-    @jwt_required_modified()
+    @jwt_required()
     def delete(self, course_id=None, topic_id=None, note_id=None):
         user = current_user
 
         if not user:
             return {"message": "User not found"}, 404
-
+        ipdb.set_trace
         if course_id and topic_id and note_id:
             # Check if the user is enrolled in the course
             if any(course.id == course_id for course in user.enrolled_courses):
                 # Fetch the note
+                ipdb.set_trace
                 note = Note.query.filter_by(topic_id=topic_id, id=note_id, user_id=current_user.id).first()
+                ipdb.set_trace
                 if note:
                     # Delete the note
                     db.session.delete(note)
@@ -90,12 +89,11 @@ class NotesById(BaseResource):
 
         return {"message": "Invalid request"}, 400
 
-    @jwt_required_modified()
+    @jwt_required()
     def patch(self, course_id=None, topic_id=None, note_id=None):
         user = current_user
         if not user:
             return {"message": "User not found"}, 404
-        ipdb.set_trace()
         if course_id and topic_id and note_id:
             # Check if the user is enrolled in the course
             if any(course.id == course_id for course in user.enrolled_courses):
@@ -106,7 +104,6 @@ class NotesById(BaseResource):
                 if note:
                     # Get the data from the request
                     data = request.get_json()
-                    ipdb.set_trace()
                     # Extract the 'note' data
                     note_data = data.get("note")
                     if not note_data:

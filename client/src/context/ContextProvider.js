@@ -36,61 +36,108 @@ const ContextProvider = ({ children }) => {
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
+    // useEffect(() => {
+    //     let isMounted = true;
+    //     if (user) {
+    //     // if (user && !currentPage.endsWith('notes/new')) {
+    //         let abortController = new AbortController(); // Create an instance of AbortController
+    //         (async () => {
+    //             setIsLoading(true);
+    //             try {
+    //                 const res = await fetch(`/api/v1/${currentPage}`, { signal: abortController.signal }) // Pass the signal to the fetch request
+    //                 if (!res.ok) { // If the response is not ok
+    //                     const errorData = await res.json() // Convert the error response to JSON
+    //                     throw new Error(errorData.message) // Throw an error with the server's error message
+    //                 }
+    //                 if (isMounted) {
+    //                     const data = await res.json()
+    //                     setData(data)
+    //                     setTimeout(() => {
+    //                         showToast('success', `${ currentPage } Data Fetch Successful`) // Show the success toast after 4 seconds
+    //                         setIsLoading(false);
+    //                     }, 4000)
+    //                 }
+    //             } catch (err) {
+    //                 if (err.name === 'AbortError') {
+    //                     setTimeout(() => {
+    //                         showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast after 4 seconds
+    //                         setIsLoading(false);
+    //                     }, 4000)
+    //                 } else {
+    //                     setTimeout(() => {
+    //                         showToast('error', err.message) // Show the error toast after 4 seconds
+    //                         setIsLoading(false);
+    //                         // navigate(-1) // Navigate after showing the error toast
+    //                     }, 4000)
+    //                 }
+    //             }
+    //         })()
+
+    //         return () => {
+    //             abortController.abort(); // Abort the fetch request if the component is unmounted
+    //         }
+    //     }
+    // }, [currentPage, showToast, user, params.topicId, params.courseId, navigate])
     useEffect(() => {
         let isMounted = true;
-        if (user) {
-        // if (user && !currentPage.endsWith('notes/new')) {
-            let abortController = new AbortController(); // Create an instance of AbortController
-            (async () => {
+        const fetchData = async (retryCount = 0) => {
+            if (user) {
+                let abortController = new AbortController(); // Create an instance of AbortController
                 setIsLoading(true);
                 try {
                     const res = await fetch(`/api/v1/${currentPage}`, { signal: abortController.signal }) // Pass the signal to the fetch request
+                    const data = await res.json(); // Convert the response to JSON
                     if (!res.ok) { // If the response is not ok
-                        const errorData = await res.json() // Convert the error response to JSON
-                        throw new Error(errorData.message) // Throw an error with the server's error message
+                        throw new Error(data.message) // Throw an error with the server's error message
                     }
                     if (isMounted) {
-                        const data = await res.json()
                         setData(data)
-                        setTimeout(() => {
-                            showToast('success', 'Data Fetch Successful') // Show the success toast after 4 seconds
-                            setIsLoading(false);
-                        }, 4000)
                     }
                 } catch (err) {
                     if (err.name === 'AbortError') {
-                        setTimeout(() => {
-                            showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast after 4 seconds
-                            setIsLoading(false);
-                        }, 4000)
+                        showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast immediately
                     } else {
+                        showToast('error', err.message) // Show the error toast immediately
+                        if (err.message.includes('not found')) {
+                            navigate(-1); // Navigate back a page
+                        } else if (err.message.includes('500') && retryCount < 3) {
+                            // Retry after 2 seconds if server error and retry count is less than 3
+                            setTimeout(() => fetchData(retryCount + 1), 2000);
+                        } else if (err.message.includes('401')) {
+                            // Handle unauthorized error
+                            showToast('error', err.message);
+                            user ? navigate('/') : navigate('/registration');
+                        }
+                    }
+                } finally {
+                    if (isMounted) {
                         setTimeout(() => {
-                            showToast('error', err.message) // Show the error toast after 4 seconds
+                            showToast('success', `We've fetched your data!`) // Show the success toast after 4 seconds
                             setIsLoading(false);
-                            navigate(-1) // Navigate after showing the error toast
-                        }, 4000)
+                        }, 2000)
                     }
                 }
-            })()
 
-            return () => {
-                abortController.abort(); // Abort the fetch request if the component is unmounted
+                return () => {
+                    abortController.abort(); // Abort the fetch request if the component is unmounted
+                }
             }
         }
-    }, [currentPage, showToast, user, params.topicId, params.courseId, navigate])
 
+        fetchData();
+
+    }, [currentPage, showToast, user, navigate])
 
 
     const handlePatchContext = async (updates) => {
-        // debugger
+
         const { current_password, new_password, ...updatesWithoutPasswords } = updates;
-        // debugger
+
         const prevProfileData = { ...data };
 
         const csrfToken = getCookie('csrf_access_token');
         console.log(csrfToken)
-        // setProfileData(profileData.map(user => user.id === id ? { ...user, ...updates } : user));
-        // debugger
+
         setData({ ...data, ...updatesWithoutPasswords });
         try {
             const responseBody = await patchJSON(`/api/v1/${currentPage}`, updates, csrfToken);
@@ -182,7 +229,6 @@ const ContextProvider = ({ children }) => {
         let url;
         let prevData = { ...data };
         let updatedData;
-        debugger
 
         if (noteId) {
             itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
@@ -278,6 +324,7 @@ const ContextProvider = ({ children }) => {
             setData(updatedData);
             const csrfToken = getCookie('csrf_access_token');
             const Authorization = `Bearer ${getCookie('access_token_cookie')}`;
+            debugger
             const responseBody = await deleteJSON(url, csrfToken, Authorization);
 
             if (responseBody.message === 'Item deleted successfully') {

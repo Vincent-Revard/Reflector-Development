@@ -4,7 +4,6 @@ from .. import (
     User,
     g,
     BaseResource,
-    jwt_required_modified,
     jwt_required
 )
 import ipdb

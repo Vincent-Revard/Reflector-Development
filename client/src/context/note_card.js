@@ -16,6 +16,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 //     borderRadius: '15px',
 // });
 
+
+
 const NoteCard = ({ note, courseId, topicId }) => {
     const handleDeleteContextById = useProviderContext().handleDeleteContextById
     const { user } = useAuth();

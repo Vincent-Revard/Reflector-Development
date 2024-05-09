@@ -10,7 +10,7 @@ from .. import (
     Note,
     g,
     BaseResource,
-    jwt_required_modified,
+    jwt_required,
     get_related_data,
     User,
     UserCourse,
@@ -28,7 +28,7 @@ class TopicsById(BaseResource):
     model = Topic
     schema = TopicSchema
 
-    @jwt_required_modified()
+    @jwt_required()
     def get(self, topic_id=None):
         user = current_user
         if not user:
@@ -43,7 +43,7 @@ class TopicsById(BaseResource):
 
         return {"message": "Topic ID not provided"}, 400
 
-    @jwt_required_modified()
+    @jwt_required()
     def patch(self, topic_id=None):
         user = current_user
         if not user:

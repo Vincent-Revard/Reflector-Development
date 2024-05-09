@@ -11,6 +11,7 @@ export const useAuth = () => useContext(AuthContext)
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [checkingSession, setCheckingSession] = useState(false)
+  const [checkingRefresh, setCheckingRefresh] = useState(false)
   console.log(user)
   const { showToast } = useToast()
   const onUnauthorized = useUnauthorized()
@@ -46,8 +47,73 @@ const logout = useCallback(() => {
   const value = useMemo(() => ({
   user,
   updateUser: setUser,
-  logout
-  }), [user, setUser, logout, ]);
+  logout,
+  checkingRefresh
+  }), [user, setUser, logout, checkingRefresh ]);
+
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     setCheckingSession(true);
+  //     let response;
+  //     try {
+  //       response = await fetch('http://localhost:3000/api/v1/check_session', {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           "X-CSRF-TOKEN": getCookie('csrf_access_token'),
+  //           'Authorization': `Bearer ${getCookie('csrf_access_token')}`
+  //         },
+  //       });
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         if (data.status !== '401') {
+  //           setUser(data);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       showToast(`error`, `${error.message}`);
+  //     }
+
+  //     if (!response || !response.ok) {
+  //       let refreshResponse;
+  //       try {
+  //         refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
+  //           method: "POST",
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             "X-CSRF-TOKEN": (getCookie('csrf_access_token'), getCookie('csrf_refresh_token')),
+  //             'Authorization': `Bearer ${getCookie('refresh_token_cookie')}`
+  //           },
+  //         });
+  //         if (!refreshResponse.ok) {
+  //           const errorData = await refreshResponse.json();
+  //           showToast(`error`, `${errorData.msg}`);
+  //         } else {
+  //           const refreshData = await refreshResponse.json();
+  //           if (refreshData.msg === 'Token has expired') {
+  //             setUser(null)
+  //             // navigate('/registration')
+  //           } else {
+  //             setUser(refreshData);
+  //           }
+  //         }
+  //       } catch (error) {
+  //         showToast(`error`, `${error.message}`);
+  //         // navigate('/registration')
+  //         try {
+  //           await logout();
+  //         } catch (logoutError) {
+  //           showToast(`error`, `${logoutError.message}`);
+  //         }
+  //       }
+  //     }
+  //     setCheckingSession(false);
+  //   };
+
+  //   if (!sessionChecked) {
+  //     checkSession();
+  //     setSessionChecked(true)
+  //   }
+  // }, [showToast, onUnauthorized, sessionChecked, logout]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -68,8 +134,11 @@ const logout = useCallback(() => {
           }
         }
       } catch (error) {
+        showToast(`error`, `${error.message}`);
       }
+
       if (!response || !response.ok) {
+        setCheckingRefresh(true); // Set checkingRefresh to true when starting the refresh operation
         let refreshResponse;
         try {
           refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
@@ -79,7 +148,6 @@ const logout = useCallback(() => {
               "X-CSRF-TOKEN": (getCookie('csrf_access_token'), getCookie('csrf_refresh_token')),
               'Authorization': `Bearer ${getCookie('refresh_token_cookie')}`
             },
-            // body: JSON.stringify({ csrf_token: getCookie('csrf_refresh_token') })
           });
           if (!refreshResponse.ok) {
             const errorData = await refreshResponse.json();
@@ -97,8 +165,13 @@ const logout = useCallback(() => {
           showToast(`error`, `${error.message}`);
           setUser(null)
           // navigate('/registration')
-          logout();
+          try {
+            await logout();
+          } catch (logoutError) {
+            showToast(`error`, `${logoutError.message}`);
+          }
         }
+        setCheckingRefresh(false); // Set checkingRefresh to false when the refresh operation is complete
       }
       setCheckingSession(false);
     };

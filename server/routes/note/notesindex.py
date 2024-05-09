@@ -6,22 +6,16 @@ from .. import (
     request,
     NoteSchema,
     Note,
-    g,
     BaseResource,
-    jwt_required_modified,
-    get_related_data,
     User,
     UserCourse,
     CourseTopic,
     Topic,
-    get_jwt_identity,
     Course,
     db,
-    redis_client,
-    get_jwt,
-    json,
     get_instance_by_id,
     ValidationError,
+    jwt_required
 )
 from flask_jwt_extended import current_user
 
@@ -30,7 +24,7 @@ class NotesIndex(BaseResource):
     model = Note
     schema = NoteSchema()
 
-    @jwt_required_modified()
+    @jwt_required()
     def get(self, course_id=None, topic_id=None, note_id=None):
         if id is None:
             user_id = current_user.id
@@ -48,15 +42,16 @@ class NotesIndex(BaseResource):
         # ipdb.set_trace()
         return super().get()
 
-    @jwt_required_modified()
+    @jwt_required()
     def delete(self, course_id=None, topic_id=None, id=None):
         user_id = current_user.id
+        ipdb.set_trace()
         note = get_instance_by_id(Note, id)
         if note is None or note.user_id != user_id:
             return {"message": "Unauthorized"}, 401
         return super().delete(id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def patch(self, course_id=None, topic_id=None, id=None):
 
         note = get_instance_by_id(Note, id)
@@ -64,12 +59,12 @@ class NotesIndex(BaseResource):
             return {"message": "Unauthorized"}, 401
         return super().patch(id)
 
-    @jwt_required_modified()
+    @jwt_required()
     def post(self, course_id=None, topic_id=None):
         note_data = request.get_json()
         if not note_data:
             return {"message": "Invalid data"}, 400
-        
+
         try:
             note = self.schema.load(note_data)
         except ValidationError as err:

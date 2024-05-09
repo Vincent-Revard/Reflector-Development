@@ -10,7 +10,6 @@ from .. import (
     Note,
     g,
     BaseResource,
-    jwt_required_modified,
     get_related_data,
     User,
     UserCourse,
@@ -19,7 +18,8 @@ from .. import (
     get_jwt_identity,
     Course,
     db,
-    CourseSchema
+    CourseSchema,
+    jwt_required
 )
 from flask_jwt_extended import current_user
 
@@ -28,7 +28,7 @@ class CourseById(BaseResource):
     model = Course
     schema = CourseSchema
 
-    @jwt_required_modified()
+    @jwt_required()
     def get(self, course_id=None):
         user = current_user
         if not user:
@@ -43,7 +43,7 @@ class CourseById(BaseResource):
 
         return {"message": "Course ID not provided"}, 400
 
-    @jwt_required_modified()
+    @jwt_required()
     def patch(self, course_id=None):
         user = current_user
         if not user:

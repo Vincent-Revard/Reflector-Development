@@ -1,30 +1,15 @@
-from .. import (
-    request,
-    Course,
-    g,
-    BaseResource,
-    jwt_required_modified,
-    get_related_data,
-    User,
-    UserCourse,
-    CourseTopic,
-    Topic,
-    get_jwt_identity,
-    db,
-    not_,
-)
+
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from flask_jwt_extended import current_user
 
-import ipdb
-
-
 from flask import request
 from .. import (
     db,
-    jwt_required_modified,
     User,
+    g,
+    BaseResource,
     UserCourse,
     Course,
     CourseTopic,
@@ -34,6 +19,7 @@ from .. import (
     CourseTopicSchema,
     UserSchema,
     not_,
+    jwt_required
 )
 
 class EnrollInCourseOrTopic(BaseResource):
@@ -47,7 +33,7 @@ class EnrollInCourseOrTopic(BaseResource):
     # Get the current endpoint
 
 
-    @jwt_required_modified()
+    @jwt_required()
     def get(self, course_id=None, topic_id=None):
         user = current_user
         if not user:
@@ -81,7 +67,7 @@ class EnrollInCourseOrTopic(BaseResource):
             topics_data = [self.topic_schema.dump(topic) for topic in topics]
             return {"topics": topics_data}
 
-    @jwt_required_modified()
+    @jwt_required()
     def post(self, course_id, topic_id=None):
         user = current_user
         if not user:
@@ -112,7 +98,7 @@ class EnrollInCourseOrTopic(BaseResource):
                 "topic": self.topic_schema.dump(topic),
             }, 200
 
-    @jwt_required_modified()
+    @jwt_required()
     def delete(self, course_id, topic_id=None):
         user = current_user
         if not user:
