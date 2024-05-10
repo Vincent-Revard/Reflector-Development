@@ -11,7 +11,7 @@ class Verify(Resource):
             return {"message": "No token provided."}, 400
 
         # Use the token to look up the user's ID in Redis
-        ipdb.set_trace()
+        #ipdb.set_trace()
         user_id = redis_client.get(token)
         if user_id is None:
             return {"message": "The confirmation link is invalid or has expired."}, 400

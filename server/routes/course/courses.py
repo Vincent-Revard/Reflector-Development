@@ -12,7 +12,7 @@ from .. import (
     get_jwt_identity,
     jwt_required,
     ValidationError,
-    db
+    db,
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -20,63 +20,62 @@ from flask_jwt_extended import current_user
 
 import ipdb
 
+
 class CoursesIndex(BaseResource):
     model = Course
     schema = CourseSchema()
 
-    @jwt_required()
-    def get(self, id=None, condition=None):
-        if id is None:
-            user_id = current_user.id
 
-            # user_id = get_jwt_identity()
-            user = User.query.options(
-                joinedload(User.enrolled_courses)
-                .joinedload(Course.course_topics)
-                .joinedload(CourseTopic.topic)
-                .joinedload(Topic.notes)
-            ).get(user_id)
-            courses = [
-                {
-                    "id": course.id,
-                    "name": course.name,
-                    "creator_id": course.creator_id,
-                    "topics": [
-                        {
-                            "id": topic.id,
-                            "name": topic.name,
-                            "creator_id": topic.creator_id,
-                            "notes": [
-                                {
-                                    "id": note.id,
-                                    "name": note.name,
-                                    "category": note.category,
-                                    "content": note.content,
-                                }
-                                for note in topic.notes if note.user_id == user_id
-                            ],
-                        }
-                        for topic in course.topics
-                    ],
-                }
-                for course in user.enrolled_courses
-            ]
-            return {"courses": courses}, 200
-        # ipdb.set_trace()
-        return super().get(id, condition)
+    @jwt_required()
+    def get(self, condition=None):
+        user_id = current_user.id
+        user = User.query.options(
+            joinedload(User.enrolled_courses)
+            .joinedload(Course.course_topics)
+            .joinedload(CourseTopic.topic)
+            .joinedload(Topic.notes)
+        ).get(user_id)
+        courses = [
+            {
+                "id": course.id,
+                "name": course.name,
+                "creator_id": course.creator_id,
+                "topics": [
+                    {
+                        "id": topic.id,
+                        "name": topic.name,
+                        "creator_id": topic.creator_id,
+                        "notes": [
+                            {
+                                "id": note.id,
+                                "name": note.name,
+                                "category": note.category,
+                                "content": note.content,
+                            }
+                            for note in topic.notes
+                            if note.user_id == user_id
+                        ],
+                    }
+                    for topic in course.topics
+                    if course in topic.courses
+                ],
+            }
+            for course in user.enrolled_courses
+        ]
+        return {"courses": courses}, 200
 
     @jwt_required()
     def delete(self, id=None):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
         return super().delete(id)
 
     @jwt_required()
     def patch(self, id):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
 
         return super().patch(g.courses.id)
 

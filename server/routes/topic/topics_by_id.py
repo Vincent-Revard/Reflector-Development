@@ -1,5 +1,5 @@
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, contains_eager
 import ipdb
 from sqlalchemy import and_
 
@@ -48,21 +48,11 @@ class TopicsById(BaseResource):
             if not course_topic:
                 return {"message": "Topic not found in the course"}, 404
 
-            # Fetch all the notes for the topic
-            notes = (
-                db.session.query(Note)
-                .options(
-                    joinedload(Note.topic).joinedload(Topic.courses),
-                    joinedload(Note.references),
-                )
-                .filter_by(topic_id=topic_id, user_id=user.id)
-                .all()
-            )
-
-            if notes:
-                return {"notes": [self.schema.dump(note) for note in notes]}, 200
+            topic = Topic.query.filter_by(id=topic_id).first()
+            if topic:
+                return {"topic": self.schema.dump(topic)}, 200
             else:
-                return {"message": f"No notes found for Topic with id #{topic_id}"}, 404
+                return {"message": f"Could not find Topic with id #{topic_id}"}, 404
 
         return {"message": "Topic ID or Course ID not provided"}, 400
 

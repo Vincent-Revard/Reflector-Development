@@ -1,357 +1,156 @@
-# Phase 4 Full-Stack Application Project Template
+App Description:
+Reflector is a platform designed to streamline your study experience by centralizing all your course-related materials and allowing you to break your courses into various topics with subjects or titles that can be utilized as tags to more accurately reflect the type of relationship each note has with a topic/course. 
 
-## Learning Goals
+Key features include:
 
-- Discuss the basic directory structure of a full-stack Flask/React application.
-- Carry out the first steps in creating your Phase 4 project.
-
----
-
-## Introduction
-
-Fork and clone this lesson for a template for your full-stack application. Take
-a look at the directory structure before we begin (NOTE: node_modules will be
-generated in a subsequent step):
-
-```console
-$ tree -L 2
-$ # the -L argument limits the depth at which we look into the directory structure
-.
-├── CONTRIBUTING.md
-├── LICENSE.md
-├── Pipfile
-├── README.md
-├── client
-│   ├── README.md
-│   ├── package.json
-│   ├── public
-│   └── src
-└── server
-    ├── app.py
-    ├── config.py
-    ├── models.py
-    └── seed.py
-```
-
-A `migrations` folder will be added to the `server` directory in a later step.
-
-The `client` folder contains a basic React application, while the `server`
-folder contains a basic Flask application. You will adapt both folders to
-implement the code for your project .
-
-NOTE: If you did not previously install `tree` in your environment setup, MacOS
-users can install this with the command `brew install tree`. WSL and Linux users
-can run `sudo apt-get install tree` to download it as well.
-
-## Where Do I Start?
-
-Just as with your Phase 3 Project, this will likely be one of the biggest
-projects you've undertaken so far. Your first task should be creating a Git
-repository to keep track of your work and roll back any undesired changes.
-
-### Removing Existing Git Configuration
-
-If you're using this template, start off by removing the existing metadata for
-Github and Canvas. Run the following command to carry this out:
-
-```console
-$ rm -rf .git .canvas
-```
-
-The `rm` command removes files from your computer's memory. The `-r` flag tells
-the console to remove _recursively_, which allows the command to remove
-directories and the files within them. `-f` removes them permanently.
-
-`.git` contains this directory's configuration to track changes and push to
-Github (you want to track and push _your own_ changes instead), and `.canvas`
-contains the metadata to create a Canvas page from your Git repo. You don't have
-the permissions to edit our Canvas course, so it's not worth keeping around.
-
-### Creating Your Own Git Repo
-
-First things first- rename this directory! Once you have an idea for a name,
-move one level up with `cd ..` and run
-`mv python-p4-project-template <new-directory-name>` to change its name (replace
-<new-directory-name> with an appropriate project directory name).
-
-> **Note: If you typed the `mv` command in a terminal within VS Code, you should
-> close VS Code then reopen it.**
-
-> **Note: `mv` actually stands for "move", but your computer interprets this
-> rename as a move from a directory with the old name to a directory with a new
-> name.**
-
-`cd` back into your new directory and run `git init` to create a local git
-repository. Add all of your local files to version control with `git add --all`,
-then commit them with `git commit -m'initial commit'`. (You can change the
-message here- this one is just a common choice.)
-
-Navigate to [GitHub](https://github.com). In the upper-right corner of the page,
-click on the "+" dropdown menu, then select "New repository". Enter the name of
-your local repo, choose whether you would like it to be public or private, make
-sure "Initialize this repository with a README" is unchecked (you already have
-one), then click "Create repository".
-
-Head back to the command line and enter
-`git remote add origin git@github.com:github-username/new-repository-name.git`.
-NOTE: Replace `github-username` with your github username, and
-`new-repository-name` with the name of your new repository. This command will
-map the remote repository to your local repository. Finally, push your first
-commit with `git push -u origin main`.
-
-Your project is now version-controlled locally and online. This will allow you
-to create different versions of your project and pick up your work on a
-different machine if the need arises.
+Organize Effortlessly: Categorize courses and tag topics for easy retrieval.
+Collaborative Learning (Coming Soon): Collaborate with peers and tackle group projects seamlessly.
+Voice-to-Text Input (Coming Soon): Input notes effortlessly using voice-to-text.
+Interactive Quizzes (Coming Soon): Convert notes into engaging quizzes tailored to your course content.
 
 ---
 
-## Setup
+## Getting Started
 
-### `server/`
+## Back-end:
+Navigate to the server directory: cd server/
+Install dependencies: pipenv install
+Activate virtual environment: pipenv shell
+Start the server: python app.py
 
-The `server/` directory contains all of your backend code.
+## Required Dependencies (via Pipenv)
 
-`app.py` is your Flask application. You'll want to use Flask to build a simple
-API backend like we have in previous modules. You should use Flask-RESTful for
-your routes. You should be familiar with `models.py` and `seed.py` by now, but
-remember that you will need to use Flask-SQLAlchemy, Flask-Migrate, and
-SQLAlchemy-Serializer instead of SQLAlchemy and Alembic in your models.
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
 
-The project contains a default `Pipfile` with some basic dependencies. You may
-adapt the `Pipfile` if there are additional dependencies you want to add for
-your project.
+[packages]
+ipdb = "0.13.9"
+flask = "*"
+flask-sqlalchemy = "*"
+Werkzeug = "2.2.2"
+flask-migrate = "*"
+sqlalchemy-serializer = "*"
+flask-restful = "*"
+flask-cors = "*"
+faker = "*"
+sqlalchemy = "*"
+flask-bcrypt = "*"
+flask-marshmallow = "*"
+flask-session = "*"
+python-dotenv = "*"
+marshmallow-sqlalchemy = "*"
+email-validator = "*"
+flask-jwt-extended = "*"
+flask-redis = "*"
+flask-mail = "*"
+redis = "*"
 
-To download the dependencies for the backend server, run:
+[requires]
+python_full_version = "3.8.13"
 
-```console
-pipenv install
-pipenv shell
-```
+You will also need to create a .env file that will hold various app-specific data that your config file will utilize through environ.get from within the server/config.py file. The .env file should be located at the main file directory and not within the server or client folders. 
 
-You can run your Flask API on [`localhost:5555`](http://localhost:5555) by
-running:
+## environment variables (in .env)
+PIPENV_IGNORE_VIRTUALENVS=1
+FLASK_APP=app.py
+FLASK_RUN_PORT=5555
+FLASK_DEBUG=1
+JWT_SECRET='THE_JWT_SECRET_KEY'
+SMTP_PASS='SMTP_PASSWORD_FOR_EMAIL_AUTH_CONFIRMATION'
+SECRET_KEY='SECRET_KEY_FOR_FLASK'
+REDIS_URL='REDIS_LOCAL_SERVER_URL'
+MAIL_USERNAME='MAIL_USERNAME_TO_SEND_EMAIL_CONFIRMATION_REQUESTS_FROM'
+MAIL_DEFAULT_SENDER='DEFAULT_MAIL_USERNAME_TO_SEND_EMAIL_CONFIRMATION_REQUESTS_FROM'
+SQLALCHEMY_DATABASE_URI='SQLALCHEMY_DATABASE_URL'
 
-```console
-python server/app.py
-```
 
-Check that your server serves the default route `http://localhost:5555`. You
-should see a web page with the heading "Project Server".
+## Front-end 
+Navigate to the client directory: cd client
+Install dependencies: npm install
+Start the React app: npm start
 
-### `client/`
+# Required Dependencies (in package.json)
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:5555",
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.15",
+    "@mui/material": "^5.15.15",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^13.5.0",
+    "formik": "^2.4.5",
+    "react": "^18.3.1",
+    "react-burger-menu": "^3.0.9",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.1.0",
+    "react-modal": "^3.16.1",
+    "react-router-dom": "^6.23.0",
+    "react-scripts": "5.0.1",
+    "styled-components": "^6.1.8",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
 
-The `client/` directory contains all of your frontend code. The file
-`package.json` has been configured with common React application dependencies,
-include `react-router-dom`. The file also sets the `proxy` field to forward
-requests to `"http://localhost:5555". Feel free to change this to another port-
-just remember to configure your Flask app to use another port as well!
+# You will need to create a database using Flask SQLALchemy by completeing the following steps:
 
-To download the dependencies for the frontend client, run:
-
-```console
-npm install --prefix client
-```
-
-You can run your React app on [`localhost:3000`](http://localhost:3000) by
-running:
-
-```sh
-npm start --prefix client
-```
-
-Check that your the React client displays a default page
-`http://localhost:3000`. You should see a web page with the heading "Project
-Client".
-
-## Generating Your Database
-
-NOTE: The initial project directory structure does not contain the `instance` or
-`migrations` folders. Change into the `server` directory:
-
-```console
-cd server
-```
-
-Then enter the commands to create the `instance` and `migrations` folders and
-the database `app.db` file:
-
-```
+cd into the server directory : cd server/
+running the following commands in the terminal to initiate the database instance and migration using Alembic. 
 flask db init
+flask db migration -m "Initial Migration"
 flask db upgrade head
-```
 
-Type `tree -L 2` within the `server` folder to confirm the new directory
-structure:
+# Additionally, there is a seed file that holds from fake data to utilize if desired. 
+To run this seed file and integrate it within your new database run the following commands while still in the server directory:
+python seed.py 
 
-```console
-.
-├── app.py
-├── config.py
-├── instance
-│   └── app.db
-├── migrations
-│   ├── README
-│   ├── __pycache__
-│   ├── alembic.ini
-│   ├── env.py
-│   ├── script.py.mako
-│   └── versions
-├── models.py
-└── seed.py
-```
 
-Edit `models.py` and start creating your models. Import your models as needed in
-other modules, i.e. `from models import ...`.
+You will see a notification once the seed completes and if it was successful or not and if not, for what reason. 
 
-Remember to regularly run
-`flask db revision --autogenerate -m'<descriptive message>'`, replacing
-`<descriptive message>` with an appropriate message, and `flask db upgrade head`
-to track your modifications to the database and create checkpoints in case you
-ever need to roll those modifications back.
+# Important information to note:
 
-> **Tip: It's always a good idea to start with an empty revision! This allows
-> you to roll all the way back while still holding onto your database. You can
-> create this empty revision with `flask db revision -m'Create DB'`.**
+Routes are rendered and fetched based on RESTful API standards to confirm validity of information upon each requested endpoint through React Router Dom v6.4 (server/routes and client/routes/routes.js respectively). 
 
-If you want to seed your database, now would be a great time to write out your
-`seed.py` script and run it to generate some test data. Faker has been included
-in the Pipfile if you'd like to use that library.
+There is a main AuthProvider which provides the context for the user currently logged in. Flask JWT with Redis storage is utilized to handle token management for both session and email verification along with blacklisting expired access tokens and refresh tokens. This Context will be used to confirm is a valid user is logged in during requests to the API and is utilized under client/context/context_list.js to conditionally render routes based on loading status
 
----
+These renders will work through cominbation of the context_list component and the fetching logic that works through ContextProvider (useEffect) and will fetch the appropriate end-point based data and send this stateful data as context to ContextList who then conditionally renders each route given the URL and when it is accessed. 
 
-#### `config.py`
+The card components are utilized as the "detail level" for each route (courses/ , topics/ and /notes) and the index_cards will display the "limited level" of data view for the component to be used in a collapsible menu by its parent. 
 
-When developing a large Python application, you might run into a common issue:
-_circular imports_. A circular import occurs when two modules import from one
-another, such as `app.py` and `models.py`. When you create a circular import and
-attempt to run your app, you'll see the following error:
+Each component has a related form component for both POST and PATCH that is utilized based on URL/path called when mounting the related form component. 
 
-```console
-ImportError: cannot import name
-```
-
-If you're going to need an object in multiple modules like `app` or `db`,
-creating a _third_ module to instantiate these objects can save you a great deal
-of circular grief. Here's a good start to a Flask config file (you may need more
-if you intend to include features like authentication and passwords):
-
-```py
-# Standard library imports
-
-# Remote library imports
-from flask import Flask
-from flask_cors import CORS
-from flask_migrate import Migrate
-from flask_restful import Api
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData
-
-# Local imports
-
-# Instantiate app, set attributes
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
-
-# Define metadata, instantiate db
-metadata = MetaData(naming_convention={
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-})
-db = SQLAlchemy(metadata=metadata)
-migrate = Migrate(app, db)
-db.init_app(app)
-
-# Instantiate REST API
-api = Api(app)
-
-# Instantiate CORS
-CORS(app)
-
-```
-
-Now let's review that last line...
-
-#### CORS
-
-CORS (Cross-Origin Resource Sharing) is a system that uses HTTP headers to
-determine whether resources from different servers-of-origin can be accessed. If
-you're using the fetch API to connect your frontend to your Flask backend, you
-need to configure CORS on your Flask application instance. Lucky for us, that
-only takes one line:
-
-```py
-CORS(app)
-
-```
-
-By default, Flask-CORS enables CORS on all routes in your application with all
-fetching servers. You can also specify the resources that allow CORS. The
-following specifies that routes beginning with `api/` allow CORS from any
-originating server:
-
-```py
-CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-```
-
-You can also set this up resource-by-resource by importing and using the
-`@cross_origin` decorator:
-
-```py
-@app.route("/")
-@cross_origin()
-def howdy():
-  return "Howdy partner!"
-
-```
-
----
-
-## Updating Your README.md
-
-`README.md` is a Markdown file that describes your project. These files can be
-used in many different ways- you may have noticed that we use them to generate
-entire Canvas lessons- but they're most commonly used as homepages for online
-Git repositories. **When you develop something that you want other people to
-use, you need to have a README.**
-
-Markdown is not a language that we cover in Flatiron's Software Engineering
-curriculum, but it's not a particularly difficult language to learn (if you've
-ever left a comment on Reddit, you might already know the basics). Refer to the
-cheat sheet in this lesson's resources for a basic guide to Markdown.
-
-### What Goes into a README?
-
-This README should serve as a template for your own- go through the important
-files in your project and describe what they do. Each file that you edit (you
-can ignore your migration files) should get at least a paragraph. Each function
-should get a small blurb.
-
-You should descibe your application first, and with a good level of detail. The
-rest should be ordered by importance to the user. (Probably routes next, then
-models.)
-
-Screenshots and links to resources that you used throughout are also useful to
-users and collaborators, but a little more syntactically complicated. Only add
-these in if you're feeling comfortable with Markdown.
-
----
-
-## Conclusion
-
-A lot of work goes into a full-stack application, but it all relies on concepts
-that you've practiced thoroughly throughout this phase. Hopefully this template
-and guide will get you off to a good start with your Phase 4 Project.
-
-Happy coding!
-
----
-
-## Resources
-
-- [Setting up a respository - Atlassian](https://www.atlassian.com/git/tutorials/setting-up-a-repository)
-- [Create a repo- GitHub Docs](https://docs.github.com/en/get-started/quickstart/create-a-repo)
-- [Markdown Cheat Sheet](https://www.markdownguide.org/cheat-sheet/)
-- [Python Circular Imports - StackAbuse](https://stackabuse.com/python-circular-imports/)
-- [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/)
+# License
+This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) - see the MIT License link for details.

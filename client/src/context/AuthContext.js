@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      showToast(`error`, `${error.message}`);
+      console.log(error)
     }
     if (!response || !response.ok) {
       setCheckingRefresh(true); // Set checkingRefresh to true when starting the refresh operation

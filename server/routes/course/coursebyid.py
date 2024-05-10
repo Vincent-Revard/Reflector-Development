@@ -19,7 +19,7 @@ from .. import (
     Course,
     db,
     CourseSchema,
-    jwt_required
+    jwt_required,
 )
 from flask_jwt_extended import current_user
 
@@ -30,7 +30,7 @@ class CourseById(BaseResource):
 
     @jwt_required()
     def get(self, course_id=None, id=None):
-        ipdb.set_trace()
+        # ipdb.set_trace()
         user = current_user
         if not user:
             return {"message": "404: User not found"}, 404

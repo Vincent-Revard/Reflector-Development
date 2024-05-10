@@ -1,12 +1,6 @@
-from .. import (
-    request,
-    UserUpdateSchema,
-    User,
-    g,
-    BaseResource,
-    jwt_required
-)
+from .. import request, UserUpdateSchema, User, g, BaseResource, jwt_required
 import ipdb
+
 
 class UsersIndex(BaseResource):
     model = User
@@ -14,7 +8,7 @@ class UsersIndex(BaseResource):
 
     @jwt_required()
     def get(self, id):
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
         if g.profile is None:
             return {"message": "Unauthorized"}, 401
 
@@ -33,23 +27,23 @@ class UsersIndex(BaseResource):
             return {"message": "Unauthorized"}, 401
 
         # Get the current password from the request data
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
         current_password = request.json.get("current_password")
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
         if not current_password:
             return {"message": "Current password is required"}, 400
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
 
         # Check if the current password matches the stored password
         if not g.profile.authenticate(current_password):
             return {"message": "Current password is incorrect"}, 400
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
 
         # Hash the new password before storing it
         new_password = request.json.get("password")
         if new_password:
             g.profile.password = new_password
-        # ipdb.set_trace()
+        # #ipdb.set_trace()
 
         # Validate username and email
         username = request.json.get("username")

@@ -27,11 +27,11 @@ const CourseCard = ({ data }) => {
                 <Grid container justifyContent="space-between" alignItems="center">
                     <Grid item>
                         <Typography variant="h5" component="div">
-                            Course: {data.name}
+                            Course: {data?.name}
                         </Typography>
                     </Grid>
                     <Grid item>
-                        {user.id === data.creator_id && (
+                        {user.id === data?.creator_id && (
                             <Tooltip title="Update Course Name">
                                 <IconButton component={Link} to={`/courses/${data.id}/edit`}>
                                     <EditIcon color="secondary" />
@@ -41,19 +41,19 @@ const CourseCard = ({ data }) => {
                     </Grid>
                 </Grid>
                 <Grid container spacing={2} marginTop={2}>
-                    {data.topics && data.topics.map(topic => (
+                    {data?.topics && data?.topics.map(topic => (
                         <Grid item key={topic.id}>
                             <Chip
                                 label={topic.name}
                                 clickable
                                 component={Link}
-                                to={`/courses/${data.id}/topics/${topic.id}`}
+                                to={`/courses/${data?.id}/topics/${topic.id}/notes`}
                             />
                         </Grid>
                     ))}
                     <Grid item>
                         <Tooltip title="Add Topic">
-                            <IconButton component={Link} to={`/courses/${data.id}/topics/new`}>
+                            <IconButton component={Link} to={`/courses/${data?.id}/topics/new`}>
                                 <AddCircleIcon color="primary" />
                             </IconButton>
                         </Tooltip>
