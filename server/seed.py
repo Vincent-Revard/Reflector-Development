@@ -49,6 +49,16 @@ if __name__ == '__main__':
         # Use the Redis connection
         redis_store.flushall()  # Clear all data in Redis
 
+        # Define the original courses and topics
+        course_names = ["Computer Science", "Biology", "Physics", "Mathematics"]
+        course_topics = {
+            "Computer Science": ["Algorithms", "Machine Learning", "Computer Networks"],
+            "Biology": ["Ecology", "Biochemistry", "Anatomy"],
+            "Physics": ["Thermodynamics"],
+            "Mathematics": ["Statistics"],
+        }
+
+
         # Create some users
         users = []
         emails = set()
@@ -146,6 +156,137 @@ if __name__ == '__main__':
                 )
                 db.session.add(note)
             db.session.commit()
+
+        def generate_note_content(topic_name):
+            if topic_name == "Statistics":
+                return """
+                    Statistics is a branch of mathematics that deals with the collection, analysis, interpretation, and presentation of data.
+                    It is used in various fields such as economics, biology, sociology, and business to make informed decisions based on data.
+                    Key topics in statistics include probability, hypothesis testing, regression analysis, and sampling techniques.
+                """
+            elif topic_name == "Biochemistry":
+                return """
+                    Biochemistry is the study of the chemical processes and substances that occur within living organisms.
+                    It combines principles of biology and chemistry to understand the molecular mechanisms underlying biological processes.
+                    Important topics in biochemistry include metabolism, enzyme kinetics, molecular biology, and protein structure.
+                """
+            # Add more elif blocks for other topics
+            elif topic_name == "Ecology":
+                return """
+                    Ecology is the scientific study of the interactions between organisms and their environments.
+                    It explores how living organisms interact with each other and with their physical surroundings.
+                    Key concepts in ecology include ecosystems, biodiversity, food webs, and ecological succession.
+                """
+            elif topic_name == "Algorithms":
+                return """
+                    Algorithms are step-by-step procedures or instructions for solving problems.
+                    They are used in computer science to perform computations, data processing, and automated reasoning tasks.
+                    Important topics in algorithms include sorting algorithms, searching algorithms, and graph algorithms.
+                """
+            # Add more elif blocks for other topics
+            elif topic_name == "Organic Chemistry":
+                return """
+                    Organic chemistry is the study of the structure, properties, composition, reactions, and synthesis of organic compounds.
+                    It focuses on carbon-containing compounds, including hydrocarbons and their derivatives.
+                    Key topics in organic chemistry include functional groups, stereochemistry, and reaction mechanisms.
+                """
+            elif topic_name == "Machine Learning":
+                return """
+                    Machine learning is a subset of artificial intelligence that focuses on the development of algorithms that allow computers to learn from and make predictions or decisions based on data.
+                    It is used in various applications such as image recognition, natural language processing, and autonomous vehicles.
+                    Important topics in machine learning include supervised learning, unsupervised learning, and reinforcement learning.
+                """
+            # Add more elif blocks for other topics
+            elif topic_name == "Anatomy":
+                return """
+                    Anatomy is the branch of biology that studies the structure and organization of living organisms.
+                    It involves the examination of the physical structures of organisms and their relationships to each other.
+                    Key topics in anatomy include the skeletal system, muscular system, circulatory system, and nervous system.
+                """
+            elif topic_name == "Computer Networks":
+                return """
+                    Computer networks are systems of interconnected computers and devices that communicate with each other.
+                    They allow for the sharing of resources and information between users and devices.
+                    Important topics in computer networks include network protocols, transmission media, network architecture, and security.
+                """
+            # Add more elif blocks for other topics
+            elif topic_name == "Thermodynamics":
+                return """
+                    Thermodynamics is the branch of physics that deals with the relationships between heat, work, and energy.
+                    It explores how energy is transferred and transformed in physical systems.
+                    Key topics in thermodynamics include laws of thermodynamics, heat engines, and entropy.
+                """
+            elif topic_name == "Physical Chemistry":
+                return """
+                    Physical chemistry is the branch of chemistry that deals with the study of the physical properties and behavior of matter.
+                    It combines principles of physics and chemistry to understand the atomic and molecular interactions in chemical systems.
+                    Important topics in physical chemistry include chemical kinetics, thermodynamics, and quantum chemistry.
+                """
+            # Add more elif blocks for other topics
+            else:
+                return "Default note content"
+
+        def generate_note_details(course_name, topic_name):
+            # Generate category, name, and title based on the context of the note's topic and course
+            category = f"{course_name} - {topic_name}"  # Example: "Computer Science - Algorithms"
+            name = f"{course_name} Student"  # Example: "Computer Science Student"
+            title = f"Introduction to {topic_name}"  # Example: "Introduction to Algorithms"
+            return category, name, title
+
+        # Generate 50 unique notes
+# Generate 50 unique notes
+        generated_notes = set()  # To ensure uniqueness
+        users = User.query.all()
+        for _ in range(5):
+            course_name = rc(course_names)
+            topic_name = rc(course_topics[course_name])
+            note_content = generate_note_content(topic_name)
+            category, name, title = generate_note_details(course_name, topic_name)
+
+            # Select a random user and topic
+# Select a random user and topic
+        user = rc(users)
+        topic = Topic.query.filter_by(name=topic_name).first()
+
+        # If the topic does not exist, create it
+        if topic is None:
+            topic = Topic(name=topic_name, creator_id=user.id)
+            db.session.add(topic)
+            db.session.commit()
+
+        # Create a unique note tuple
+        note_tuple = (course_name, topic_name, note_content, user.id, topic.id)
+        while note_tuple in generated_notes:
+            course_name = rc(course_names)
+            topic_name = rc(course_topics[course_name])
+            note_content = generate_note_content(topic_name)
+            category, name, title = generate_note_details(course_name, topic_name)
+            user = rc(users)
+            topic = Topic.query.filter_by(name=topic_name).first()
+
+            # If the topic does not exist, create it
+            if topic is None:
+                topic = Topic(name=topic_name, creator_id=user.id)
+                db.session.add(topic)
+                db.session.commit()
+
+            note_tuple = (course_name, topic_name, note_content, user.id, topic.id)
+
+            # Add the note tuple to the set of generated notes
+            generated_notes.add(note_tuple)
+
+            # Create the note using the generated details
+            note = Note(
+                name=name,
+                title=title,
+                content=note_content,
+                category=category,
+                user_id=user.id,
+                topic_id=topic.id,
+            )
+            db.session.add(note)
+
+        db.session.commit()
 
         for user in User.query.all():
             for _ in range(randint(1, 5)):  # Each user is associated with 1-5 topics

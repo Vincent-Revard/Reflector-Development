@@ -180,7 +180,7 @@ class NoteReferenceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = NoteReference
         load_instance = True
-        fields = ("note_id", "reference_id")
+        fields = ("reference",)
 
     note_id = fields.Int()
     note_instance = fields.Nested("NoteSchema")

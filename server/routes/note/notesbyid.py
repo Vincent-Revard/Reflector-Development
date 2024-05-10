@@ -19,6 +19,7 @@ from .. import (
     get_jwt_identity,
     Course,
     db,
+    NoteReference
 )
 from flask_jwt_extended import current_user
 
@@ -38,9 +39,7 @@ class NotesById(BaseResource):
                 db.session.query(Note)
                 .options(
                     joinedload(Note.topic).joinedload(Topic.courses),
-                    joinedload(
-                        Note.references
-                    ),  # Add this line to include the references
+                    joinedload(Note.references).joinedload(NoteReference.reference)  # Modify this line
                 )
                 .filter_by(id=note_id, user_id=user.id)
                 .first()
