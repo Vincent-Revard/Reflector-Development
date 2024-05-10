@@ -42,16 +42,20 @@ const NoteCard = ({ note, courseId, topicId }) => {
                 <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'blue' }}>Note: {note.name}</Typography>
                 <Typography variant="body1">Title: {note.title}</Typography>
                 <Typography variant="body1">Category: {note.category}</Typography>
-                <Typography variant="body1">Note References:</Typography>
-                <ul>
-                    {note.references && note.references.length > 0 ? (
-                        note.references.map((ref, index) => (
-                            <li key={index}>{ref}</li>
-                        ))
-                    ) : (
-                        <li>No attached references!</li>
-                    )}
-                </ul>
+            </Grid>
+            <Grid item xs={12}>
+                {note.references && note.references.length > 0 && note.references.map((ref, index) => (
+                    <Box key={index} sx={{ mt: 4 }}>
+                        <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
+                            <Typography variant="h6">Reference {index + 1}</Typography>
+                            <Typography variant="body1">Name: {ref.reference.name}</Typography>
+                            <Typography variant="body1">Title: {ref.reference.title}</Typography>
+                            <Typography variant="body1">URL: <a href={ref.reference.url}>{ref.reference.url}</a></Typography>
+                            <Typography variant="body1">Published: {ref.reference.publication_day} {ref.reference.publication_month} {ref.reference.publication_year}</Typography>
+                            <Typography variant="body1">Accessed: {ref.reference.access_day} {ref.reference.access_month} {ref.reference.access_year}</Typography>
+                        </Paper>
+                    </Box>
+                ))}
             </Grid>
             <Grid item xs={12} sm={6}>
                 <Box sx={{ mt: 4 }}>
@@ -97,5 +101,6 @@ const NoteCard = ({ note, courseId, topicId }) => {
         </Grid>
     );
 }
+
 
 export default NoteCard;
