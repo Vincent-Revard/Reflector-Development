@@ -51,8 +51,8 @@ const ContextProvider = ({ children }) => {
                         showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast immediately
                     } else {
                         showToast('error', err.message) // Show the error toast immediately
-                        if (err.message.includes('404')) {
-                            navigate(-1); // Navigate back a page
+                        if (err.message.includes('not found')) {
+                            navigate('/'); // Navigate back a page
                         } else if (err.message.includes('500') && retryCount < 3) {
                             // Retry after 2 seconds if server error and retry count is less than 3
                             setTimeout(() => fetchData(retryCount + 1), 2000);

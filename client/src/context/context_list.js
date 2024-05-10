@@ -50,11 +50,14 @@ const ContextList = () => {
       if (courseId && topicId && !noteId && data?.notes?.length > 0) {
         return (
           <>
-            {/* <Typography variant="h6">Topic: {data.notes.topic.name}</Typography> */}
+            {/* <Typography variant="h6">Topic: {data?.notes[0].topic.name}</Typography> */}
             <Link to={`/courses/${courseId}/topics/${topicId}/notes/new`}>
               <StyledButton variant="contained" color="primary">
                 New Note
               </StyledButton>
+            </Link>
+            <Link to="/courses">
+              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go Back to Courses</Button>
             </Link>
             {data.notes.map(note => (
               <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
@@ -70,6 +73,9 @@ const ContextList = () => {
               <StyledButton variant="contained" color="primary">
                 New Note
               </StyledButton>
+            </Link>
+            <Link to="/courses">
+              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go Back to Courses</Button>
             </Link>
             {data?.notes?.map(note => (
               <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
