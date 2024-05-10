@@ -22,9 +22,8 @@ class Note(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"), nullable=False)
     # Define relationship with references through association table
-    references = db.relationship(
-        "NoteReference", back_populates="note"
-    )
+    references = db.relationship("NoteReference", back_populates="note_instance")
+    
     user = db.relationship("User", back_populates="notes")
     topic = db.relationship("Topic", back_populates="notes")
 

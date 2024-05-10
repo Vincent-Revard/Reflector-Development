@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography, Grid, Box, Paper } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useProviderContext } from './ContextProvider';
 import { useToast } from './ToastContext';
 
 const NoteCard = ({ note, courseId, topicId }) => {
     const handleDeleteContextById = useProviderContext().handleDeleteContextById
-    const { user } = useAuth();
     const [open, setOpen] = useState(false);
     const { showToast } = useToast();
     const Navigate = useNavigate();

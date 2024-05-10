@@ -1,5 +1,10 @@
 from .. import Resource, request, IntegrityError, ValidationError
-from ..helpers.query_helpers import get_all, get_all_by_condition, get_instance_by_id, get_one_by_condition
+from ..helpers.query_helpers import (
+    get_all,
+    get_all_by_condition,
+    get_instance_by_id,
+    get_one_by_condition,
+)
 from sqlalchemy import and_
 from flask_jwt_extended import jwt_required
 
@@ -7,6 +12,7 @@ from models.user import User
 
 from config import db
 import ipdb
+
 
 class BaseResource(Resource):
     model = None
@@ -41,7 +47,7 @@ class BaseResource(Resource):
         except Exception as e:
             db.session.rollback()
             return {"errors": str(e)}, 400
-        
+
     @jwt_required()
     def delete(self, id=None):
         try:
@@ -72,29 +78,29 @@ class BaseResource(Resource):
 
     def patch(self, id):
         # try:
-        #     ipdb.set_trace()
+        #
 
         #     data = self.schema.load(request.json)
         #     # Check if data is a User instance (object not dictionary)
         #     if isinstance(data, User):
-        #         ipdb.set_trace()
+        #
 
         #         # Convert the User instance to a dictionary
         #         data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
         #     else:
         #         # Convert data to a dictionary if it's not already one
         #         data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
-        #         ipdb.set_trace()
+        #
         #     instance = get_instance_by_id(self.model, id)
         #     if instance is None:
         #         return {"errors": f"{self.model.__name__} not found"}, 404
-        #     ipdb.set_trace()
+        #
 
         #     for key, value in data.items():
         #         if value is not None:
         #             setattr(instance, key, value)
         #     db.session.commit()
-        #     ipdb.set_trace()
+        #
         #     return {self.model.__name__.lower(): self.schema.dump(instance)}, 200
         # except ValidationError as e:
         #     return {"message": str(e)}, 422
@@ -110,7 +116,7 @@ class BaseResource(Resource):
             instance = get_instance_by_id(self.model, id)
             if instance is None:
                 return {"errors": f"{self.model.__name__} not found"}, 404
-            # ipdb.set_trace()
+
             for key, value in data.items():
                 if value is not None:
                     setattr(instance, key, value)

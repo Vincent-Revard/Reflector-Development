@@ -26,7 +26,8 @@ import ContextList from '../context/context_list';
 import NewNote from '../context/newNote';
 import NoteCard from '../context/note_card';
 import EnrollUnenrollCourseOrTopic from '../context/enroll_unenroll_course_or_topic';
-import NewCourseOrTopic from '../context/new_course_or_topic_form';
+import CourseNewEdit from '../context/course_new_edit_form';
+import TopicNewEdit from '../context/topic_new_edit_form';
 
 const router = createBrowserRouter([
   {
@@ -51,7 +52,7 @@ const router = createBrowserRouter([
             path: "new",
             element: (
               <ContextProvider>
-                <NewCourseOrTopic />
+                <CourseNewEdit />
               </ContextProvider>
             )
           },
@@ -67,7 +68,7 @@ const router = createBrowserRouter([
                 path: "edit",
                 element: (
                   <ContextProvider>
-                    <NewCourseOrTopic />
+                    <CourseNewEdit />
                   </ContextProvider>
                 )
               },
@@ -91,7 +92,7 @@ const router = createBrowserRouter([
                     path: "new",
                     element: (
                       <ContextProvider>
-                        <NewCourseOrTopic />
+                        <TopicNewEdit />
                       </ContextProvider>
                     )
                   },
@@ -107,7 +108,7 @@ const router = createBrowserRouter([
                         path: "edit",
                         element: (
                           <ContextProvider>
-                            <NewCourseOrTopic />
+                            <TopicNewEdit />
                           </ContextProvider>
                         )
                       },

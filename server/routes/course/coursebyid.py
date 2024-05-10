@@ -19,27 +19,31 @@ from .. import (
     Course,
     db,
     CourseSchema,
-    jwt_required
+    jwt_required,
 )
 from flask_jwt_extended import current_user
 
 
 class CourseById(BaseResource):
     model = Course
-    schema = CourseSchema
+    schema = CourseSchema()
 
     @jwt_required()
-    def get(self, course_id=None):
+    def get(self, course_id=None, id=None):
+        #
         user = current_user
         if not user:
-            return {"message": "User not found"}, 404
+            return {"message": "404: User not found"}, 404
 
-        if course_id:
-            course = Course.query.filter_by(id=course_id).first()
+        id = course_id or id
+        if id:
+            course = next((c for c in user.enrolled_courses if c.id == id), None)
             if course:
                 return {"course": self.schema.dump(course)}, 200
             else:
-                return {"message": f"Could not find Course with id #{course_id}"}, 404
+                return {
+                    "message": f"404: Could not find Course with id #{id} enrolled by user #{user.username}"
+                }, 404
 
         return {"message": "Course ID not provided"}, 400
 
@@ -50,8 +54,8 @@ class CourseById(BaseResource):
             return {"message": "User not found"}, 404
 
         if course_id:
-            course = Course.query.filter_by(id=course_id).first()
-            if course:
+            course = Course.query.get(course_id)
+            if course and course in user.enrolled_courses:
                 data = request.get_json()
                 course_data = data.get("course")
                 if not course_data:
@@ -69,6 +73,8 @@ class CourseById(BaseResource):
 
                 return {"message": "Course updated successfully"}, 200
             else:
-                return {"message": f"Could not find Course with id #{course_id}"}, 404
+                return {
+                    "message": f"Could not find Course with id #{course_id} enrolled by user #{user.id}"
+                }, 404
 
         return {"message": "Invalid request"}, 400

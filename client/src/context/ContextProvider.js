@@ -1,10 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useFetchJSON } from '../utils/useFetchJSON';
 import { useAuth } from './AuthContext';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from './ToastContext';
-import { CircularProgress } from '@mui/material';
-import { StyleSheetConsumer } from 'styled-components';
 
 // ProfileContext
 const Context = createContext();
@@ -13,7 +11,7 @@ export const useProviderContext = () => useContext(Context);
 
 const ContextProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
-    const { logout, user, updateUser } = useAuth();
+    const { user, updateUser, triggerRefresh } = useAuth();
     const { showToast } = useToast();
     const [data, setData] = useState({});
     const { postJSON, deleteJSON, patchJSON } = useFetchJSON();
@@ -25,10 +23,8 @@ const ContextProvider = ({ children }) => {
     } else if (currentPage === 'courses') {
         currentPage = location.pathname.slice(1);
     }
-    const params = useParams();
 
     console.log('currentPage:', currentPage);
-
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;
@@ -55,7 +51,7 @@ const ContextProvider = ({ children }) => {
                         showToast('error', `Fetch aborted: ${err.message}`) // Show the abort toast immediately
                     } else {
                         showToast('error', err.message) // Show the error toast immediately
-                        if (err.message.includes('not found')) {
+                        if (err.message.includes('404')) {
                             navigate(-1); // Navigate back a page
                         } else if (err.message.includes('500') && retryCount < 3) {
                             // Retry after 2 seconds if server error and retry count is less than 3
@@ -63,7 +59,7 @@ const ContextProvider = ({ children }) => {
                         } else if (err.message.includes('401')) {
                             // Handle unauthorized error
                             showToast('error', err.message);
-                            user ? navigate('/') : navigate('/registration');
+                            !user ? navigate('/') : triggerRefresh()
                         }
                     }
                 } finally {
@@ -74,16 +70,13 @@ const ContextProvider = ({ children }) => {
                         }, 2000)
                     }
                 }
-
                 return () => {
                     abortController.abort(); // Abort the fetch request if the component is unmounted
                 }
             }
         }
-
         fetchData();
-
-    }, [currentPage, showToast, user, navigate])
+    }, [currentPage, showToast, user, navigate, triggerRefresh])
 
 
     const handlePatchContext = async (updates) => {
@@ -114,10 +107,10 @@ const ContextProvider = ({ children }) => {
     const handlePostContext = async (type, courseId, newContent, topicId = null) => {
         let url;
         const prevData = { ...data };
-        debugger
+
         switch (type) {
             case 'course':
-                debugger
+
                 url = `/api/v1/courses/new`;
                 break;
             case 'topic':
@@ -186,7 +179,7 @@ const ContextProvider = ({ children }) => {
         let url;
         let prevData = { ...data };
         let updatedData;
-        debugger
+
 
         if (noteId) {
             itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
@@ -200,27 +193,29 @@ const ContextProvider = ({ children }) => {
                 }
             };
         } else if (topicId) {
-            itemToUpdate = data?.topics?.find(topic => topic.id === topicId);
+            itemToUpdate = data?.topic?.id === Number(topicId) ? data?.topic : null;
             url = `/api/v1/courses/${courseId}/topics/${topicId}`;
             updatedData = {
                 ...prevData,
-                topics: prevData.topics.map(topic =>
-                    topic.id === topicId ? { ...topic, ...updates } : topic
-                )
+                topic: {
+                    ...itemToUpdate,
+                    ...updates
+                }
             };
         } else {
-            itemToUpdate = data.courses?.find(course => course.id === courseId);
+            itemToUpdate = data?.course?.id === Number(courseId) ? data?.course : null;
             url = `/api/v1/courses/${courseId}`;
             updatedData = {
                 ...prevData,
-                courses: prevData.courses.map(course =>
-                    course.id === courseId ? { ...course, ...updates } : course
-                )
+                course: {
+                    ...itemToUpdate,
+                    ...updates
+                }
             };
         }
 
         if (!itemToUpdate) {
-            debugger
+
             showToast('error', 'Item not found');
             return;
         }
@@ -232,14 +227,14 @@ const ContextProvider = ({ children }) => {
             const responseBody = await patchJSON(url, updatedData, csrfToken, Authorization);
 
             if (responseBody.message === 'Note updated successfully') {
-                debugger
+
                 showToast('success', 'Item updated successfully');
             } else {
                 throw new Error('An error occurred');
             }
             return responseBody;
         } catch (error) {
-            debugger
+
             showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
             setData(prevData);
             return error;
@@ -285,7 +280,7 @@ const ContextProvider = ({ children }) => {
             setData(updatedData);
             const csrfToken = getCookie('csrf_access_token');
             const Authorization = `Bearer ${getCookie('access_token_cookie')}`;
-            debugger
+
             const responseBody = await deleteJSON(url, csrfToken, Authorization);
 
             if (responseBody.message === 'Item deleted successfully') {
@@ -303,7 +298,7 @@ const ContextProvider = ({ children }) => {
 
     return (
         <Context.Provider value={{
-            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext
+            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext, isLoading
         }}>
             {children}
         </Context.Provider>

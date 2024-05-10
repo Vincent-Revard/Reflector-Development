@@ -8,6 +8,7 @@ from .helpers.jwt_required_logout import jwt_required_logout
 import json
 from flask_marshmallow import Marshmallow
 from flask_mail import Mail, Message
+
 # from schemas.userupdateSchema import UserUpdateSchema
 # from schemas.topicSchema import TopicSchema
 # from schemas.userSchema import UserSchema
@@ -27,6 +28,7 @@ from sqlalchemy import select, not_
 from marshmallow.validate import Length
 from email_validator import validate_email, EmailNotValidError
 from routes.utils.baseresource import BaseResource
+
 # from models.production import Production
 from models.user import User
 
@@ -67,8 +69,8 @@ from flask_jwt_extended import (
     unset_access_cookies,
     get_jwt,
     verify_jwt_in_request,
-    decode_token
-    )
+    decode_token,
+)
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
 
@@ -79,12 +81,12 @@ def not_found(error):
     return {"error": error.description}, 404
 
 
-# Setup our redis connection for storing the blocklisted tokens. You will probably
-# want your redis instance configured to persist data to disk, so that a restart
-# does not cause your application to forget that a JWT was revoked
+# Setup our redis connection for storing the blocklisted tokens
 jwt_redis_blocklist = redis.StrictRedis(
-        host="localhost", port=6379, db=0, decode_responses=True
-    )
+    host="localhost", port=6379, db=0, decode_responses=True
+)
+
+
 # Callback function to check if a JWT exists in the redis blocklist
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
@@ -110,26 +112,27 @@ def before_request():
         "signup": User,
         # "quizzes": Quiz,
         # "quizzesbyid": Quiz,
-        "refresh": User
+        "refresh": User,
     }
 
     try:
         id = request.view_args.get("id")
         print(id)
-        # ipdb.set_trace()
+
         if id is not None:
             record = get_instance_by_id(path_dict.get(request.endpoint), id)
             print(record)
             key_name = request.endpoint.split("byid")[0]
-            # ipdb.set_trace()
+
             setattr(g, key_name, record)
-            ipdb.set_trace()
-            # ipdb.set_trace()
+            #
+
         else:
             key_name = request.endpoint
             setattr(g, key_name, None)
     except Exception as e:
         print(e)
+
 
 # Register a callback function that loads a user from your database whenever
 # a protected route is accessed. This should return any python object on a
@@ -138,14 +141,13 @@ def before_request():
 # @jwt.user_lookup_loader
 # def user_lookup_callback(_jwt_header, jwt_data):
 #     identity = jwt_data["sub"]
-#     ipdb.set_trace()
+#
 #     return get_instance_by_id(User, identity)
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
 
-    # ipdb.set_trace()
     identity = jwt_data["sub"]
-    # ipdb.set_trace()
+
     return get_instance_by_id(User, identity)
 
 
@@ -153,19 +155,12 @@ class CourseSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Course
         load_instance = True
-        exclude = ("creator.created_courses",)
+        exclude = ("creator",)
 
     id = ma.auto_field()
     creator_id = ma.auto_field()
-    enrolled_users = fields.Nested("UserSchema", many=True)
     user_courses = fields.Nested("UserCourseSchema", many=True)
-    course_topics = fields.Nested("TopicSchema", many=True)
-    topics = fields.Nested("TopicSchema", many=True)
-    creator = fields.Nested(
-        "UserSchema",
-        many=False,
-        only=("id",),
-    )
+    notes = fields.Nested("NoteSchema", many=True, exclude=("topic",))
 
     @post_load
     def make_course(self, data, **kwargs):
@@ -185,36 +180,42 @@ class NoteReferenceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = NoteReference
         load_instance = True
-        fields = ("note_id", "reference_id")
+        fields = ("reference",)
+
+    note_id = fields.Int()
+    note_instance = fields.Nested("NoteSchema")
+    reference = fields.Nested("ReferenceSchema")
 
 
 class NoteSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Note
         load_instance = True
+        exclude = ("topic.notes",)
 
-    name = ma.auto_field()
     category = ma.auto_field()
     content = ma.auto_field()
     title = ma.auto_field()
-    topic = fields.Nested('TopicSchema')
-    references = fields.Nested("ReferenceSchema", many=True)
-    
+    course = fields.Nested("CourseSchema")
+    topic = fields.Nested("TopicSchema")
+    references = fields.Nested("NoteReferenceSchema", many=True)
+
     @post_dump
     def remove_empty_references(self, data, **kwargs):
-        if 'references' in data and not data['references']:
-            data.pop('references')
+        if "references" in data and not data["references"]:
+            data.pop("references")
         return data
 
     @post_load
     def make_note(self, data, **kwargs):
         return data
 
+
 class ReferenceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Reference
         load_instance = True
-        exclude = ("user", "note_references")
+        exclude = ("user",)
 
     id = fields.Int()
     name = fields.Str()
@@ -232,6 +233,7 @@ class ReferenceSchema(ma.SQLAlchemyAutoSchema):
     access_month = fields.Str()
     access_year = fields.Int()
 
+
 class TopicSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Topic
@@ -241,6 +243,7 @@ class TopicSchema(ma.SQLAlchemyAutoSchema):
     id = ma.auto_field()
     creator_id = ma.auto_field()
     name = ma.auto_field()
+    notes = fields.Nested("NoteSchema", many=True)
 
     @post_load
     def make_topic(self, data, **kwargs):
@@ -252,8 +255,13 @@ class UserCourseSchema(ma.SQLAlchemyAutoSchema):
         model = UserCourse
         load_instance = True
 
-    user = fields.Nested("UserSchema", )
-    course = fields.Nested("CourseSchema", many=True, )
+    user = fields.Nested(
+        "UserSchema",
+    )
+    course = fields.Nested(
+        "CourseSchema",
+        many=True,
+    )
 
     @post_load
     def make_usercourse(self, data, **kwargs):
@@ -273,12 +281,14 @@ class TopicMinimalSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         exclude = ("creator",)
 
+
 class UserSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = User
         load_instance = True  # Optional: deserialize to model instances
         exclude = ("_password_hash", "created_courses", "created_topics")
+
     id = fields.Int(dump_only=True)
 
     username = fields.Str(
@@ -403,8 +413,7 @@ class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
         metadata={"description": "The new password of the user"},
     )
     current_password = fields.Str(
-        load_only=True,
-        metadata={"description": "The current password of the user"}
+        load_only=True, metadata={"description": "The current password of the user"}
     )
 
     @pre_load

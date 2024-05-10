@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useProviderContext } from './ContextProvider';
 import { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
@@ -6,7 +6,6 @@ import { Button } from '@mui/material';
 const EnrollUnenrollCourseOrTopic = ({ type }) => {
     const { id } = useParams();
     const { handlePostContext, handleDeleteContextById, showToast } = useProviderContext();
-    const navigate = useNavigate();
 
     const [isEnrolled, setIsEnrolled] = useState(false);
 

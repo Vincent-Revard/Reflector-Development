@@ -67,3 +67,4 @@ package-lock.json
 server/.env
 .env
 client/components.drawio
+Pipfile.lock

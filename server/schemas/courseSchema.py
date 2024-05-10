@@ -15,15 +15,8 @@ class CourseSchema(ma.SQLAlchemyAutoSchema):
 
     id = ma.auto_field()
     creator_id = ma.auto_field()
-    enrolled_users = fields.Nested("UserSchema", many=True)
     user_courses = fields.Nested("UserCourseSchema", many=True)
-    course_topics = fields.Nested("TopicSchema", many=True)
     topics = fields.Nested("TopicSchema", many=True)
-    creator = fields.Nested(
-        "UserSchema",
-        many=False,
-        only=("id",),
-    )
 
     @post_load
     def make_course(self, data, **kwargs):
