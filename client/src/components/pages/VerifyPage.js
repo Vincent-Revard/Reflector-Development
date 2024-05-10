@@ -6,7 +6,7 @@ import { useUnauthorized } from '../..';
 
 function VerifyPage() {
     const { token } = useParams();
-    const { updateUser, user, logout } = useAuth();
+    const { updateUser, logout } = useAuth();
     const { showToast } = useToast();
     const onUnauthorized = useUnauthorized();
     const navigate = useNavigate();
@@ -19,10 +19,10 @@ function VerifyPage() {
 
     useEffect(() => {
         const verifyUser = async () => {
-        const headers = {
-        'X-CSRF-TOKEN': getCookie('csrf_access_token'),
-        }
-            debugger
+            const headers = {
+                'X-CSRF-TOKEN': getCookie('csrf_access_token'),
+            }
+
             try {
                 const resp = await fetch(`/api/v1/verify/${token}`, {
                     method: 'PATCH', headers: headers
@@ -44,9 +44,9 @@ function VerifyPage() {
     }, [token, updateUser, onUnauthorized, logout, showToast, navigate])
 
     return (
-    <div>
-        Verifying...
-    </div>
+        <div>
+            Verifying...
+        </div>
     );
 }
 

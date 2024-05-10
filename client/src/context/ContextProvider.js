@@ -1,9 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useFetchJSON } from '../utils/useFetchJSON';
 import { useAuth } from './AuthContext';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from './ToastContext';
-import { CircularProgress } from '@mui/material';
 
 // ProfileContext
 const Context = createContext();
@@ -12,7 +11,7 @@ export const useProviderContext = () => useContext(Context);
 
 const ContextProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
-    const { logout, user, updateUser, triggerRefresh } = useAuth();
+    const { user, updateUser, triggerRefresh } = useAuth();
     const { showToast } = useToast();
     const [data, setData] = useState({});
     const { postJSON, deleteJSON, patchJSON } = useFetchJSON();
@@ -24,7 +23,6 @@ const ContextProvider = ({ children }) => {
     } else if (currentPage === 'courses') {
         currentPage = location.pathname.slice(1);
     }
-    const params = useParams();
 
     console.log('currentPage:', currentPage);
 
@@ -109,10 +107,10 @@ const ContextProvider = ({ children }) => {
     const handlePostContext = async (type, courseId, newContent, topicId = null) => {
         let url;
         const prevData = { ...data };
-        debugger
+
         switch (type) {
             case 'course':
-                debugger
+
                 url = `/api/v1/courses/new`;
                 break;
             case 'topic':
@@ -181,7 +179,7 @@ const ContextProvider = ({ children }) => {
         let url;
         let prevData = { ...data };
         let updatedData;
-        debugger
+
 
         if (noteId) {
             itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
@@ -217,7 +215,7 @@ const ContextProvider = ({ children }) => {
         }
 
         if (!itemToUpdate) {
-            debugger
+
             showToast('error', 'Item not found');
             return;
         }
@@ -229,14 +227,14 @@ const ContextProvider = ({ children }) => {
             const responseBody = await patchJSON(url, updatedData, csrfToken, Authorization);
 
             if (responseBody.message === 'Note updated successfully') {
-                debugger
+
                 showToast('success', 'Item updated successfully');
             } else {
                 throw new Error('An error occurred');
             }
             return responseBody;
         } catch (error) {
-            debugger
+
             showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
             setData(prevData);
             return error;
@@ -282,7 +280,7 @@ const ContextProvider = ({ children }) => {
             setData(updatedData);
             const csrfToken = getCookie('csrf_access_token');
             const Authorization = `Bearer ${getCookie('access_token_cookie')}`;
-            debugger
+
             const responseBody = await deleteJSON(url, csrfToken, Authorization);
 
             if (responseBody.message === 'Item deleted successfully') {
@@ -300,7 +298,7 @@ const ContextProvider = ({ children }) => {
 
     return (
         <Context.Provider value={{
-            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext
+            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext, isLoading
         }}>
             {children}
         </Context.Provider>

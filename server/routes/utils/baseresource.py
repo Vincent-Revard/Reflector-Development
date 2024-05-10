@@ -78,29 +78,29 @@ class BaseResource(Resource):
 
     def patch(self, id):
         # try:
-        #     #ipdb.set_trace()
+        #
 
         #     data = self.schema.load(request.json)
         #     # Check if data is a User instance (object not dictionary)
         #     if isinstance(data, User):
-        #         #ipdb.set_trace()
+        #
 
         #         # Convert the User instance to a dictionary
         #         data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
         #     else:
         #         # Convert data to a dictionary if it's not already one
         #         data = {c.name: getattr(data, c.name) for c in data.__table__.columns}
-        #         #ipdb.set_trace()
+        #
         #     instance = get_instance_by_id(self.model, id)
         #     if instance is None:
         #         return {"errors": f"{self.model.__name__} not found"}, 404
-        #     #ipdb.set_trace()
+        #
 
         #     for key, value in data.items():
         #         if value is not None:
         #             setattr(instance, key, value)
         #     db.session.commit()
-        #     #ipdb.set_trace()
+        #
         #     return {self.model.__name__.lower(): self.schema.dump(instance)}, 200
         # except ValidationError as e:
         #     return {"message": str(e)}, 422
@@ -116,7 +116,7 @@ class BaseResource(Resource):
             instance = get_instance_by_id(self.model, id)
             if instance is None:
                 return {"errors": f"{self.model.__name__} not found"}, 404
-            # #ipdb.set_trace()
+
             for key, value in data.items():
                 if value is not None:
                     setattr(instance, key, value)

@@ -60,7 +60,7 @@ class NotesIndex(BaseResource):
     # @jwt_required()
     # def delete(self, course_id=None, topic_id=None, id=None):
     #     user_id = current_user.id
-    #     # ipdb.set_trace()
+    #     #
     #     note = get_instance_by_id(Note, id)
     #     if note is None or note.user_id != user_id:
     #         return {"message": "Unauthorized"}, 401

@@ -18,9 +18,9 @@ export const useFetchJSON = () => {
                 const errorBody = await res.json();
                 throw new Error(errorBody.message || 'Request Failed: status: ' + res.status)
             }
-            debugger
+
             return res.json()
-        } 
+        }
         catch (error) {
             console.error(`Error in ${method} request to ${url}: ${error.message}`); //
             throw new Error(error.message || 'Failed to Fetch: Is the server running?')
@@ -28,12 +28,12 @@ export const useFetchJSON = () => {
     }
 
     const postJSON = async (url, formData, csrfToken) => {
-        debugger
-        return await handleRequest(url, 'POST', formData, csrfToken )
+
+        return await handleRequest(url, 'POST', formData, csrfToken)
     }
 
     const patchJSON = async (url, formData, csrfToken) => {
-        debugger
+
         return await handleRequest(`${url}`, 'PATCH', formData, csrfToken)
     }
 
@@ -48,7 +48,7 @@ export const useFetchJSON = () => {
             headers: headers,
             credentials: 'include',
         });
-        debugger
+
         return response;
     }
 

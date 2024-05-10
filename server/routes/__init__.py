@@ -80,10 +80,12 @@ from flask_jwt_extended.exceptions import NoAuthorizationError
 def not_found(error):
     return {"error": error.description}, 404
 
+
 # Setup our redis connection for storing the blocklisted tokens
 jwt_redis_blocklist = redis.StrictRedis(
     host="localhost", port=6379, db=0, decode_responses=True
 )
+
 
 # Callback function to check if a JWT exists in the redis blocklist
 @jwt.token_in_blocklist_loader
@@ -116,15 +118,15 @@ def before_request():
     try:
         id = request.view_args.get("id")
         print(id)
-        # #ipdb.set_trace()
+
         if id is not None:
             record = get_instance_by_id(path_dict.get(request.endpoint), id)
             print(record)
             key_name = request.endpoint.split("byid")[0]
-            # #ipdb.set_trace()
+
             setattr(g, key_name, record)
-            # ipdb.set_trace()
-            # #ipdb.set_trace()
+            #
+
         else:
             key_name = request.endpoint
             setattr(g, key_name, None)
@@ -139,14 +141,13 @@ def before_request():
 # @jwt.user_lookup_loader
 # def user_lookup_callback(_jwt_header, jwt_data):
 #     identity = jwt_data["sub"]
-#     #ipdb.set_trace()
+#
 #     return get_instance_by_id(User, identity)
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
 
-    # #ipdb.set_trace()
     identity = jwt_data["sub"]
-    # #ipdb.set_trace()
+
     return get_instance_by_id(User, identity)
 
 
@@ -159,7 +160,8 @@ class CourseSchema(ma.SQLAlchemyAutoSchema):
     id = ma.auto_field()
     creator_id = ma.auto_field()
     user_courses = fields.Nested("UserCourseSchema", many=True)
-    notes = fields.Nested("NoteSchema", many=True, exclude=('topic',))
+    notes = fields.Nested("NoteSchema", many=True, exclude=("topic",))
+
     @post_load
     def make_course(self, data, **kwargs):
         return data
@@ -196,9 +198,7 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
     title = ma.auto_field()
     course = fields.Nested("CourseSchema")
     topic = fields.Nested("TopicSchema")
-    references = fields.Nested(
-        "NoteReferenceSchema", many=True
-    ) 
+    references = fields.Nested("NoteReferenceSchema", many=True)
 
     @post_dump
     def remove_empty_references(self, data, **kwargs):

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Button, Card, CardContent, Typography, Grid, Chip, IconButton, Tooltip } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Chip, IconButton, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import TopicCard from './topic_card';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -14,13 +13,9 @@ const StyledCard = styled(Card)(({ theme }) => ({
     borderRadius: theme.shape.borderRadius,
 }));
 
-const StyledButton = styled(Button)(({ theme }) => ({
-    margin: theme.spacing(1),
-}));
 
 const CourseCard = ({ data }) => {
     const { user } = useAuth();
-    const { courseId } = useParams()
     return (
         <StyledCard>
             <CardContent>

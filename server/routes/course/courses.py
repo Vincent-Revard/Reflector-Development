@@ -25,7 +25,6 @@ class CoursesIndex(BaseResource):
     model = Course
     schema = CourseSchema()
 
-
     @jwt_required()
     def get(self, condition=None):
         user_id = current_user.id
@@ -68,14 +67,13 @@ class CoursesIndex(BaseResource):
     def delete(self, id=None):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
-        # #ipdb.set_trace()
+
         return super().delete(id)
 
     @jwt_required()
     def patch(self, id):
         if g.courses is None:
             return {"message": "Unauthorized"}, 401
-        # #ipdb.set_trace()
 
         return super().patch(g.courses.id)
 

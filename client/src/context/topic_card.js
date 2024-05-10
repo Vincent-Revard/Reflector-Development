@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
-import NoteCard from './note_card';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { styled } from '@mui/material';
 import { Button, Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
-import SearchAndAddCourseOrTopic from './search_or_add_course_and_topic';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
-// const StyledCard = styled(Card)({
-//   margin: '20px 0',
-//   padding: '20px',
-//   backgroundColor: '#f5f5f5',
-//   borderRadius: '15px',
-// });
-
 
 const TopicCard = ({ topic, courseId }) => {
     const [expanded, setExpanded] = useState(false);
@@ -23,8 +12,6 @@ const TopicCard = ({ topic, courseId }) => {
   console.log(user)
   console.log(user.id)
   console.log(topic.id)
-
-
   
     const handleCardClick = () => {
       setExpanded(!expanded);
@@ -33,7 +20,6 @@ const TopicCard = ({ topic, courseId }) => {
   const handleNoteClick = (noteId) => {
     setExpandedNoteId(expandedNoteId === noteId ? null : noteId);
   };
-  // console.log('topic_card: user.id'`${user?.id}` ,'data.creator_id:'`${data.creator_id}`)
   return (
     <Accordion>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -47,21 +33,11 @@ const TopicCard = ({ topic, courseId }) => {
             </Button>
           </Link>
         )}
-        {/* <Link to={`/courses/${courseId}/topics/new`} type="topic">
-          <Button variant="contained" color="primary">
-            New Topic
-          </Button>
-        </Link> */}
         <Link to={`/courses/${courseId}/topics/${topic.id}/notes/new`}>
           <Button variant="contained" color="primary">
             New Note
           </Button>
         </Link>
-        {/* <Link to={`/courses/${courseId}/topics/enroll`}>
-          <Button variant="contained" color="primary">
-          Add a topic to this course
-          </Button>
-        </Link> */}
         <Button variant="contained" color="primary" onClick={handleCardClick}>
           {expanded ? 'Collapse Topic' : 'Expand Topic'}
         </Button>

@@ -5,7 +5,7 @@ import { Formik } from 'formik'
 import Modal from 'react-modal';
 
 const UserProfileDetail = ({ data, handlePatchContext, handleDeleteContext, showToast }) => {
-  const { username, email, id } = data;
+  const { username, email } = data;
   const [isEditMode, setIsEditMode] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

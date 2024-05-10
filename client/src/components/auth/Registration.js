@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from "yup";
 import { useAuth } from '../../context/AuthContext';
@@ -39,7 +39,7 @@ function Registration() {
         console.log(getCookie('csrf_access_token'))
         const requestUrl = isLogin ? "/login" : "/signup"
         const dataToSend = isLogin ? { username: values.username, password: values.password } : values;
-        debugger
+
         fetch('/api/v1' + requestUrl, {
             method: "POST",
             headers: {
@@ -62,8 +62,8 @@ function Registration() {
                 } else {
                     return res.json()
                         .then(error => {
-                        showToast('error', error.message);
-                    });
+                            showToast('error', error.message);
+                        });
                 }
             });
     };
