@@ -65,6 +65,9 @@ const ContextList = () => {
           </>
         );
       }
+      if (courseId && currentPage.includes('topics/enroll')) {
+        return <SearchAndAddCourseOrTopic allNames={data.not_associated_topics} associatedTopics={data.associated_topics} courseId={ courseId } type={'topics'} />;
+      }
       if (!noteId) {
         return (
           <>
@@ -93,9 +96,6 @@ const ContextList = () => {
       return <SearchAndAddCourseOrTopic allNames={data.not_enrolled_courses} enrolledCourses={data.enrolled_courses} type='courses' />;
     }
 
-    if (courseId && currentPage.includes('topics/enroll')) {
-      return <SearchAndAddCourseOrTopic allNames={data.not_associated_topics} associatedTopics={data.associated_topics} courseId={ courseId } type={`topics`} />;
-    }
 
     if (courseId) {
       return <CourseCard key={data.id} data={data.course} courseId={courseId} />;

@@ -27,55 +27,8 @@ class CoursesIndex(BaseResource):
     model = Course
     schema = CourseSchema()
 
-    #     @jwt_required()
-    #     def get(self, condition=None):
-    #         user_id = current_user.id
-    #         user = User.query.options(
-    #             joinedload(User.enrolled_courses)
-    #             .joinedload(Course.course_topics)
-    #             .joinedload(CourseTopic.topic)
-    #             .joinedload(Topic.notes)
-    #         ).get(user_id)
-    #         courses = [
-    #             {
-    #                 "id": course.id,
-    #                 "name": course.name,
-    #                 "creator_id": course.creator_id,
-    #                 "topics": [
-    #                     {
-    #                         "id": topic.id,
-    #                         "name": topic.name,
-    #                         "creator_id": topic.creator_id,
-    #                         "notes": [
-    #                             {
-    #                                 "id": note.id,
-    #                                 "name": note.name,
-    #                                 "category": note.category,
-    #                                 "content": note.content,
-    #                             }
-    #                             for note in topic.notes
-    #                             if note.user_id == user_id
-    #                         ],
-    #                     }
-    #                     for topic in course.topics
-    #                     if course in topic.courses
-    #                     and UserTopic.query.filter_by(
-    #                         user_id=user_id, topic_id=topic.id, course_id=course.id
-    #                     ).all()
-    #                 ],
-    #             }
-    #             for course in user.enrolled_courses
-    #             # if any(
-    #             #     UserTopic.query.filter_by(
-    #             #         user_id=user_id, topic_id=topic.id, course_id=course.id
-    #             #     ).all()
-    #             #     for topic in course.topics
-    #             # )
-    #         ]
-    #         return {"courses": courses}, 200
-
     @jwt_required()
-    def get(self, condition=None):
+    def get(self):
         user_id = current_user.id
         user = User.query.options(
             joinedload(User.enrolled_courses)
@@ -92,16 +45,20 @@ class CoursesIndex(BaseResource):
                         "id": topic.id,
                         "name": topic.name,
                         "creator_id": topic.creator_id,
-                        "notes": [
-                            {
-                                "id": note.id,
-                                "name": note.name,
-                                "category": note.category,
-                                "content": note.content,
-                            }
-                            for note in topic.notes
-                            if note.user_id == user_id
-                        ],
+                        "notes": (
+                            [
+                                {
+                                    "id": note.id,
+                                    "name": note.name,
+                                    "category": note.category,
+                                    "content": note.content,
+                                }
+                                for note in topic.notes
+                                if note.user_id == user_id
+                            ]
+                            if topic.notes
+                            else []
+                        ),
                     }
                     for topic in course.topics
                     if UserTopic.query.filter_by(

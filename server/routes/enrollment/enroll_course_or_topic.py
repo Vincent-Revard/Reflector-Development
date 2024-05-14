@@ -17,56 +17,9 @@ from .. import (
     CourseTopicSchema,
     UserSchema,
     not_,
-    jwt_required
+    jwt_required,
+    UserTopic,
 )
-
-# class EnrollInCourseOrTopic(BaseResource):
-#     model = Course
-
-#     course_schema = CourseSchema()
-#     topic_schema = TopicSchema()
-#     course_topic_schema = CourseTopicSchema()
-#     user_schema = UserSchema()
-
-    # Get the current endpoint
-
-    ##!new_user_course = UserCourse(user_id=user.id, course_id=course.id)
-    # db.session.add(new_user_course)
-    # db.session.commit()
-
-    # @jwt_required()
-    # def get(self, course_id=None, topic_id=None):
-    #     user = current_user
-    #     if not user:
-    #         return {"message": "User not found"}, 404
-
-    #     if course_id is None:
-    #         # Get all courses and sort them
-    #         courses = Course.query.order_by(Course.name).all()
-    #         courses_data = [self.course_schema.dump(course) for course in courses]
-    #         return {"courses": courses_data}
-    #     elif topic_id is None:
-    #         # Get all courses that the user is not enrolled in and sort them
-    #         courses = (
-    #             Course.query.filter(not_(Course.enrolled_users.any(id=user.id)))
-    #             .order_by(Course.name)
-    #             .all()
-    #         )
-    #         courses_data = [self.course_schema.dump(course) for course in courses]
-    #         return {"courses": courses_data}
-    # else:
-    #     # Get all topics in the course that the user is not associated with and sort them
-    #     topics = (
-    #         Topic.query.join(CourseTopic)
-    #         .filter(
-    #             CourseTopic.course_id == course_id,
-    #             not_(Topic.users.any(id=user.id)),
-    #         )
-    #         .order_by(Topic.name)
-    #         .all()
-    #     )
-    #     topics_data = [self.topic_schema.dump(topic) for topic in topics]
-    #     return {"topics": topics_data}
 
 class EnrollInCourseOrTopic(BaseResource):
     model = Course
@@ -108,32 +61,45 @@ class EnrollInCourseOrTopic(BaseResource):
                 "enrolled_courses": enrolled_courses_data,
             }
         elif course_id is not None and topic_id is None:
-            # Get all topics in the course that the user is not associated with and sort them
-            not_associated_topics = (
-                Topic.query.join(CourseTopic)
-                .filter(
-                    CourseTopic.course_id == course_id,
-                    not_(Topic.users.any(id=user.id)),
-                )
-                .order_by(Topic.name)
-                .all()
-            )
-            not_associated_topics_data = [
-                self.topic_schema.dump(topic) for topic in not_associated_topics
-            ]
-
             # Get all topics in the course that the user is associated with and sort them
             associated_topics = (
-                Topic.query.join(CourseTopic)
+                Topic.query.join(UserTopic)
                 .filter(
-                    CourseTopic.course_id == course_id,
-                    Topic.users.any(id=user.id),
+                    UserTopic.course_id == course_id,
+                    UserTopic.user_id == user.id,
                 )
                 .order_by(Topic.name)
                 .all()
             )
             associated_topics_data = [
-                self.topic_schema.dump(topic) for topic in associated_topics
+                {
+                    "id": topic.id,
+                    "creator_id": topic.creator_id,
+                    "name": topic.name,
+                }
+                for topic in associated_topics
+            ]
+            # Get all topics in the course that the user is not associated with and sort them
+            not_associated_topics = (
+                Topic.query.filter(
+                    ~Topic.id.in_(
+                        db.session.query(UserTopic.topic_id)
+                        .filter(
+                            UserTopic.course_id == course_id,
+                            UserTopic.user_id == user.id,
+                        )
+                    )
+                )
+                .order_by(Topic.name)
+                .all()
+            )
+            not_associated_topics_data = [
+                {
+                    "id": topic.id,
+                    "creator_id": topic.creator_id,
+                    "name": topic.name,
+                }
+                for topic in not_associated_topics
             ]
 
             return {
@@ -153,13 +119,23 @@ class EnrollInCourseOrTopic(BaseResource):
             if not course:
                 return {"message": "Course not found"}, 404
             user.enrolled_courses.append(course)
+            db.session.commit()  # Commit the course to the database
         elif course_id is not None and topic_id is not None:
             # Associate the user with the topic in the course
             topic = Topic.query.get(topic_id)
             if not topic:
                 return {"message": "Topic not found"}, 404
-            user.topics.append(topic)
-
+            user_topic = UserTopic(user_id=user.id, topic_id=topic.id, course_id=course_id)
+            db.session.add(user_topic)
+        # Check if the course-topic association exists in the CourseTopic table
+            course_topic = CourseTopic.query.filter_by(
+                course_id=course_id, topic_id=topic_id
+            ).first()
+            if not course_topic:
+                # If it doesn't exist, create it
+                course_topic = CourseTopic(course_id=course_id, topic_id=topic_id)
+                db.session.add(course_topic)
+            db.session.commit()  # Commit the course to the database
         db.session.commit()
         return {"message": "Operation successful"}, 200
 

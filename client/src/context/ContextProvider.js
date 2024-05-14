@@ -148,10 +148,12 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    const handleEnroll = async (courseId, topicId = null) => {
-        let url = topicId
+    const handleEnroll = async (courseId, topicId = null, type) => {
+        debugger
+        let url = type === 'topics'
             ? `/api/v1/courses/${courseId}/topics/${topicId}/enroll`
             : `/api/v1/courses/${courseId}/enroll`;
+
 
         let prevData = { ...data };
         let updatedData;

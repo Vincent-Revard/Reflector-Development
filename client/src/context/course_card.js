@@ -48,7 +48,7 @@ const CourseCard = ({ data }) => {
                     ))}
                     <Grid item>
                         <Tooltip title="Add Topic">
-                            <IconButton component={Link} to={`/courses/${data?.id}/topics/new`}>
+                            <IconButton component={Link} to={`/courses/${data?.id}/topics/enroll`} type={'topics'}>
                                 <AddCircleIcon color="primary" />
                             </IconButton>
                         </Tooltip>

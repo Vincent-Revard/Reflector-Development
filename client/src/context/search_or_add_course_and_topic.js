@@ -6,12 +6,10 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedId, setSelectedId] = useState(null);
     const { handleUnenroll, handleEnroll, showToast } = useProviderContext();
-    const [isEnrolled, setIsEnrolled] = useState(false);
+    const [isAssociated, setIsAssociated] = useState(false);
     const [filteredItems, setFilteredItems] = useState(allNames);
+    const [enrollmentStatus, setEnrollmentStatus] = useState({});
 
-    useEffect(() => {
-        setIsEnrolled(enrolledCourses?.some(course => course.id === selectedId));
-    }, [selectedId, enrolledCourses]);
 
     const handleChange = event => {
         setSearchTerm(event.target.value);
@@ -23,17 +21,26 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
 
     const handleSelect = (id) => {
         setSelectedId(id);
+        const isEnrolled = enrolledCourses?.some(course => course.id === id);
+        const isAssociated = associatedTopics?.some(topic => topic.id === id);
+        setEnrollmentStatus(prevState => ({ ...prevState, [id]: isEnrolled || isAssociated }));
     };
 
+    // Update state when enrolling
     const handleClickEnroll = (id) => (event) => {
         event.preventDefault();
-        const topicId = type === 'topics' ? id : null;
-        const courseIdForEnroll = type === 'topics' ? courseId : id;
+        let topicId = null;
+        let courseIdForEnroll = parseInt(id, 10);
+        
+        if (type === 'topics') {
+            topicId = id;
+            courseIdForEnroll = courseId;
+        }
 
-        handleEnroll(courseIdForEnroll, topicId)
+        handleEnroll(courseIdForEnroll, topicId, type)
             .then(() => {
                 showToast('success', `Successfully enrolled in ${type}`);
-                setIsEnrolled(true);
+                setEnrollmentStatus(prevState => ({ ...prevState, [id]: true }));
                 setFilteredItems(filteredItems.filter(item => item.id !== id));
             })
             .catch(error => {
@@ -41,15 +48,21 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
             });
     };
 
+    // Update state when unenrolling
     const handleClickUnenroll = (id) => (event) => {
         event.preventDefault();
-        const topicId = type === 'topics' ? id : null;
-        const courseIdForUnenroll = type === 'topics' ? courseId : id;
+        let topicId = null;
+        let courseIdForUnenroll = id;
 
-        handleUnenroll(courseIdForUnenroll, topicId)
+        if (type === 'topics') {
+            topicId = id;
+            courseIdForUnenroll = courseId;
+        }
+
+        handleUnenroll(courseIdForUnenroll, topicId, type)
             .then(() => {
                 showToast('success', `Successfully unenrolled from ${type}`);
-                setIsEnrolled(false);
+                setEnrollmentStatus(prevState => ({ ...prevState, [id]: false }));
                 setFilteredItems(filteredItems.filter(item => item.id !== id));
             })
             .catch(error => {
@@ -71,12 +84,12 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                     <ListItem key={item.id} component="button" onClick={() => handleSelect(item.id)}>
                         <ListItemText primary={item.name} />
                         <ListItemSecondaryAction>
-                        <Button variant="contained" color="primary" onClick={handleClickEnroll(item.id)} disabled={isEnrolled}>
-                            Enroll
-                        </Button>
-                        <Button variant="contained" color="secondary" onClick={handleClickUnenroll(item.id)} disabled={!isEnrolled}>
-                            Unenroll
-                        </Button>
+                            <Button variant="contained" color="primary" onClick={handleClickEnroll(item.id)} disabled={enrollmentStatus[item.id] || isAssociated}>
+                                Enroll
+                            </Button>
+                            <Button variant="contained" color="secondary" onClick={handleClickUnenroll(item.id)} disabled={!enrollmentStatus[item.id] && !isAssociated}>
+                                Unenroll
+                            </Button>
                         </ListItemSecondaryAction>
                     </ListItem>
                 ))}
