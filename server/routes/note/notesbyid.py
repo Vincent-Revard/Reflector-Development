@@ -1,5 +1,5 @@
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, aliased
 import ipdb
 from sqlalchemy import and_
 
@@ -19,9 +19,11 @@ from .. import (
     get_jwt_identity,
     Course,
     db,
-    NoteReference
+    NoteReference,
+    UserTopic,
 )
 from flask_jwt_extended import current_user
+
 
 class NotesById(BaseResource):
     model = Note
@@ -35,13 +37,24 @@ class NotesById(BaseResource):
 
         if topic_id and note_id:
             # Fetch the note along with its topic, the topic's courses, and the note's references
+            # note = (
+            #     db.session.query(Note)
+            #     .options(
+            #         joinedload(Note.topic).joinedload(Topic.courses),
+            #         joinedload(Note.references).joinedload(NoteReference.reference)  # Modify this line
+            #     )
+            #     .filter_by(id=note_id, user_id=user.id)
+            #     .first()
+            # )
+            UserTopicAlias = aliased(UserTopic)
             note = (
                 db.session.query(Note)
+                .join(UserTopicAlias, UserTopicAlias.topic_id == Note.topic_id)
                 .options(
                     joinedload(Note.topic).joinedload(Topic.courses),
-                    joinedload(Note.references).joinedload(NoteReference.reference)  # Modify this line
+                    joinedload(Note.references).joinedload(NoteReference.reference),
                 )
-                .filter_by(id=note_id, user_id=user.id)
+                .filter(Note.id == note_id, UserTopicAlias.user_id == user.id)
                 .first()
             )
             ipdb.set_trace
@@ -73,7 +86,9 @@ class NotesById(BaseResource):
             if any(course.id == course_id for course in user.enrolled_courses):
                 # Fetch the note
                 ipdb.set_trace
-                note = Note.query.filter_by(topic_id=topic_id, id=note_id, user_id=current_user.id).first()
+                note = Note.query.filter_by(
+                    topic_id=topic_id, id=note_id, user_id=current_user.id
+                ).first()
                 ipdb.set_trace
                 if note:
                     # Delete the note

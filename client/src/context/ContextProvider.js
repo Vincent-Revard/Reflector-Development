@@ -148,6 +148,89 @@ const ContextProvider = ({ children }) => {
         }
     }
 
+    const handleEnroll = async (courseId, topicId = null) => {
+        let url = topicId
+            ? `/api/v1/courses/${courseId}/topics/${topicId}/enroll`
+            : `/api/v1/courses/${courseId}/enroll`;
+
+        let prevData = { ...data };
+        let updatedData;
+
+        try {
+            const csrfToken = getCookie('csrf_access_token');
+            const data = topicId ? { courseId, topicId } : { courseId };
+            const responseBody = await postJSON(url, data, csrfToken);
+
+            if (responseBody.message === 'Operation successful') {
+                showToast('success', 'Enrolled successfully');
+
+                if (topicId) {
+                    updatedData = {
+                        ...prevData,
+                        not_associated_topics: prevData.not_associated_topics.filter(topic => topic.id !== topicId),
+                        associated_topics: [...prevData.associated_topics, prevData.not_associated_topics.find(topic => topic.id === topicId)]
+                    };
+                } else {
+                    updatedData = {
+                        ...prevData,
+                        not_enrolled_courses: prevData.not_enrolled_courses.filter(course => course.id !== courseId),
+                        enrolled_courses: [...prevData.enrolled_courses, prevData.not_enrolled_courses.find(course => course.id === courseId)]
+                    };
+                }
+
+                setData(updatedData);
+            } else {
+                throw new Error(responseBody.message || 'An error occurred');
+            }
+            return responseBody;
+        } catch (err) {
+            showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
+            setData(prevData);
+            return err.message;
+        }
+    }
+
+    const handleUnenroll = async (courseId, topicId = null) => {
+        let url = topicId
+            ? `/api/v1/courses/${courseId}/topics/${topicId}/unenroll`
+            : `/api/v1/courses/${courseId}/unenroll`;
+
+        let prevData = { ...data };
+        let updatedData;
+
+        if (topicId) {
+            updatedData = {
+                ...prevData,
+                associated_topics: prevData.associated_topics.filter(topic => topic.id !== topicId),
+                not_associated_topics: [...prevData.not_associated_topics, prevData.associated_topics.find(topic => topic.id === topicId)]
+            };
+        } else {
+            updatedData = {
+                ...prevData,
+                enrolled_courses: prevData.enrolled_courses.filter(course => course.id !== courseId),
+                not_enrolled_courses: [...prevData.not_enrolled_courses, prevData.enrolled_courses.find(course => course.id === courseId)]
+            };
+        }
+
+        try {
+            setData(updatedData);
+            const csrfToken = getCookie('csrf_access_token');
+            const data = topicId ? { courseId, topicId } : { courseId };
+            const responseBody = await deleteJSON(url, csrfToken, null, data);
+
+            if (responseBody.message === 'Operation successful') {
+                showToast('success', 'Unenrolled successfully');
+            } else {
+                throw new Error('An error occurred');
+            }
+            return responseBody;
+        } catch (error) {
+            showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
+            setData(prevData);
+            return error;
+        }
+    }
+
     const handleDeleteContext = async () => {
         // const userToDelete = profileData.find(user => user.id === id)
         let userToDelete = data;
@@ -298,7 +381,7 @@ const ContextProvider = ({ children }) => {
 
     return (
         <Context.Provider value={{
-            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext, isLoading
+            data, handlePatchContext, handleDeleteContext, currentPage, showToast, handlePatchContextById, handleDeleteContextById, handlePostContext, handleEnroll, handleUnenroll, isLoading
         }}>
             {children}
         </Context.Provider>

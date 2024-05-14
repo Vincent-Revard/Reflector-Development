@@ -90,11 +90,11 @@ const ContextList = () => {
     }
 
     if (currentPage.includes('courses/enroll')) {
-      return <SearchAndAddCourseOrTopic allNames={data.courses} type='courses/enroll' />;
+      return <SearchAndAddCourseOrTopic allNames={data.not_enrolled_courses} enrolledCourses={data.enrolled_courses} type='courses' />;
     }
 
     if (courseId && currentPage.includes('topics/enroll')) {
-      return <SearchAndAddCourseOrTopic allNames={data.topics} type={`course/${courseId}/topics/enroll`} />;
+      return <SearchAndAddCourseOrTopic allNames={data.not_associated_topics} associatedTopics={data.associated_topics} courseId={ courseId } type={`topics`} />;
     }
 
     if (courseId) {

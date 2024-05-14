@@ -1,5 +1,5 @@
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload, contains_eager
+from sqlalchemy.orm import joinedload, contains_eager, aliased
 import ipdb
 
 from .. import (
@@ -16,6 +16,8 @@ from .. import (
     get_instance_by_id,
     ValidationError,
     jwt_required,
+    UserTopic,
+    NoteReference,
 )
 from flask_jwt_extended import current_user
 
@@ -43,36 +45,64 @@ class NotesIndex(BaseResource):
             )
             notes = [note for note in notes if note.user_id == user_id]
             return {"notes": self.schema.dump(notes, many=True)}, 200
-        else:
-            notes = Note.query.filter_by(user_id=user_id).all()
-            # Check if the user is enrolled in the course associated with each note's topic
-            for note in notes:
-                if not any(
-                    course.id in (course.id for course in user.enrolled_courses)
-                    for course in note.topic.courses
-                ):
-                    return {
-                        "message": "User is not enrolled in the course associated with one or more notes"
-                    }, 400
-            notes = [note for note in notes if note.user_id == user_id]
-            return {"notes": self.schema.dump(notes, many=True)}, 200
+        # else:
+        #     notes = Note.query.filter_by(user_id=user_id).all()
+        #     # Check if the user is enrolled in the course associated with each note's topic
+        #     for note in notes:
+        #         if not any(
+        #             course.id in (course.id for course in user.enrolled_courses)
+        #             for course in note.topic.courses
+        #         ):
+        #             return {
+        #                 "message": "User is not enrolled in the course associated with one or more notes"
+        #             }, 400
+        #     notes = [note for note in notes if note.user_id == user_id]
+        #     return {"notes": self.schema.dump(notes, many=True)}, 200
+
+
+
+        
 
     # @jwt_required()
-    # def delete(self, course_id=None, topic_id=None, id=None):
-    #     user_id = current_user.id
-    #     #
-    #     note = get_instance_by_id(Note, id)
-    #     if note is None or note.user_id != user_id:
-    #         return {"message": "Unauthorized"}, 401
-    #     return super().delete(id)
+    # def get(self, course_id=None, topic_id=None, note_id=None):
+    #     user = current_user
+    #     if not user:
+    #         return {"message": "User not found"}, 404
 
-    @jwt_required()
-    def patch(self, course_id=None, topic_id=None, id=None):
+    #     if course_id is not None and topic_id is not None:
+    #         course = db.session.query(Course).get(course_id)
+    #         if course not in user.enrolled_courses:
+    #             return {"message": "User not enrolled in this course"}, 400
+    #         topic = db.session.query(Topic).get(topic_id)
+    #         if topic not in course.topics:
+    #             return {"message": "Topic not associated with this course"}, 400
 
-        note = get_instance_by_id(Note, id)
-        if note is None or note.user_id != current_user.id:
-            return {"message": "Unauthorized"}, 401
-        return super().patch(id)
+    #         UserTopicAlias = aliased(UserTopic)
+    #         notes = (
+    #             Note.query.join(UserTopicAlias, UserTopicAlias.topic_id == Note.topic_id)
+    #             .options(
+    #                 joinedload(Note.topic).joinedload(Topic.courses),
+    #                 joinedload(Note.references).joinedload(NoteReference.reference),
+    #             )
+    #             .filter(Note.user_id == user.id, UserTopicAlias.user_id == user.id)
+    #             .all()
+    #         )
+
+    #         # # Check if the user is enrolled in the course associated with each note's topic
+    #         # for note in notes:
+    #         #     if not any(
+    #         #         course.id in (course.id for course in user.enrolled_courses)
+    #         #         for course in note.topic.courses
+    #         #     ):
+    #         #         return {
+    #         #             "message": "User is not enrolled in the course associated with one or more notes"
+    #         #         }, 400
+
+    #         # return {"notes": self.schema.dump(notes, many=True)}, 200
+
+    #     else:
+    #         notes = Note.query.filter_by(user_id=user.id).all()
+    #         return {"notes": self.schema.dump(notes, many=True)}, 200
 
     @jwt_required()
     def post(self, course_id=None, topic_id=None):
