@@ -65,6 +65,9 @@ const ContextList = () => {
           </>
         );
       }
+      if (courseId && (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll'))) {
+        return <SearchAndAddCourseOrTopic allNames={data.not_associated_topics} associatedTopics={data.associated_topics} courseId={ courseId } type={'topics'} />;
+      }
       if (!noteId) {
         return (
           <>
@@ -89,13 +92,10 @@ const ContextList = () => {
       return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
 
-    if (currentPage.includes('courses/enroll')) {
-      return <SearchAndAddCourseOrTopic allNames={data.courses} type='courses/enroll' />;
+    if (currentPage.includes('courses/enroll') || currentPage.includes('courses/unenroll')) {
+      return <SearchAndAddCourseOrTopic allNames={data.not_enrolled_courses} enrolledCourses={data.enrolled_courses} type='courses' />;
     }
 
-    if (courseId && currentPage.includes('topics/enroll')) {
-      return <SearchAndAddCourseOrTopic allNames={data.topics} type={`course/${courseId}/topics/enroll`} />;
-    }
 
     if (courseId) {
       return <CourseCard key={data.id} data={data.course} courseId={courseId} />;
@@ -106,6 +106,11 @@ const ContextList = () => {
         <Link to={`/courses/enroll`}>
           <StyledButton variant="contained" color="primary">
             Add courses to your course list
+          </StyledButton>
+        </Link>
+        <Link to={`/courses/unenroll`}>
+          <StyledButton variant="contained" color="primary">
+            Remove courses from your course list
           </StyledButton>
         </Link>
         {data?.courses?.map(course => (

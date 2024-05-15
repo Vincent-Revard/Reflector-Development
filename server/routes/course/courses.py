@@ -13,6 +13,8 @@ from .. import (
     jwt_required,
     ValidationError,
     db,
+    UserTopic
+
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -26,12 +28,11 @@ class CoursesIndex(BaseResource):
     schema = CourseSchema()
 
     @jwt_required()
-    def get(self, condition=None):
+    def get(self):
         user_id = current_user.id
         user = User.query.options(
             joinedload(User.enrolled_courses)
-            .joinedload(Course.course_topics)
-            .joinedload(CourseTopic.topic)
+            .joinedload(Course.topics)
             .joinedload(Topic.notes)
         ).get(user_id)
         courses = [
@@ -44,19 +45,27 @@ class CoursesIndex(BaseResource):
                         "id": topic.id,
                         "name": topic.name,
                         "creator_id": topic.creator_id,
-                        "notes": [
-                            {
-                                "id": note.id,
-                                "name": note.name,
-                                "category": note.category,
-                                "content": note.content,
-                            }
-                            for note in topic.notes
-                            if note.user_id == user_id
-                        ],
+                        "notes": (
+                            [
+                                {
+                                    "id": note.id,
+                                    "name": note.name,
+                                    "category": note.category,
+                                    "content": note.content,
+                                }
+                                for note in topic.notes
+                                if note.user_id == user_id
+                            ]
+                            if topic.notes
+                            else []
+                        ),
                     }
                     for topic in course.topics
-                    if course in topic.courses
+                    if UserTopic.query.filter_by(
+                        user_id=user_id,
+                        course_id=course.id,
+                        topic_id=topic.id,
+                    ).first()
                 ],
             }
             for course in user.enrolled_courses

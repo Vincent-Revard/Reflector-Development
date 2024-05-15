@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+
 
 const StyledCard = styled(Card)(({ theme }) => ({
     margin: theme.spacing(2),
@@ -48,8 +50,15 @@ const CourseCard = ({ data }) => {
                     ))}
                     <Grid item>
                         <Tooltip title="Add Topic">
-                            <IconButton component={Link} to={`/courses/${data?.id}/topics/new`}>
+                            <IconButton component={Link} to={`/courses/${data?.id}/topics/enroll`} type={'topics'}>
                                 <AddCircleIcon color="primary" />
+                            </IconButton>
+                        </Tooltip>
+                    </Grid>
+                    <Grid item>
+                        <Tooltip title="Remove Topic from Course">
+                            <IconButton component={Link} to={`/courses/${data?.id}/topics/unenroll`} type={'topics'}>
+                                <RemoveCircleIcon color="secondary" />
                             </IconButton>
                         </Tooltip>
                     </Grid>

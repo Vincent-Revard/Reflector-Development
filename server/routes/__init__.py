@@ -41,6 +41,7 @@ from models.usercourse import UserCourse
 from models.coursetopic import CourseTopic
 from models.user import User
 from models.notereference import NoteReference
+from models.usertopic import UserTopic
 from flask_jwt_extended import JWTManager
 
 from routes.helpers.query_helpers import (
@@ -280,6 +281,19 @@ class TopicMinimalSchema(ma.SQLAlchemyAutoSchema):
         model = Topic
         load_instance = True
         exclude = ("creator",)
+
+
+class UserTopicSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = UserTopic
+        load_instance = True
+        include_fk = True
+
+    user_id = fields.Int()
+    topic_id = fields.Int()
+    course_id = fields.Int()
+    topic = fields.Nested(TopicMinimalSchema)
+    course = fields.Nested(CourseMinimalSchema)
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
