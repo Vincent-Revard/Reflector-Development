@@ -10,6 +10,9 @@ const TopicNewEdit = () => {
     const { handlePostContext, handlePatchContextById, data, showToast, isLoading } = useProviderContext();
     const navigate = useNavigate();
     const location = useLocation();
+    console.log('location', location);
+    console.log('TopicNewEdit component is rendering');
+
 
     const [initialValues, setInitialValues] = useState({
         name: data?.topic?.name || '',
@@ -40,7 +43,7 @@ const TopicNewEdit = () => {
                 .then((response) => {
                     showToast('success', 'Item created successfully');
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}/topics/${response.topic.id}`);
+                        navigate(`/courses/${courseId}/topics/enroll`);
                     }, 2000);
                 })
                 .catch(error => {
