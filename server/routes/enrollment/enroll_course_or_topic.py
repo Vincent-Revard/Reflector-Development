@@ -153,66 +153,12 @@ class EnrollInCourseOrTopic(BaseResource):
             user.enrolled_courses.remove(course)
         elif course_id is not None and topic_id is not None:
             # De-associate the user with the topic in the course
-            topic = Topic.query.get(topic_id)
-            if not topic:
-                return {"message": "Topic not found"}, 404
-            user.topics.remove(topic)
+            user_topic = UserTopic.query.filter_by(
+                user_id=user.id, topic_id=topic_id, course_id=course_id
+            ).first()
+            if not user_topic:
+                return {"message": "User-Topic association not found"}, 404
+            db.session.delete(user_topic)
 
         db.session.commit()
         return {"message": "Operation successful"}, 200
-
-    # @jwt_required()
-    # def post(self, course_id, topic_id=None):
-    #     user = current_user
-    #     if not user:
-    #         return {"message": "User not found"}, 404
-
-    #     if topic_id is None:
-    #         course = Course.query.get(course_id)
-    #         if not course:
-    #             return {"message": "Course not found"}, 404
-    #         user_course = UserCourse(user_id=user.id, course_id=course.id)
-    #         db.session.add(user_course)
-    #         db.session.commit()
-    #         return {
-    #             "message": "Successfully enrolled in course",
-    #             "user": self.user_schema.dump(user),
-    #             "course": self.course_schema.dump(course),
-    #         }, 200
-    #     else:
-    #         topic = Topic.query.get(topic_id)
-    #         if not topic:
-    #             return {"message": "Topic not found"}, 404
-    #         course_topic = CourseTopic(user_id=user.id, topic_id=topic.id)
-    #         db.session.add(course_topic)
-    #         db.session.commit()
-    #         return {
-    #             "message": "Successfully enrolled in topic",
-    #             "user": self.user_schema.dump(user),
-    #             "topic": self.topic_schema.dump(topic),
-    #         }, 200
-
-    # @jwt_required()
-    # def delete(self, course_id, topic_id=None):
-    #     user = current_user
-    #     if not user:
-    #         return {"message": "User not found"}, 404
-
-    #     if topic_id is None:
-    #         user_course = UserCourse.query.filter_by(
-    #             user_id=user.id, course_id=course_id
-    #         ).first()
-    #         if not user_course:
-    #             return {"message": "Enrollment not found"}, 404
-    #         db.session.delete(user_course)
-    #         db.session.commit()
-    #         return {"message": "Successfully unenrolled from course"}, 200
-    #     else:
-    #         course_topic = CourseTopic.query.filter_by(
-    #             user_id=user.id, topic_id=topic_id
-    #         ).first()
-    #         if not course_topic:
-    #             return {"message": "Enrollment not found"}, 404
-    #         db.session.delete(course_topic)
-    #         db.session.commit()
-    #         return {"message": "Successfully unenrolled from topic"}, 200

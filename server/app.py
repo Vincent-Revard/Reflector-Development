@@ -57,6 +57,7 @@ api.add_resource(
 api.add_resource(
     EnrollInCourseOrTopic,
     "/courses/enroll",
+    "/courses/unenroll",
     "/courses/<int:course_id>/enroll",
     "/courses/<int:course_id>/unenroll",
     endpoint="enroll_in_course",
@@ -64,6 +65,7 @@ api.add_resource(
 api.add_resource(
     EnrollInCourseOrTopic,
     "/courses/<int:course_id>/topics/enroll",
+    "/courses/<int:course_id>/topics/unenroll",
     "/courses/<int:course_id>/topics/<int:topic_id>/enroll",
     "/courses/<int:course_id>/topics/<int:topic_id>/unenroll",
     endpoint="enroll_in_topic",

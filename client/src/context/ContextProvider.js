@@ -153,8 +153,7 @@ const ContextProvider = ({ children }) => {
         let url = type === 'topics'
             ? `/api/v1/courses/${courseId}/topics/${topicId}/enroll`
             : `/api/v1/courses/${courseId}/enroll`;
-
-
+        
         let prevData = { ...data };
         let updatedData;
 
@@ -187,7 +186,9 @@ const ContextProvider = ({ children }) => {
             return responseBody;
         } catch (err) {
             showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
-            setData(prevData);
+            if (err.message === 'User not found' || err.message === 'Course not found' || err.message === 'Topic not found') {
+                setData(prevData);
+            }
             return err.message;
         }
     }
@@ -213,7 +214,6 @@ const ContextProvider = ({ children }) => {
                 not_enrolled_courses: [...prevData.not_enrolled_courses, prevData.enrolled_courses.find(course => course.id === courseId)]
             };
         }
-
         try {
             setData(updatedData);
             const csrfToken = getCookie('csrf_access_token');
@@ -223,12 +223,14 @@ const ContextProvider = ({ children }) => {
             if (responseBody.message === 'Operation successful') {
                 showToast('success', 'Unenrolled successfully');
             } else {
-                throw new Error('An error occurred');
+                throw new Error(responseBody.message || 'An error occurred');
             }
             return responseBody;
         } catch (error) {
             showToast('error', typeof error.message === 'string' ? error.message : 'An error occurred');
-            setData(prevData);
+            if (error.message === 'User-Topic association not found' || error.message === 'Course not found') {
+                setData(prevData);
+            }
             return error;
         }
     }

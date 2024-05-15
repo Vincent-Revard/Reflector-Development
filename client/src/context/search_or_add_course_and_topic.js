@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction } from '@mui/material';
+import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction, Link , Pagination} from '@mui/material';
 import { useProviderContext } from './ContextProvider';
+import { Link as RouterLink } from 'react-router-dom';
+
+const ITEMS_PER_PAGE = 10;
 
 const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, associatedTopics }) => {
+    const { handleUnenroll, handleEnroll, showToast, currentPage } = useProviderContext();
+    const isUnenrollPage = currentPage.includes('unenroll');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedId, setSelectedId] = useState(null);
-    const { handleUnenroll, handleEnroll, showToast } = useProviderContext();
-    const [isAssociated, setIsAssociated] = useState(false);
-    const [filteredItems, setFilteredItems] = useState(allNames);
-    const [enrollmentStatus, setEnrollmentStatus] = useState({});
+    const [filteredItems, setFilteredItems] = useState(isUnenrollPage ? enrolledCourses : allNames);    const [enrollmentStatus, setEnrollmentStatus] = useState({});
+    const [page, setPage] = useState(1); 
 
+
+    useEffect(() => {
+        const items = isUnenrollPage ? enrolledCourses : allNames;        setFilteredItems(items?.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
+    }, [searchTerm, allNames, enrolledCourses, isUnenrollPage, associatedTopics]);
 
     const handleChange = event => {
         setSearchTerm(event.target.value);
     };
-
-    useEffect(() => {
-        setFilteredItems(allNames?.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
-    }, [searchTerm, allNames]);
 
     const handleSelect = (id) => {
         setSelectedId(id);
@@ -26,21 +29,23 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
         setEnrollmentStatus(prevState => ({ ...prevState, [id]: isEnrolled || isAssociated }));
     };
 
-    // Update state when enrolling
-    const handleClickEnroll = (id) => (event) => {
+    const handleClick = (id) => (event) => {
         event.preventDefault();
         let topicId = null;
-        let courseIdForEnroll = parseInt(id, 10);
-        
+        let courseIdForAction = parseInt(id, 10);
+
         if (type === 'topics') {
             topicId = id;
-            courseIdForEnroll = courseId;
+            courseIdForAction = courseId;
         }
 
-        handleEnroll(courseIdForEnroll, topicId, type)
+        const action = isUnenrollPage ? handleUnenroll : handleEnroll;
+        const actionMessage = isUnenrollPage ? 'unenrolled' : 'enrolled';
+
+        action(courseIdForAction, topicId, type)
             .then(() => {
-                showToast('success', `Successfully enrolled in ${type}`);
-                setEnrollmentStatus(prevState => ({ ...prevState, [id]: true }));
+                showToast('success', `Successfully ${actionMessage} in ${type}`);
+                setEnrollmentStatus(prevState => ({ ...prevState, [id]: !isUnenrollPage }));
                 setFilteredItems(filteredItems.filter(item => item.id !== id));
             })
             .catch(error => {
@@ -48,47 +53,35 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
             });
     };
 
-    // Update state when unenrolling
-    const handleClickUnenroll = (id) => (event) => {
-        event.preventDefault();
-        let topicId = null;
-        let courseIdForUnenroll = id;
+    let actionText;
+    if (isUnenrollPage) {
+        actionText = type === 'topics' ? 'Remove a topic from a course' : `Unenroll from ${type}`;
+    } else {
+        actionText = type === 'topics' ? 'Add a topic to a course' : `Enroll in new ${type}`;
+    }
 
-        if (type === 'topics') {
-            topicId = id;
-            courseIdForUnenroll = courseId;
-        }
+    const itemsOnPage = filteredItems?.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
-        handleUnenroll(courseIdForUnenroll, topicId, type)
-            .then(() => {
-                showToast('success', `Successfully unenrolled from ${type}`);
-                setEnrollmentStatus(prevState => ({ ...prevState, [id]: false }));
-                setFilteredItems(filteredItems.filter(item => item.id !== id));
-            })
-            .catch(error => {
-                showToast('error', `Error: ${error.message}`);
-            });
-    };
 
     return (
         <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+            <Typography variant="h4" gutterBottom>
+                {actionText}
+            </Typography>
             <TextField
                 fullWidth
                 variant="outlined"
-                placeholder={`Search for a ${type} to add`}
+                placeholder={`Search for a ${type}`}
                 value={searchTerm}
                 onChange={handleChange}
             />
             <List>
-                {filteredItems?.map(item => (
+                {itemsOnPage?.map(item => (
                     <ListItem key={item.id} component="button" onClick={() => handleSelect(item.id)}>
                         <ListItemText primary={item.name} />
                         <ListItemSecondaryAction>
-                            <Button variant="contained" color="primary" onClick={handleClickEnroll(item.id)} disabled={enrollmentStatus[item.id] || isAssociated}>
-                                Enroll
-                            </Button>
-                            <Button variant="contained" color="secondary" onClick={handleClickUnenroll(item.id)} disabled={!enrollmentStatus[item.id] && !isAssociated}>
-                                Unenroll
+                            <Button variant="contained" color={isUnenrollPage ? "secondary" : "primary"} onClick={handleClick(item.id)} disabled={enrollmentStatus[item.id] === isUnenrollPage}>
+                                {isUnenrollPage ? "Unenroll" : "Enroll"}
                             </Button>
                         </ListItemSecondaryAction>
                     </ListItem>
@@ -99,8 +92,17 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                     Selected {type} ID: {selectedId}
                 </Typography>
             )}
+            <Box sx={{ mt: 3 }}>
+                <Link component={RouterLink} to="/courses">
+                    <Button variant="outlined">
+                        Back to Courses
+                    </Button>
+                </Link>
+            </Box>
+            <Box sx={{ mt: 3 }}>
+                <Pagination count={Math.ceil(filteredItems?.length / ITEMS_PER_PAGE)} page={page} onChange={(event, value) => setPage(value)} />
+            </Box>
         </Box>
     );
 };
-
 export default SearchAndAddCourseOrTopic;
