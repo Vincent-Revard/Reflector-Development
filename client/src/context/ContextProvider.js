@@ -129,6 +129,7 @@ const ContextProvider = ({ children }) => {
         try {
             const csrfToken = getCookie('csrf_access_token');
             const responseBody = await postJSON(url, newContent, csrfToken);
+            console.log(responseBody); // Add this line
 
             if (responseBody.message.includes('created successfully')) {
                 const updatedData = {
@@ -144,7 +145,7 @@ const ContextProvider = ({ children }) => {
         } catch (err) {
             showToast('error', typeof err.message === 'string' ? err.message : 'An error occurred');
             setData(prevData);
-            return err.message;
+            return { message: err.message }
         }
     }
 

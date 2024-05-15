@@ -34,21 +34,23 @@ const CourseNewEdit = () => {
         setChangedValues(initialValues);
     }, [initialValues]);
 
-    const onSubmit = (values, { setSubmitting }) => {
+    const onSubmit = async (values, { setSubmitting, resetForm }) => {
         if (location.pathname.endsWith('/new')) {
-            handlePostContext('course', courseId, values)
-                .then((response) => {
-                    showToast('success', 'Item created successfully');
+            try {
+                const response = await handlePostContext('course', courseId, values);
+                showToast('success', 'Item created successfully. You can now enroll this course!');
+                console.log(response.message);
+                if (response.message === 'Created successfully') {
+                    resetForm(); // Clear the form
                     setTimeout(() => {
-                        navigate(`/courses/${response.course.id}`);
+                        navigate(`/courses/enroll`);
                     }, 2000);
-                })
-                .catch(error => {
-                    showToast('error', `Error: ${error.message}`);
-                })
-                .finally(() => {
-                    setSubmitting(false);
-                });
+                }
+            } catch (error) {
+                showToast('error', `Error: ${error.message}`);
+            } finally {
+                setSubmitting(false);
+            }
         } else if (courseId) {
             handlePatchContextById(courseId, changedValues)
                 .then((response) => {

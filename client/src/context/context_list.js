@@ -13,6 +13,7 @@ import NewNote from './newNote';
 import SearchAndAddCourseOrTopic from './search_or_add_course_and_topic';
 import NoteIndexCard from './note_index_card';
 import CourseNewEdit from './course_new_edit_form';
+import TopicNewEdit from './topic_new_edit_form';
 
 const StyledButton = styled(Button)({
   margin: '10px',
@@ -33,6 +34,18 @@ const ContextList = () => {
 
     if (baseRoute.includes('profile')) {
       return data?.id && <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    }
+    if (currentPage.includes('topics/new')) {
+      return <TopicNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    }
+    if (courseId && currentPage.includes('topics/edit') && data?.topic?.id === Number(topicId)) {
+      return <TopicNewEdit key={data.topic.id} data={data.topic} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    }
+    if (currentPage.includes('new')) {
+      return <CourseNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    }
+    if (courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
+      return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
 
     if (courseId && topicId) {
