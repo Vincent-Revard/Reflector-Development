@@ -79,7 +79,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
             />
             {type === 'topics' && courseId && (
                 <Box sx={{ mt: 3 }}>
-                    <Link to={`/courses/${courseId}/topics/new`}>
+                    <Link to={`/course/${courseId}/topic/new`}>
                         <Button variant="contained" color="primary">
                             Create New Topic
                         </Button>
@@ -88,7 +88,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
             )}
             {type === 'courses' && (
                 <Box sx={{ mt: 3 }}>
-                    <Link to="/courses/new">
+                    <Link to="/course/new">
                         <Button variant="contained" color="primary">
                             Create New Course
                         </Button>
@@ -113,7 +113,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                 </Typography>
             )}
             <Box sx={{ mt: 3 }}>
-                <Link to="/courses">
+                <Link to="/course">
                     <Button variant="outlined">
                         Back to Courses
                     </Button>

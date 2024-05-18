@@ -57,7 +57,6 @@ class NotesById(BaseResource):
                 .filter(Note.id == note_id, UserTopicAlias.user_id == user.id)
                 .first()
             )
-            ipdb.set_trace
             if note and note.topic_id == topic_id:
                 # Check if the user is enrolled in any of the courses associated with the note's topic
                 if any(

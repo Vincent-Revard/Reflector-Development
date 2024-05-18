@@ -2,14 +2,11 @@
 
 # Standard library imports
 from random import randint, choice as rc
-
 # Remote library imports
 from faker import Faker
-from sqlalchemy.sql import text
-import redis
 from sqlalchemy import exists
 from sqlalchemy.exc import IntegrityError
-from flask_redis import FlaskRedis
+from config import redis_client
 
 
 # Local imports
@@ -27,27 +24,27 @@ from models.usertopic import UserTopic
 
 #! IMPORT MODELS HERE AS NEEDED FOR SEEDING!
 
+
 if __name__ == "__main__":
     fake = Faker()
     with app.app_context():
         print("Starting seed...")
         # Seed code goes here!
-
-        User.query.delete()
+        UserTopic.query.delete()  # Add this line
+        CourseTopic.query.delete()
+        UserCourse.query.delete()
+        Note.query.delete()
         Course.query.delete()
         Topic.query.delete()
-        Note.query.delete()
-        Reference.query.delete()
         NoteReference.query.delete()
-        UserCourse.query.delete()
-        CourseTopic.query.delete()
+        Reference.query.delete()
+        User.query.delete()
 
         db.session.commit()
-        redis_store = FlaskRedis(app)
         # r = redis.Redis(host='localhost', port=6379, db=0)  # Connect to your Redis instance
         # r.flushall()  # Clear all data in Redis
         # Use the Redis connection
-        redis_store.flushall()  # Clear all data in Redis
+        redis_client.flushall()  # Clear all data in Redis
 
         # Create some users
         users = []
@@ -146,7 +143,7 @@ if __name__ == "__main__":
         for topic in Topic.query.all():
             for _ in range(randint(5, 10)):  # Each topic has 5-10 notes
                 name = (
-                    fake.first_name()
+                    fake.first_name()[:50]  # Truncate the name to 50 characters
                     if fake.first_name() is not None
                     else "Default Name"
                 )
@@ -157,12 +154,12 @@ if __name__ == "__main__":
                     users
                 )  # Randomly select a user to be the creator of the note
                 note = Note(
-                    name=name,
-                    title=fake.sentence(),
-                    content=fake.paragraph(),
+                    name=fake.name()[:50],
+                    title=fake.sentence()[:50],
+                    content=fake.text(),
                     user_id=note_creator.id,  # Set the note creator to the randomly selected user
                     topic_id=topic.id,
-                    category=category,
+                    category=fake.sentence()[:50],
                 )
                 db.session.add(note)
             db.session.commit()

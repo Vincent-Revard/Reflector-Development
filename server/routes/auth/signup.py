@@ -1,5 +1,6 @@
 from itsdangerous import URLSafeTimedSerializer
-from flask import render_template
+from flask import send_from_directory
+
 from .. import (
     request,
     Resource,
@@ -16,7 +17,6 @@ from .. import (
     mail,
     Message,
 )
-import ipdb
 import json
 
 
@@ -43,7 +43,6 @@ class Signup(Resource):
 
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(identity=user.id)
-            # csrf_token = generate_csrf_token()
             user_session = {
                 "user_id": user.id,
                 "access_token": access_token,
@@ -60,16 +59,9 @@ class Signup(Resource):
                 user_session_str,
                 ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"],
             )
-            # redis_client.set(
-            #     csrf_token,
-            #     user_session_str,
-            #     ex=app.config["JWT_CSRF_TOKEN_EXPIRES"],
-            # )
-
             response = make_response(user_schema.dump(user), 201)
             set_access_cookies(response, access_token)
             set_refresh_cookies(response, refresh_token)
-            # response.set_cookie("csrf_token", csrf_token)
 
             # Generate a unique token
             s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
@@ -98,7 +90,8 @@ class Signup(Resource):
 
 
 def send_email(to, subject, user_name, verification_link):
-    html = render_template("verificationemail.html", user_name=user_name, verification_link=verification_link)
+    with open("../server/templates/verificationemail.html") as f:
+        html = f.read().format(user_name=user_name, verification_link=verification_link)
     msg = Message(
         subject,
         recipients=[to],

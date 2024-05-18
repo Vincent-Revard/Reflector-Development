@@ -24,6 +24,8 @@ flask-jwt-extended = "*"
 flask-redis = "*"
 flask-mail = "*"
 redis = "*"
+gunicorn = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_full_version = "3.8.13"

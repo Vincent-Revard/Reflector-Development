@@ -21,6 +21,11 @@ from routes.note.notesbyid import NotesById
 from routes.enrollment.enroll_course_or_topic import EnrollInCourseOrTopic
 from routes.course.coursebyid import CourseById
 from routes.topic.topics_by_id import TopicsById
+from flask import render_template
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 api.add_resource(Signup, "/signup")
 api.add_resource(CheckSession, "/check_session")
@@ -29,7 +34,7 @@ api.add_resource(Logout, "/logout")
 api.add_resource(Refresh, "/refresh")
 api.add_resource(Verify, "/verify/<token>")
 api.add_resource(CoursesIndex, "/courses", "/courses/new", endpoint="courses")
-api.add_resource(UsersIndex, "/profile", "/profile/<int:id>", endpoint="profile")
+api.add_resource(UsersIndex, "/profiles", "/profiles/<int:id>", endpoint="profiles")
 api.add_resource(
     NotesIndex, "/courses/<int:course_id>/topics/<int:topic_id>/notes", endpoint="notes"
 )
@@ -86,6 +91,15 @@ api.add_resource(
     endpoint="topics_by_id",
 )
 
+# @app.route("/registration")
+# @app.route("/profile")
+# @app.route("/")
+# @app.route("/course") #changed from courses to course
+# @app.route("/course/<int:id>/topic")
+# @app.route("/course/<int:id>/topic/<int:id>/note")
+# @app.route("/course/<int:id>") #changed from courses to course
+# @app.route("/course/<int:id>/topic/<int:id>")
+# @app.route("/course/<int:id>/topic/<int:id>note/<int:id>")
 
 
 if __name__ == "__main__":

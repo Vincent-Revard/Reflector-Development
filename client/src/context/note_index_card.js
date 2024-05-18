@@ -12,7 +12,7 @@ const NoteIndexCard = ({ note, courseId, topicId }) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <Typography variant="body1"> Content: {note.content}</Typography>
-                    <Link to={`/courses/${courseId}/topics/${topicId}/notes/${note.id}`}>
+                    <Link to={`/course/${courseId}/topic/${topicId}/note/${note.id}`}>
                         <Button variant="contained" color="primary">View More</Button>
                     </Link>
                 </AccordionDetails>

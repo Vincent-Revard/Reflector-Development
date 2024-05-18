@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     setCheckingSession(true);
     let response;
     try {
-      response = await fetch('http://localhost:3000/api/v1/check_session', {
+      response = await fetch('/api/v1/check_session', {
         headers: {
           'Content-Type': 'application/json',
           "X-CSRF-TOKEN": getCookie('csrf_access_token'),
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       setCheckingRefresh(true); // Set checkingRefresh to true when starting the refresh operation
       let refreshResponse;
       try {
-        refreshResponse = await fetch("http://localhost:3000/api/v1/refresh", {
+        refreshResponse = await fetch("/api/v1/refresh", {
           method: "POST",
           headers: {
             'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
           const refreshData = await refreshResponse.json();
           if (refreshData.msg === 'Token has expired') {
             setUser(null)
-            // navigate('/registration')
+            onUnauthorized()
           } else {
             setUser(refreshData);
           }
@@ -102,9 +102,9 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         showToast(`error`, `${error.message}`);
         setUser(null)
-        // navigate('/registration')
+        onUnauthorized()
         try {
-          await logout();
+          logout();
         } catch (logoutError) {
           showToast(`error`, `${logoutError.message}`);
         }
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
       setCheckingRefresh(false); // Set checkingRefresh to false when the refresh operation is complete
     }
     setCheckingSession(false);
-  }, [showToast, logout,]);
+  }, [showToast, logout, onUnauthorized]);
 
   useEffect(() => {
     if (!sessionChecked || refreshTrigger) {

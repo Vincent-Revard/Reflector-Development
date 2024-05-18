@@ -21,6 +21,7 @@ const StyledButton = styled(Button)({
 
 const ContextList = () => {
   const { data, handlePatchContext, handleDeleteContext, currentPage, showToast, isLoading } = useProviderContext();
+  debugger
   const { courseId, topicId, noteId } = useParams();
   const navigate = useNavigate();
   const { user, checkingRefresh } = useAuth();
@@ -64,14 +65,14 @@ const ContextList = () => {
         return (
           <>
             {/* <Typography variant="h6">Topic: {data?.notes[0].topic.name}</Typography> */}
-            <Link to={`/courses/${courseId}/topics/${topicId}/notes/new`}>
-              <StyledButton variant="contained" color="primary">
-                New Note
-              </StyledButton>
-            </Link>
-            <Link to="/courses">
-              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go Back to Courses</Button>
-            </Link>
+              <Link to={`/course/${courseId}/topic/${topicId}/note/new`}>
+                <StyledButton variant="contained" color="primary">
+                  New Note
+                </StyledButton>
+              </Link>
+              <Link to="/course">
+                <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go Back to Courses</Button>
+              </Link>
             {data.notes.map(note => (
               <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
             ))}
@@ -85,12 +86,12 @@ const ContextList = () => {
         return (
           <>
             {/* <Typography variant="h6">Topic: {data?.notes[0].topic.name}</Typography> */}
-            <Link to={`/courses/${courseId}/topics/${topicId}/notes/new`}>
+            <Link to={`/course/${courseId}/topic/${topicId}/note/new`}>
               <StyledButton variant="contained" color="primary">
                 New Note
               </StyledButton>
             </Link>
-            <Link to="/courses">
+            <Link to="/course">
               <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go Back to Courses</Button>
             </Link>
             {data?.notes?.map(note => (
@@ -116,12 +117,12 @@ const ContextList = () => {
 
     return (
       <div>
-        <Link to={`/courses/enroll`}>
+        <Link to={`/course/enroll`}>
           <StyledButton variant="contained" color="primary">
             Add courses to your course list
           </StyledButton>
         </Link>
-        <Link to={`/courses/unenroll`}>
+        <Link to={`/course/unenroll`}>
           <StyledButton variant="contained" color="primary">
             Remove courses from your course list
           </StyledButton>

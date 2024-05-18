@@ -27,13 +27,13 @@ const TopicCard = ({ topic, courseId }) => {
       </AccordionSummary>
       <AccordionDetails>
         {user.id === topic.creator_id && (
-          <Link to={`/courses/${courseId}/topics/${topic.id}/edit`}>
+          <Link to={`/course/${courseId}/topic/${topic.id}/edit`}>
             <Button variant="contained" color="primary">
               Edit Topic
             </Button>
           </Link>
         )}
-        <Link to={`/courses/${courseId}/topics/${topic.id}/notes/new`}>
+        <Link to={`/course/${courseId}/topic/${topic.id}/note/new`}>
           <Button variant="contained" color="primary">
             New Note
           </Button>
@@ -59,7 +59,7 @@ const TopicCard = ({ topic, courseId }) => {
                   <Typography variant="body1" sx={{ color: 'black', marginTop: '1em', marginBottom: '1em' }}>
                     Note Content: {note.content}
                   </Typography>
-                  <Link to={`/courses/${courseId}/topics/${topic.id}/notes/${note.id}`}>
+                  <Link to={`/course/${courseId}/topic/${topic.id}/note/${note.id}`}>
                     <Button variant="contained" color="primary">
                       View Additional Note Details
                     </Button>

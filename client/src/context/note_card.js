@@ -8,7 +8,7 @@ const NoteCard = ({ note, courseId, topicId }) => {
     const handleDeleteContextById = useProviderContext().handleDeleteContextById
     const [open, setOpen] = useState(false);
     const { showToast } = useToast();
-    const Navigate = useNavigate();
+    const navigate = useNavigate();
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -23,7 +23,7 @@ const NoteCard = ({ note, courseId, topicId }) => {
             .then(() => {
                 showToast('success', 'Note deleted successfully!')
                 setTimeout(() => {
-                    Navigate('/courses')
+                    navigate(`/course/${courseId}/topic/${topicId}`)
                 }, 2000);
             })
             .catch(error => {
@@ -65,12 +65,12 @@ const NoteCard = ({ note, courseId, topicId }) => {
                 </Box>
             </Grid>
             <Grid item xs={12}>
-                <Link to={`/courses/${courseId}/topics/${topicId}/notes`}>
+                <Link to={`/course/${courseId}/topic/${topicId}/note`}>
                     <Button variant="contained" color="primary">
                         Back to Notes
                     </Button>
                 </Link>
-                <Link to={`/courses/${courseId}/topics/${topicId}/notes/${note.id}/edit`}>
+                <Link to={`/course/${courseId}/topic/${topicId}/note/${note.id}/edit`}>
                     <Button variant="contained" color="primary">
                         Edit Note
                     </Button>

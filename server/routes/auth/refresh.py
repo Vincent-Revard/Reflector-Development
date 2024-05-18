@@ -11,7 +11,6 @@ from .. import (
     set_access_cookies,
     redis_client,
     app,
-    jwt_redis_blocklist,
 )
 from json import loads, dumps
 import ipdb
@@ -31,7 +30,7 @@ class Refresh(Resource):
         user_session = redis_client.get(refresh_token)
         if user_session is None:
             # Add the refresh token to the blacklist
-            jwt_redis_blocklist.set(
+            redis_client.set(
                 "blacklist:" + refresh_token,
                 "blocked",
                 ex=app.config["JWT_REFRESH_TOKEN_EXPIRES"],
@@ -48,7 +47,7 @@ class Refresh(Resource):
         # Get the old access token and add it to the blacklist
         old_access_token = user_session_dict.get("access_token")
         if old_access_token:
-            jwt_redis_blocklist.set(
+            redis_client.set(
                 "blacklist:" + old_access_token,
                 "blocked",
                 ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"],

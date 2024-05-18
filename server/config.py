@@ -15,6 +15,11 @@ from os import environ
 from datetime import timedelta
 from flask_redis import FlaskRedis
 from flask_mail import Mail
+from dotenv import load_dotenv
+from flask_cors import CORS
+
+
+load_dotenv()
 
 # from flask_cors import CORS
 # from sqlalchemy import MetaData
@@ -23,9 +28,13 @@ from flask_mail import Mail
 
 # Instantiate app, set attributes
 
-app = Flask(__name__)
-# app.secret_key = b"Y\xf1Xz\x00\xad|eQ\x80t \xca\x1a\x10K"
-app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+app = Flask(
+    __name__,
+    static_url_path="",
+    static_folder="../client/build",
+    template_folder="../client/build",
+)
+app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 
@@ -57,9 +66,13 @@ app.config["MAIL_PASSWORD"] = environ.get("SMTP_PASS")
 app.config["MAIL_DEFAULT_SENDER"] = environ.get("MAIL_DEFAULT_SENDER")
 app.config["SECRET_KEY"] = environ.get("SECRET_KEY")
 
+
+CORS(app)
+
 #! Extensions Setup
 # flask-sqlalchemy connection to app
 db = SQLAlchemy(app)
+
 # flask-migrate connection to app
 migrate = Migrate(app, db)
 # Instantiate REST API

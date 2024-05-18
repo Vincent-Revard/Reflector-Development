@@ -9,21 +9,21 @@ class UsersIndex(BaseResource):
     @jwt_required()
     def get(self, id):
 
-        if g.profile is None:
+        if g.profiles is None:
             return {"message": "Unauthorized"}, 401
 
         return super().get(id)
 
     @jwt_required()
     def delete(self, id):
-        if g.profile is None:
+        if g.profiles is None:
             return {"message": "Unauthorized"}, 401
-        return super().delete(g.profile.id)
+        return super().delete(g.profiles.id)
 
     @jwt_required()
     def patch(self, id, csrfToken=None):
         # id = request.view_args["id"]
-        if g.profile is None:
+        if g.profiles is None:
             return {"message": "Unauthorized"}, 401
 
         # Get the current password from the request data
@@ -34,13 +34,13 @@ class UsersIndex(BaseResource):
             return {"message": "Current password is required"}, 400
 
         # Check if the current password matches the stored password
-        if not g.profile.authenticate(current_password):
+        if not g.profiles.authenticate(current_password):
             return {"message": "Current password is incorrect"}, 400
 
         # Hash the new password before storing it
         new_password = request.json.get("password")
         if new_password:
-            g.profile.password = new_password
+            g.profiles.password = new_password
 
         # Validate username and email
         username = request.json.get("username")

@@ -11,6 +11,7 @@ from .. import (
     NoteSchema,
     UserSchema,
 )
+import ipdb
 
 
 class CheckSession(Resource):

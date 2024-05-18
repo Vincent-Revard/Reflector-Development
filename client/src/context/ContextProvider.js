@@ -18,13 +18,32 @@ const ContextProvider = ({ children }) => {
     const location = useLocation();
     const navigate = useNavigate();
     let currentPage = location.pathname.split('/')[1];
-    if (currentPage === 'profile') {
-        currentPage = location.pathname.slice(1);
-    } else if (currentPage === 'courses') {
-        currentPage = location.pathname.slice(1);
-    }
+    // if (currentPage === 'profile') {
+    //     currentPage = location.pathname.slice(1);
+    // } else if (currentPage === 'courses') {
+    //     currentPage = location.pathname.slice(1);
+    // }
 
-    console.log('currentPage:', currentPage);
+    function getApiEndpoint(currentPage) {
+        let parts = currentPage.split('/');
+        let apiEndpoint = parts.map(part => {
+            if (['course', 'topic', 'note', 'profile'].includes(part)) {
+                return part + 's';
+            }
+            return part;
+        });
+        debugger
+        return apiEndpoint.join('/');
+    }
+    currentPage = getApiEndpoint(currentPage)
+
+
+    // if (currentPage === 'profile' || currentPage === 'course') {
+    //     currentPage = getApiEndpoint(location.pathname.slice(1));
+    // } else {
+    //     currentPage = getApiEndpoint(currentPage);
+    // }
+
 
     function getCookie(name) {
         const value = `; ${document.cookie}`;

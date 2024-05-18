@@ -11,7 +11,7 @@ from .. import (
     jwt_required,
     request,
     ipdb,
-    jwt_redis_blocklist,
+
     app
 )
 
@@ -22,7 +22,7 @@ class Logout(Resource):
         try:
             jti = get_jwt().get("jti")
             if jti:
-                jwt_redis_blocklist.set(
+                redis_client.set(
                     "blacklist:" + jti,
                     "blocked",
                     ex=app.config["JWT_ACCESS_TOKEN_EXPIRES"],
