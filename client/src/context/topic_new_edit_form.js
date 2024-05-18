@@ -43,7 +43,7 @@ const TopicNewEdit = () => {
                 .then((response) => {
                     showToast('success', 'Item created successfully');
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}/topics/enroll`);
+                        navigate(`/course/${courseId}/topic/enroll`);
                     }, 2000);
                 })
                 .catch(error => {
@@ -57,7 +57,7 @@ const TopicNewEdit = () => {
                 .then((response) => {
                     showToast('success', 'Item updated successfully');
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}/topics/${topicId}`);
+                        navigate(`/course/${courseId}/topic/${topicId}`);
                     }, 2000);
                 })
                 .catch(error => {

@@ -30,7 +30,7 @@ const CourseCard = ({ data }) => {
                     <Grid item>
                         {user.id === data?.creator_id && (
                             <Tooltip title="Update Course Name">
-                                <IconButton component={Link} to={`/courses/${data.id}/edit`}>
+                                <IconButton component={Link} to={`/course/${data.id}/edit`}>
                                     <EditIcon color="secondary" />
                                 </IconButton>
                             </Tooltip>
@@ -44,20 +44,20 @@ const CourseCard = ({ data }) => {
                                 label={topic.name}
                                 clickable
                                 component={Link}
-                                to={`/courses/${data?.id}/topics/${topic.id}/notes`}
+                                to={`/course/${data?.id}/topic/${topic.id}/note`}
                             />
                         </Grid>
                     ))}
                     <Grid item>
                         <Tooltip title="Add Topic">
-                            <IconButton component={Link} to={`/courses/${data?.id}/topics/enroll`} type={'topics'}>
+                            <IconButton component={Link} to={`/course/${data?.id}/topic/enroll`} type={'topics'}>
                                 <AddCircleIcon color="primary" />
                             </IconButton>
                         </Tooltip>
                     </Grid>
                     <Grid item>
                         <Tooltip title="Remove Topic from Course">
-                            <IconButton component={Link} to={`/courses/${data?.id}/topics/unenroll`} type={'topics'}>
+                            <IconButton component={Link} to={`/course/${data?.id}/topic/unenroll`} type={'topics'}>
                                 <RemoveCircleIcon color="secondary" />
                             </IconButton>
                         </Tooltip>

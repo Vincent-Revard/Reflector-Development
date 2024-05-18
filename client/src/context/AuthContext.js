@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [checkingSession, setCheckingSession] = useState(false)
   const [checkingRefresh, setCheckingRefresh] = useState(false)
-  console.log(user)
   const { showToast } = useToast()
   const onUnauthorized = useUnauthorized()
   const [sessionChecked, setSessionChecked] = useState(false)

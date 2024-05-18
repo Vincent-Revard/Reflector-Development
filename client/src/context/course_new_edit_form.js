@@ -43,7 +43,7 @@ const CourseNewEdit = () => {
                 if (response.message === 'Created successfully') {
                     resetForm(); // Clear the form
                     setTimeout(() => {
-                        navigate(`/courses/enroll`);
+                        navigate(`/course/enroll`);
                     }, 2000);
                 }
             } catch (error) {
@@ -56,7 +56,7 @@ const CourseNewEdit = () => {
                 .then((response) => {
                     showToast('success', 'Item updated successfully');
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}`);
+                        navigate(`/course/${courseId}`);
                     }, 2000);
                 })
                 .catch(error => {

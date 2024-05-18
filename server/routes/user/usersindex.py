@@ -1,4 +1,12 @@
-from .. import request, UserUpdateSchema, User, g, BaseResource, jwt_required
+from .. import (
+    request,
+    UserUpdateSchema,
+    User,
+    g,
+    BaseResource,
+    jwt_required,
+    current_user,
+)
 import ipdb
 
 
@@ -7,11 +15,12 @@ class UsersIndex(BaseResource):
     schema = UserUpdateSchema()
 
     @jwt_required()
-    def get(self, id):
+    def get(self, id=None):
 
         if g.profiles is None:
             return {"message": "Unauthorized"}, 401
-
+        if id is None:
+            id = current_user.id
         return super().get(id)
 
     @jwt_required()

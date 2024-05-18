@@ -19,7 +19,8 @@ from .. import (
     get_jwt_identity,
     Course,
     db,
-    TopicSchema
+    TopicSchema,
+    UserTopic,
 )
 from flask_jwt_extended import current_user
 
@@ -47,6 +48,12 @@ class TopicsById(BaseResource):
             ).first()
             if not course_topic:
                 return {"message": "Topic not found in the course"}, 404
+
+            user_topic = UserTopic.query.filter_by(
+                user_id=user.id, topic_id=topic_id
+            ).first()
+            if not user_topic:
+                return {"message": "User not associated with the topic"}, 404
 
             topic = Topic.query.filter_by(id=topic_id).first()
             if topic:

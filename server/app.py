@@ -23,9 +23,6 @@ from routes.course.coursebyid import CourseById
 from routes.topic.topics_by_id import TopicsById
 from flask import render_template
 
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 api.add_resource(Signup, "/signup")
 api.add_resource(CheckSession, "/check_session")
@@ -91,15 +88,18 @@ api.add_resource(
     endpoint="topics_by_id",
 )
 
-# @app.route("/registration")
-# @app.route("/profile")
-# @app.route("/")
-# @app.route("/course") #changed from courses to course
-# @app.route("/course/<int:id>/topic")
-# @app.route("/course/<int:id>/topic/<int:id>/note")
-# @app.route("/course/<int:id>") #changed from courses to course
-# @app.route("/course/<int:id>/topic/<int:id>")
-# @app.route("/course/<int:id>/topic/<int:id>note/<int:id>")
+
+@app.route("/")
+@app.route("/registration")
+@app.route("/profile")
+@app.route("/course")
+@app.route("/course/<int:course_id>/topic")
+@app.route("/course/<int:course_id>/topic/<int:topic_id>/note")
+@app.route("/course/<int:course_id>")
+@app.route("/course/<int:course_id>/topic/<int:topic_id>")
+@app.route("/course/<int:course_id>/topic/<int:topic_id>note/<int:note_id>")
+def index(course_id=0, topic_id=0, note_id=0):
+    return render_template("index.html")
 
 
 if __name__ == "__main__":

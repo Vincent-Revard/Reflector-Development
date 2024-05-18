@@ -99,6 +99,7 @@ def before_request():
         "referencebyid": Reference,
         "profilebyid": User,
         "profiles": User,
+        "profilesbyid": User,
         "references": Reference,
         "notes": Note,
         "notesbyid": Note,

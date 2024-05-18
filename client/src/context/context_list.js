@@ -31,28 +31,52 @@ const ContextList = () => {
     if (!data) {
       return null;  // or some loading state
     }
-
-
+    
+    // Check for profile first
     if (baseRoute.includes('profile')) {
       return data?.id && <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
-    if (currentPage.includes('topics/new')) {
-      return <TopicNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+
+    // Check for new note
+    if (courseId && topicId && (currentPage.includes('note/new') || (noteId && currentPage.includes('note/edit')))) {
+      return <NewNote />;
     }
+
+    // Check for topic edit
     if (courseId && currentPage.includes('topics/edit') && data?.topic?.id === Number(topicId)) {
       return <TopicNewEdit key={data.topic.id} data={data.topic} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
-    if (currentPage.includes('new')) {
-      return <CourseNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+
+    // Check for new topic
+    if (currentPage.includes('topics/new')) {
+      return <TopicNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
-    if (courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
+
+    // Check for course edit
+    if (courseId && currentPage.includes('courses/edit') && data?.course?.id === Number(courseId)) {
       return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
 
-    if (courseId && topicId) {
-      if (currentPage.includes('new') || (noteId && currentPage.includes('edit'))) {
-        return <NewNote />;
-      }
+    // Check for new course
+    if (currentPage.includes('courses/new')) {
+      return <CourseNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    }
+
+    // if (baseRoute.includes('profile')) {
+    //   return data?.id && <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    // }
+    // if (currentPage.includes('topics/new')) {
+    //   return <TopicNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    // }
+    // if (courseId && currentPage.includes('topics/edit') && data?.topic?.id === Number(topicId)) {
+    //   return <TopicNewEdit key={data.topic.id} data={data.topic} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    // }
+    // if (currentPage.includes('new')) {
+    //   return <CourseNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    // }
+    // if (courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
+    //   return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    // }
 
       if (noteId && data?.note?.id === Number(noteId)) {
         return <NoteCard key={data.note.id} note={data.note} courseId={courseId} topicId={topicId} />;
@@ -100,7 +124,6 @@ const ContextList = () => {
           </>
         );
       }
-    }
 
     if (courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
       return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;

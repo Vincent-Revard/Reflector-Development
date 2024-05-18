@@ -39,7 +39,7 @@ function Header({ user, logout }) {
                   </ButtonBase>
                 </ListItem>
                 <ListItem>
-                  <ButtonBase component={Link} to='/courses' onClick={closeMenu}>
+                  <ButtonBase component={Link} to='/course' onClick={closeMenu}>
                     <ListItemText primary="Courses" />
                   </ButtonBase>
                 </ListItem>

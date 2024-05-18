@@ -17,7 +17,13 @@ const ContextProvider = ({ children }) => {
     const { postJSON, deleteJSON, patchJSON } = useFetchJSON();
     const location = useLocation();
     const navigate = useNavigate();
-    let currentPage = location.pathname.split('/')[1];
+    // let currentPage = location.pathname.split('/')[1];
+    let currentPage = location.pathname;
+    if (currentPage === '/') {
+        currentPage = '';
+    } else if (currentPage.startsWith('/')) {
+    currentPage = currentPage.slice(1);
+    }
     // if (currentPage === 'profile') {
     //     currentPage = location.pathname.slice(1);
     // } else if (currentPage === 'courses') {
@@ -35,8 +41,29 @@ const ContextProvider = ({ children }) => {
         debugger
         return apiEndpoint.join('/');
     }
-    currentPage = getApiEndpoint(currentPage)
+    
+    // function getApiEndpoint(currentPage) {
+    //     let parts = currentPage.split('/');
+    //     let apiEndpoint = parts.map((part, index) => {
+    //         if (['course', 'topic', 'note', 'profile'].includes(part)) {
+    //             // If the next part is a number, append 's' and the ID
+    //             if (parts[index + 1] && !isNaN(parts[index + 1])) {
+    //                 return part + 's/' + parts[index + 1];
+    //             } else {
+    //                 // If the next part is not a number or doesn't exist, just append 's'
+    //                 return part + 's';
+    //             }
+    //         }
+    //         return part;
+    //     });
+    //     // Remove duplicate IDs
+    //     apiEndpoint = apiEndpoint.filter((part, index, self) =>
+    //         !(!isNaN(part) && self.indexOf(part) !== index)
+    //     );
+    //     return apiEndpoint.join('/');
+    // }
 
+    currentPage = getApiEndpoint(currentPage)
 
     // if (currentPage === 'profile' || currentPage === 'course') {
     //     currentPage = getApiEndpoint(location.pathname.slice(1));

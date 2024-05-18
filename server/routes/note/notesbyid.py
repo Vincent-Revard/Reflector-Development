@@ -79,16 +79,13 @@ class NotesById(BaseResource):
 
         if not user:
             return {"message": "User not found"}, 404
-        ipdb.set_trace
         if course_id and topic_id and note_id:
             # Check if the user is enrolled in the course
             if any(course.id == course_id for course in user.enrolled_courses):
                 # Fetch the note
-                ipdb.set_trace
                 note = Note.query.filter_by(
                     topic_id=topic_id, id=note_id, user_id=current_user.id
                 ).first()
-                ipdb.set_trace
                 if note:
                     # Delete the note
                     db.session.delete(note)
