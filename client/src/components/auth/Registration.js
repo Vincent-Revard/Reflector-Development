@@ -36,7 +36,6 @@ function Registration() {
     };
 
     const onSubmit = (values) => {
-        console.log(getCookie('csrf_access_token'))
         const requestUrl = isLogin ? "/login" : "/signup"
         const dataToSend = isLogin ? { username: values.username, password: values.password } : values;
 
@@ -52,7 +51,6 @@ function Registration() {
             .then(res => {
                 if (res.ok) {
                     return res.json().then(user => {
-                        console.log(user);
                         updateUser(user);
                     })
                         .then(() => {

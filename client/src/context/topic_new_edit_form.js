@@ -10,9 +10,6 @@ const TopicNewEdit = () => {
     const { handlePostContext, handlePatchContextById, data, showToast, isLoading } = useProviderContext();
     const navigate = useNavigate();
     const location = useLocation();
-    console.log('location', location);
-    console.log('TopicNewEdit component is rendering');
-
 
     const [initialValues, setInitialValues] = useState({
         name: data?.topic?.name || '',

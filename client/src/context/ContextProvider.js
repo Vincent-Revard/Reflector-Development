@@ -132,7 +132,6 @@ const ContextProvider = ({ children }) => {
         const prevProfileData = { ...data };
 
         const csrfToken = getCookie('csrf_access_token');
-        console.log(csrfToken)
 
         setData({ ...data, ...updatesWithoutPasswords });
         try {
@@ -175,7 +174,6 @@ const ContextProvider = ({ children }) => {
         try {
             const csrfToken = getCookie('csrf_access_token');
             const responseBody = await postJSON(url, newContent, csrfToken);
-            console.log(responseBody); // Add this line
 
             if (responseBody.message.includes('created successfully')) {
                 const updatedData = {
@@ -317,7 +315,6 @@ const ContextProvider = ({ children }) => {
 
         if (noteId) {
             itemToUpdate = data?.note?.id === Number(noteId) ? data?.note : null;
-            console.log('noteId:', noteId, 'itemToUpdate:', itemToUpdate);
             url = `/api/v1/courses/${courseId}/topics/${topicId}/notes/${noteId}`;
             updatedData = {
                 ...prevData,

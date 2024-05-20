@@ -25,7 +25,6 @@ const ContextList = () => {
   const { courseId, topicId, noteId } = useParams();
   const navigate = useNavigate();
   const { user, checkingRefresh } = useAuth();
-  console.log(currentPage)
 
   const renderComponent = useMemo(() => {
     const baseRoute = currentPage.split('/')[0];

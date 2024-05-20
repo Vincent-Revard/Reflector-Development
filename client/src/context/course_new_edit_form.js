@@ -39,7 +39,6 @@ const CourseNewEdit = () => {
             try {
                 const response = await handlePostContext('course', courseId, values);
                 showToast('success', 'Item created successfully. You can now enroll this course!');
-                console.log(response.message);
                 if (response.message === 'Created successfully') {
                     resetForm(); // Clear the form
                     setTimeout(() => {

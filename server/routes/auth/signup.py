@@ -18,7 +18,7 @@ from .. import (
     Message,
 )
 import json
-
+import ipdb
 
 class Signup(Resource):
     model = User
@@ -27,6 +27,8 @@ class Signup(Resource):
     def post(self):
         try:
             data = request.get_json()
+            if "username" not in data or not data["username"]:
+                return {"message": "The 'username' field is required"}, 400
             self.schema.context = {"is_signup": True}
             user = user_schema.load(data)
             existing_user = User.query.filter_by(email=user.email).first()
@@ -82,7 +84,6 @@ class Signup(Resource):
                 verification_link,
             )
             db.session.commit()
-
             return response
         except Exception as e:
             db.session.rollback()
