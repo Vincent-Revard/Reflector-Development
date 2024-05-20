@@ -107,7 +107,6 @@ class CoursesIndex(BaseResource):
             # If course_id is not provided, create a new course
             course = Course(creator_id=user_id, **course_data)
             db.session.add(course)
-
         try:
             db.session.commit()
         except IntegrityError:

@@ -103,7 +103,9 @@ const NewNote = () => {
             {({ errors, touched, values, setFieldValue, isSubmitting }) => (
                 <Form>
                     <Box sx={{ mb: 2 }}>
-                        <Typography variant="h4">Topic: {data?.notes[0].topic.name}</Typography>
+                        <Typography variant="h6">
+                            {data?.notes && data?.notes.length > 0 ? `Topic: ${data?.notes[0]?.topic?.name}` : 'Add a note to this topic!'}
+                        </Typography>
                     </Box>
                     {location.pathname.endsWith('/edit') &&
                     <Box sx={{ mb: 2 }}>

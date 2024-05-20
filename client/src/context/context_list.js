@@ -64,11 +64,12 @@ const ContextList = () => {
       if (noteId && data?.note?.id === Number(noteId)) {
         return <NoteCard key={data.note.id} note={data.note} courseId={courseId} topicId={topicId} />;
       }
-
-      if (courseId && topicId && !noteId && data?.notes?.length > 0) {
+      if (courseId && topicId && !noteId && !currentPage.includes('topics/enroll') && !currentPage.includes('topics/unenroll')) {
         return (
           <>
-            <Typography variant="h6">Topic: {data?.notes[0].topic.name}</Typography>
+            <Typography variant="h6">
+              {data?.notes && data?.notes.length > 0 ? `Topic: ${data?.notes[0]?.topic?.name}` : 'Add a note to this topic!'}
+            </Typography>
             <Link to={`/course/${courseId}/topic/${topicId}/note/new`}>
               <StyledButton variant="contained" color="primary">
                 New Note
@@ -78,17 +79,35 @@ const ContextList = () => {
               <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go All Courses</Button>
             </Link>
             <Link to={`/course/${courseId}`}>
-              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go All Topics for {`${data?.notes[0].topic.course_topics}`}</Button>            </Link>
-            {data?.notes.map(note => (
-              <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
-            ))}
+              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>
+                Go All Topics for {data?.notes && data?.notes.length > 0 ? `${data?.notes[0]?.topic?.course_topics[0]?.course}` : 'this course'}
+              </Button>
+            </Link>
+            {data?.notes?.length > 0 ? (
+              data?.notes?.map(note => (
+                <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
+              ))
+            ) : (
+              <Typography variant="body1">You don't have any notes created yet for this topic under this course!</Typography>
+            )}
           </>
         );
       }
     }
+    // if (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll')) {
+    //   return <SearchAndAddCourseOrTopic allNames={data?.not_associated_topics} associatedTopics={data?.associated_topics} courseId={courseId}
+    //     courseName={data?.course_information?.course_name} type={'topics'} />;
+    // }
     if (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll')) {
-      return <SearchAndAddCourseOrTopic allNames={data?.not_associated_topics} associatedTopics={data?.associated_topics} courseId={courseId}
-        courseName={data?.course_information?.course_name} type={'topics'} />;
+      return (
+        <SearchAndAddCourseOrTopic
+          allNames={data?.not_associated_topics}
+          associatedTopics={data?.associated_topics}
+          courseId={courseId}
+          courseName={data?.course_information?.course_name}
+          type={'topics'}
+        />
+      );
     }
 
     if (!noteId && !topicId && courseId && currentPage.includes('courses/edit') && data?.course?.id === Number(courseId)) {

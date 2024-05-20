@@ -156,14 +156,12 @@ class CourseSchema(ma.SQLAlchemyAutoSchema):
     def make_course(self, data, **kwargs):
         return data
 
-
 class CourseTopicSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CourseTopic
         load_instance = True
 
-    course = fields.Nested("CourseSchema")
-    topic = fields.Nested("TopicSchema")
+    course = fields.String(attribute="course.name")
 
 
 class NoteReferenceSchema(ma.SQLAlchemyAutoSchema):
@@ -233,7 +231,11 @@ class TopicSchema(ma.SQLAlchemyAutoSchema):
     creator_id = ma.auto_field()
     name = ma.auto_field()
     notes = fields.Nested("NoteSchema", many=True)
-    course_topics = fields.Nested("CourseSchema")
+    course_topics = fields.Method("get_course_topics")
+
+    def get_course_topics(self, obj):
+        course_id = self.context.get('course_id')
+        return CourseTopicSchema(many=True).dump([ct for ct in obj.course_topics if ct.course_id == course_id])
 
     @post_load
     def make_topic(self, data, **kwargs):

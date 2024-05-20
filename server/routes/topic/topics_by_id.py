@@ -63,7 +63,6 @@ class TopicsById(BaseResource):
     model = Topic
     schema = TopicSchema()
 
-
     @jwt_required()
     def get(self, topic_id=None, course_id=None):
         user = current_user

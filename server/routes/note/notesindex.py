@@ -44,6 +44,7 @@ class NotesIndex(BaseResource):
                 .all()
             )
             notes = [note for note in notes if note.user_id == user_id]
+            self.schema.context['course_id'] = course_id
             return {"notes": self.schema.dump(notes, many=True)}, 200
 
     @jwt_required()

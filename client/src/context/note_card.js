@@ -39,6 +39,9 @@ const NoteCard = ({ note }) => {
     return (
         <Grid container spacing={2}>
             <Grid item xs={12}>
+                <Typography variant="h6">Course: {note.topic?.course_topics[0].course}</Typography>
+            </Grid>
+            <Grid item xs={12}>
                 <Typography variant="h6">Topic: {note.topic?.name}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>

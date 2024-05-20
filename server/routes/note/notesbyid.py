@@ -36,16 +36,6 @@ class NotesById(BaseResource):
             return {"message": "User not found"}, 404
 
         if topic_id and note_id:
-            # Fetch the note along with its topic, the topic's courses, and the note's references
-            # note = (
-            #     db.session.query(Note)
-            #     .options(
-            #         joinedload(Note.topic).joinedload(Topic.courses),
-            #         joinedload(Note.references).joinedload(NoteReference.reference)  # Modify this line
-            #     )
-            #     .filter_by(id=note_id, user_id=user.id)
-            #     .first()
-            # )
             UserTopicAlias = aliased(UserTopic)
             note = (
                 db.session.query(Note)
@@ -63,6 +53,7 @@ class NotesById(BaseResource):
                     course.id in (course.id for course in user.enrolled_courses)
                     for course in note.topic.courses
                 ):
+                    self.schema.context['course_id'] = course_id
                     return {"note": self.schema.dump(note)}, 200
                 else:
                     return {
