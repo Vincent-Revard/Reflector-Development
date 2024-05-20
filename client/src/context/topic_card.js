@@ -3,15 +3,13 @@ import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { Button, Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useParams } from 'react-router-dom';
 
-const TopicCard = ({ topic, courseId }) => {
-    const [expanded, setExpanded] = useState(false);
+const TopicCard = ({ topic }) => {
+  const [expanded, setExpanded] = useState(false);
   const [expandedNoteId, setExpandedNoteId] = useState(null);
-
+  const { courseId } = useParams();
   const { user } = useAuth();
-  console.log(user)
-  console.log(user.id)
-  console.log(topic.id)
   
     const handleCardClick = () => {
       setExpanded(!expanded);

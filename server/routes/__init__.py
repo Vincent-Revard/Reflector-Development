@@ -151,7 +151,6 @@ class CourseSchema(ma.SQLAlchemyAutoSchema):
     id = ma.auto_field()
     creator_id = ma.auto_field()
     user_courses = fields.Nested("UserCourseSchema", many=True)
-    notes = fields.Nested("NoteSchema", many=True, exclude=("topic",))
 
     @post_load
     def make_course(self, data, **kwargs):
@@ -187,7 +186,6 @@ class NoteSchema(ma.SQLAlchemyAutoSchema):
     category = ma.auto_field()
     content = ma.auto_field()
     title = ma.auto_field()
-    course = fields.Nested("CourseSchema")
     topic = fields.Nested("TopicSchema")
     references = fields.Nested("NoteReferenceSchema", many=True)
 
@@ -235,6 +233,7 @@ class TopicSchema(ma.SQLAlchemyAutoSchema):
     creator_id = ma.auto_field()
     name = ma.auto_field()
     notes = fields.Nested("NoteSchema", many=True)
+    course_topics = fields.Nested("CourseSchema")
 
     @post_load
     def make_topic(self, data, **kwargs):

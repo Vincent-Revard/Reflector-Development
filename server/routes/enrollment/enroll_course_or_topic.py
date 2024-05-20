@@ -101,10 +101,17 @@ class EnrollInCourseOrTopic(BaseResource):
                 }
                 for topic in not_associated_topics
             ]
-
+            # Get the course information
+            course = Course.query.get(course_id)
+            course_information = {
+                "course_id": course.id,
+                "course_name": course.name,
+            }
+            
             return {
                 "not_associated_topics": not_associated_topics_data,
                 "associated_topics": associated_topics_data,
+                "course_information": course_information,
             }
 
     @jwt_required()
@@ -127,7 +134,7 @@ class EnrollInCourseOrTopic(BaseResource):
                 return {"message": "Topic not found"}, 404
             user_topic = UserTopic(user_id=user.id, topic_id=topic.id, course_id=course_id)
             db.session.add(user_topic)
-        # Check if the course-topic association exists in the CourseTopic table
+            # Check if the course-topic association exists in the CourseTopic table
             course_topic = CourseTopic.query.filter_by(
                 course_id=course_id, topic_id=topic_id
             ).first()

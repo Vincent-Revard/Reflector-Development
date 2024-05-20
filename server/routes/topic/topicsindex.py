@@ -16,11 +16,11 @@ from .. import (
     Course,
     UserTopic,
 )
+import ipdb
 
 class TopicsIndex(BaseResource):
     model = Topic
     schema = TopicSchema()
-
 
     @jwt_required()
     def get(self, course_id):
@@ -36,6 +36,7 @@ class TopicsIndex(BaseResource):
                 "id": topic.id,
                 "name": topic.name,
                 "creator_id": topic.creator_id,
+                "course_name": course.name,
             }
             for course in user.enrolled_courses
             if course.id == course_id

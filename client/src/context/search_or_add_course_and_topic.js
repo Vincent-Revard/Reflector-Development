@@ -5,13 +5,14 @@ import { Link } from 'react-router-dom';
 
 const ITEMS_PER_PAGE = 10;
 
-const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, associatedTopics }) => {
+const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, associatedTopics, course_information }) => {
     const { handleUnenroll, handleEnroll, showToast, currentPage } = useProviderContext();
     const isUnenrollPage = currentPage.includes('unenroll');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedId, setSelectedId] = useState(null);
     const [filteredItems, setFilteredItems] = useState(isUnenrollPage ? enrolledCourses : allNames);    const [enrollmentStatus, setEnrollmentStatus] = useState({});
     const [page, setPage] = useState(1); 
+    const [selectedName, setSelectedName] = useState(null);
 
 
 
@@ -23,8 +24,9 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
         setSearchTerm(event.target.value);
     };
 
-    const handleSelect = (id) => {
+    const handleSelect = (id, name) => {
         setSelectedId(id);
+        setSelectedName(name);
         const isEnrolled = enrolledCourses?.some(course => course.id === id);
         const isAssociated = associatedTopics?.some(topic => topic.id === id);
         setEnrollmentStatus(prevState => ({ ...prevState, [id]: isEnrolled || isAssociated }));
@@ -56,14 +58,12 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
 
     let actionText;
     if (isUnenrollPage) {
-        actionText = type === 'topics' ? 'Remove a topic from a course' : `Unenroll from ${type}`;
+        actionText = type === 'topics' ? `Remove a topic from ${course_information.course_name}` : `Unenroll from ${type}`;
     } else {
-        actionText = type === 'topics' ? 'Add a topic to a course' : `Enroll in new ${type}`;
+        actionText = type === 'topics' ? `Add a topic to ${course_information.course_name}` : `Enroll in new ${type}`;
     }
 
     const itemsOnPage = filteredItems?.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-
-
 
     return (
         <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
@@ -77,7 +77,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                 value={searchTerm}
                 onChange={handleChange}
             />
-            {type === 'topics' && courseId && (
+            {type === 'topics' && courseId && !isUnenrollPage && (
                 <Box sx={{ mt: 3 }}>
                     <Link to={`/course/${courseId}/topic/new`}>
                         <Button variant="contained" color="primary">
@@ -86,7 +86,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                     </Link>
                 </Box>
             )}
-            {type === 'courses' && (
+            {type === 'courses' && !isUnenrollPage && (
                 <Box sx={{ mt: 3 }}>
                     <Link to="/course/new">
                         <Button variant="contained" color="primary">
@@ -98,8 +98,8 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
             <List>
                 {itemsOnPage?.map(item => (
                     <ListItem key={item.id} component="button" onClick={() => handleSelect(item.id)}>
-                        <ListItemText primary={item.name} />
-                        <ListItemSecondaryAction>
+                        <ListItemText primary={item.name} sx={{ flexGrow: 1 }} />
+                        <ListItemSecondaryAction sx={{ flexShrink: 1 }}>
                             <Button variant="contained" color={isUnenrollPage ? "secondary" : "primary"} onClick={handleClick(item.id)} disabled={enrollmentStatus[item.id] === isUnenrollPage}>
                                 {isUnenrollPage ? "Unenroll" : "Enroll"}
                             </Button>
@@ -109,7 +109,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
             </List>
             {selectedId && (
                 <Typography variant="h6">
-                    Selected {type} ID: {selectedId}
+                    Selected {type} name: {selectedName}
                 </Typography>
             )}
             <Box sx={{ mt: 3 }}>

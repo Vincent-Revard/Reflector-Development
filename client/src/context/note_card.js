@@ -3,9 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography, Grid, Box, Paper } from '@mui/material';
 import { useProviderContext } from './ContextProvider';
 import { useToast } from './ToastContext';
+import { useParams } from 'react-router-dom';
 
-const NoteCard = ({ note, courseId, topicId }) => {
+
+const NoteCard = ({ note }) => {
     const handleDeleteContextById = useProviderContext().handleDeleteContextById
+    const { courseId, topicId } = useParams();
     const [open, setOpen] = useState(false);
     const { showToast } = useToast();
     const navigate = useNavigate();

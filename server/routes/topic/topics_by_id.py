@@ -23,6 +23,40 @@ from .. import (
     UserTopic,
 )
 from flask_jwt_extended import current_user
+import ipdb
+
+
+class TopicsById(BaseResource):
+    model = Topic
+    schema = TopicSchema()
+
+
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload, contains_eager
+import ipdb
+from sqlalchemy import and_
+
+
+from .. import (
+    request,
+    NoteSchema,
+    Note,
+    g,
+    BaseResource,
+    jwt_required,
+    get_related_data,
+    User,
+    UserCourse,
+    CourseTopic,
+    Topic,
+    get_jwt_identity,
+    Course,
+    db,
+    TopicSchema,
+    UserTopic,
+)
+from flask_jwt_extended import current_user
+import ipdb
 
 
 class TopicsById(BaseResource):
@@ -55,14 +89,16 @@ class TopicsById(BaseResource):
             if not user_topic:
                 return {"message": "User not associated with the topic"}, 404
 
-            topic = Topic.query.filter_by(id=topic_id).first()
-            if topic:
-                return {"topic": self.schema.dump(topic)}, 200
+            # Get the notes created by the current user for the given topic
+            notes = Note.query.filter_by(user_id=user.id, topic_id=topic_id).all()
+
+            if notes:
+                note_schema = NoteSchema(many=True)
+                return {"notes": note_schema.dump(notes)}, 200
             else:
-                return {"message": f"Could not find Topic with id #{topic_id}"}, 404
+                return {"message": f"No notes found for Topic with id #{topic_id}"}, 404
 
         return {"message": "Topic ID or Course ID not provided"}, 400
-
     @jwt_required()
     def patch(self, topic_id=None):
         user = current_user

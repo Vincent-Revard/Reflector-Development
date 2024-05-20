@@ -5,6 +5,12 @@ import { useProviderContext } from './ContextProvider';
 import { useEffect, useState } from 'react';
 import { TextField, Switch, FormControlLabel, Typography, Box, Paper, Grid, Button, CircularProgress } from '@mui/material';
 import { useLocation } from 'react-router-dom';
+import { styled } from '@mui/material';
+import { Link } from 'react-router-dom';
+
+const StyledButton = styled(Button)({
+  margin: '10px',
+});
 
 const NewNote = () => {
     const { courseId, topicId, noteId } = useParams();
@@ -51,7 +57,7 @@ const NewNote = () => {
                 .then((response) => {
                     showToast('success', 'Item created successfully');
                     setTimeout(() => {
-                        navigate(`/courses/${courseId}/topics/${topicId}/notes/${response.note.id}`);
+                        navigate(`/course/${courseId}/topic/${topicId}/note/${response.note.id}`);
                     }, 2000); // 2 seconds delay
                 })
                 .catch(error => {
@@ -97,8 +103,17 @@ const NewNote = () => {
             {({ errors, touched, values, setFieldValue, isSubmitting }) => (
                 <Form>
                     <Box sx={{ mb: 2 }}>
-                        <Typography variant="h4">Topic: {data?.note?.topic?.name}</Typography>
+                        <Typography variant="h4">Topic: {data?.notes[0].topic.name}</Typography>
                     </Box>
+                    {location.pathname.endsWith('/edit') &&
+                    <Box sx={{ mb: 2 }}>
+                    <Link to={`/course/${courseId}/topic/${topicId}/note/new`}>
+                        <StyledButton variant="contained" color="primary">
+                            New Note
+                        </StyledButton>
+                    </Link>
+                    </Box>
+                    }
                     <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
                         <Grid container spacing={2}>
                             {fieldInfo.slice(0, 3).map(field => (

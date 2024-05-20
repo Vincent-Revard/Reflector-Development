@@ -14,6 +14,7 @@ import SearchAndAddCourseOrTopic from './search_or_add_course_and_topic';
 import NoteIndexCard from './note_index_card';
 import CourseNewEdit from './course_new_edit_form';
 import TopicNewEdit from './topic_new_edit_form';
+import TopicIndexCard from './topic_index_card';
 
 const StyledButton = styled(Button)({
   margin: '10px',
@@ -21,7 +22,6 @@ const StyledButton = styled(Button)({
 
 const ContextList = () => {
   const { data, handlePatchContext, handleDeleteContext, currentPage, showToast, isLoading } = useProviderContext();
-  debugger
   const { courseId, topicId, noteId } = useParams();
   const navigate = useNavigate();
   const { user, checkingRefresh } = useAuth();
@@ -31,113 +31,77 @@ const ContextList = () => {
     if (!data) {
       return null;  // or some loading state
     }
-    
-    // Check for profile first
+
     if (baseRoute.includes('profile')) {
       return data?.id && <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
-
-    // Check for new note
-    if (courseId && topicId && (currentPage.includes('note/new') || (noteId && currentPage.includes('note/edit')))) {
-      return <NewNote />;
+    if (courseId && !noteId && currentPage.includes('topics/new')) {
+      return <TopicNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
-
-    // Check for topic edit
     if (courseId && currentPage.includes('topics/edit') && data?.topic?.id === Number(topicId)) {
       return <TopicNewEdit key={data.topic.id} data={data.topic} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
-
-    // Check for new topic
-    if (currentPage.includes('topics/new')) {
-      return <TopicNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    }
-
-    // Check for course edit
-    if (courseId && currentPage.includes('courses/edit') && data?.course?.id === Number(courseId)) {
-      return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    }
-
-    // Check for new course
-    if (currentPage.includes('courses/new')) {
+    if (!courseId && !topicId && !noteId && currentPage.includes('new')) {
       return <CourseNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
+    if (!topicId && !noteId && courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
+      return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
+    }
+    if ((courseId && topicId && !noteId && data.topics) || (courseId && !topicId && !noteId && data && data.topics)) {
+      return (
+        <>
+          <Typography variant="h6">Course: {data?.topics[0].course_name}</Typography>
+          {data.topics.map(topic => <TopicIndexCard key={topic.id} topic={topic} courseId={courseId} />)}
+        </>
+      )
+    }
 
-    // if (baseRoute.includes('profile')) {
-    //   return data?.id && <UserProfileDetail key={data.id} data={data} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    // }
-    // if (currentPage.includes('topics/new')) {
-    //   return <TopicNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    // }
-    // if (courseId && currentPage.includes('topics/edit') && data?.topic?.id === Number(topicId)) {
-    //   return <TopicNewEdit key={data.topic.id} data={data.topic} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    // }
-    // if (currentPage.includes('new')) {
-    //   return <CourseNewEdit key='new' user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    // }
-    // if (courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
-    //   return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
-    // }
-
+    if (courseId && topicId) {
+      if (currentPage.includes('new') || (courseId && topicId && noteId && currentPage.includes('edit'))) {
+        return <NewNote />;
+      }
       if (noteId && data?.note?.id === Number(noteId)) {
         return <NoteCard key={data.note.id} note={data.note} courseId={courseId} topicId={topicId} />;
-      }
-      if (courseId && topicId && !noteId && data && data.topic) {
-        return <TopicCard key={data.id} topic={data.topic} courseId={courseId} />;
       }
 
       if (courseId && topicId && !noteId && data?.notes?.length > 0) {
         return (
           <>
-            {/* <Typography variant="h6">Topic: {data?.notes[0].topic.name}</Typography> */}
-              <Link to={`/course/${courseId}/topic/${topicId}/note/new`}>
-                <StyledButton variant="contained" color="primary">
-                  New Note
-                </StyledButton>
-              </Link>
-              <Link to="/course">
-                <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go Back to Courses</Button>
-              </Link>
-            {data.notes.map(note => (
-              <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
-            ))}
-          </>
-        );
-      }
-      if (courseId && (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll'))) {
-        return <SearchAndAddCourseOrTopic allNames={data.not_associated_topics} associatedTopics={data.associated_topics} courseId={ courseId } type={'topics'} />;
-      }
-      if (!noteId) {
-        return (
-          <>
-            {/* <Typography variant="h6">Topic: {data?.notes[0].topic.name}</Typography> */}
+            <Typography variant="h6">Topic: {data?.notes[0].topic.name}</Typography>
             <Link to={`/course/${courseId}/topic/${topicId}/note/new`}>
               <StyledButton variant="contained" color="primary">
                 New Note
               </StyledButton>
             </Link>
             <Link to="/course">
-              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go Back to Courses</Button>
+              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go All Courses</Button>
             </Link>
-            {data?.notes?.map(note => (
+            <Link to={`/course/${courseId}`}>
+              <Button variant="contained" color="secondary" style={{ marginLeft: '10px' }}>Go All Topics for {`${data?.notes[0].topic.course_topics}`}</Button>            </Link>
+            {data?.notes.map(note => (
               <NoteIndexCard key={note.id} note={note} courseId={courseId} topicId={topicId} />
             ))}
           </>
         );
       }
+    }
+    if (courseId && !topicId && !noteId && (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll'))) {
+      return <SearchAndAddCourseOrTopic allNames={data.not_associated_topics} associatedTopics={data.associated_topics} courseId={courseId}
+        course_information={data.course_information
+        } type={'topics'} />;
+    }
 
-    if (courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
+    if (!noteId && !topicId && courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
       return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
 
-    if (currentPage.includes('courses/enroll') || currentPage.includes('courses/unenroll')) {
+    if (!noteId && !topicId && !courseId && (currentPage.includes('enroll') || currentPage.includes('unenroll'))) {
       return <SearchAndAddCourseOrTopic allNames={data.not_enrolled_courses} enrolledCourses={data.enrolled_courses} type='courses' />;
     }
 
-
-    if (courseId) {
+    if (courseId && !topicId && !noteId) {
       return <CourseCard key={data.id} data={data.course} courseId={courseId} />;
     }
-
     return (
       <div>
         <Link to={`/course/enroll`}>
@@ -155,7 +119,7 @@ const ContextList = () => {
         ))}
       </div>
     );
-  }, [data, currentPage, handleDeleteContext, handlePatchContext, showToast, user, courseId, topicId, noteId, ])
+  }, [data, currentPage, handleDeleteContext, handlePatchContext, showToast, user, courseId, topicId, noteId,])
 
   if (isLoading) {
     return <CircularProgress />;

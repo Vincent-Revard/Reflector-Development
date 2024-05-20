@@ -135,7 +135,7 @@ class NotesById(BaseResource):
                             if hasattr(note, key):
                                 setattr(note, key, value)
                         db.session.commit()
-
+                        
                         return {"message": "Note updated successfully"}, 200
                     else:
                         return {"message": "Note not found"}, 404
