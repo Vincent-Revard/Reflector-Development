@@ -19,18 +19,20 @@ class User(db.Model):
     _password_hash = db.Column(db.String(100), nullable=False)
     email_verified = db.Column(db.Boolean, default=False)
 
-    notes = db.relationship("Note", back_populates="user", lazy=True)
+    notes = db.relationship(
+        "Note", back_populates="user", lazy=True, cascade="all,delete"
+    )
     references = db.relationship("Reference", back_populates="user", lazy=True)
 
     created_courses = db.relationship("Course", back_populates="creator", lazy=True)
     created_topics = db.relationship("Topic", back_populates="creator", lazy=True)
-    
+
     topics = db.relationship(
         "Topic",
         secondary="user_topics",
         back_populates="users",
     )
-    
+
     enrolled_courses = db.relationship(
         "Course", secondary="user_courses", back_populates="enrolled_users"
     )

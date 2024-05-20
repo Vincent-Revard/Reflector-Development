@@ -30,13 +30,13 @@ load_dotenv()
 
 app = Flask(
     __name__,
-    static_url_path="",
-    static_folder="../client/build",
-    template_folder="../client/build",
+    static_url_path='',
+    static_folder='../client/build',
+    template_folder='../client/build',
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ECHO"] = True
+app.config["SQLALCHEMY_ECHO"] = False
 
 #! Flask_Session setup below!
 # app.secret_key = environ.get("SESSION_SECRET")
