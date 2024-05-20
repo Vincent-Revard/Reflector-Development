@@ -1,24 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction , Pagination} from '@mui/material';
+import React from 'react';
+import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction, Pagination } from '@mui/material';
 import { useProviderContext } from './ContextProvider';
 import { Link } from 'react-router-dom';
 
 const ITEMS_PER_PAGE = 10;
 
-const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, associatedTopics, course_information }) => {
+// Custom hook to manage enrollment status
+const useEnrollmentStatus = (isUnenrollPage, type, enrolledCourses, associatedTopics, allNames) => {
+    const [enrollmentStatus, setEnrollmentStatus] = React.useState({});
+
+    React.useEffect(() => {
+        let items = isUnenrollPage ? (type === 'courses' ? enrolledCourses : associatedTopics) : allNames;
+        items?.forEach(item => {
+            const isEnrolled = enrolledCourses?.some(course => course.id === item.id);
+            const isAssociated = associatedTopics?.some(topic => topic.id === item.id);
+            setEnrollmentStatus(prevState => ({ ...prevState, [item.id]: isUnenrollPage ? true : (isEnrolled || isAssociated) }));
+        });
+    }, [isUnenrollPage, type, enrolledCourses, associatedTopics, allNames]);
+
+    return [enrollmentStatus, setEnrollmentStatus];
+};
+
+// Custom hook to manage filtered items
+const useFilteredItems = (isUnenrollPage, type, enrolledCourses, associatedTopics, allNames, searchTerm) => {
+    const [filteredItems, setFilteredItems] = React.useState(isUnenrollPage ? enrolledCourses : allNames);
+
+    React.useEffect(() => {
+        let items = isUnenrollPage ? (type === 'courses' ? enrolledCourses : associatedTopics) : allNames;
+        setFilteredItems(items?.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
+    }, [searchTerm, isUnenrollPage, type, enrolledCourses, associatedTopics, allNames]);
+
+    return [filteredItems, setFilteredItems];
+};
+
+const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, associatedTopics, courseName }) => {
     const { handleUnenroll, handleEnroll, showToast, currentPage } = useProviderContext();
     const isUnenrollPage = currentPage.includes('unenroll');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedId, setSelectedId] = useState(null);
-    const [filteredItems, setFilteredItems] = useState(isUnenrollPage ? enrolledCourses : allNames);    const [enrollmentStatus, setEnrollmentStatus] = useState({});
-    const [page, setPage] = useState(1); 
-    const [selectedName, setSelectedName] = useState(null);
-
-
-
-    useEffect(() => {
-        const items = isUnenrollPage ? enrolledCourses : allNames;        setFilteredItems(items?.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
-    }, [searchTerm, allNames, enrolledCourses, isUnenrollPage, associatedTopics]);
+    const [searchTerm, setSearchTerm] = React.useState('');
+    const [selectedId, setSelectedId] = React.useState(null);
+    const [page, setPage] = React.useState(1);
+    const [selectedName, setSelectedName] = React.useState(null);
+    const [enrollingTopics, setEnrollingTopics] = React.useState([]);
+    const [enrollmentStatus, setEnrollmentStatus] = useEnrollmentStatus(isUnenrollPage, type, enrolledCourses, associatedTopics, allNames);
+    const [filteredItems, setFilteredItems] = useFilteredItems(isUnenrollPage, type, enrolledCourses, associatedTopics, allNames, searchTerm);
 
     const handleChange = event => {
         setSearchTerm(event.target.value);
@@ -29,7 +53,17 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
         setSelectedName(name);
         const isEnrolled = enrolledCourses?.some(course => course.id === id);
         const isAssociated = associatedTopics?.some(topic => topic.id === id);
-        setEnrollmentStatus(prevState => ({ ...prevState, [id]: isEnrolled || isAssociated }));
+        if (isUnenrollPage) {
+            setEnrollmentStatus(prevState => ({ ...prevState, [id]: isEnrolled || isAssociated }));
+            if (type === 'topics') {
+                setEnrollingTopics(prevTopics => prevTopics.filter(topicId => topicId !== id));
+            }
+        } else {
+            setEnrollmentStatus(prevState => ({ ...prevState, [id]: !(isEnrolled || isAssociated) }));
+            if (type === 'topics') {
+                setEnrollingTopics(prevTopics => [...prevTopics, id]);
+            }
+        }
     };
 
     const handleClick = (id) => (event) => {
@@ -58,9 +92,9 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
 
     let actionText;
     if (isUnenrollPage) {
-        actionText = type === 'topics' ? `Remove a topic from ${course_information.course_name}` : `Unenroll from ${type}`;
+        actionText = type === 'topics' ? `Remove a topic from ${courseName}` : `Unenroll from ${type}`;
     } else {
-        actionText = type === 'topics' ? `Add a topic to ${course_information.course_name}` : `Enroll in new ${type}`;
+        actionText = type === 'topics' ? `Add a topic to ${courseName}` : `Enroll in new ${type}`;
     }
 
     const itemsOnPage = filteredItems?.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -97,12 +131,11 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
             )}
             <List>
                 {itemsOnPage?.map(item => (
-                    <ListItem key={item.id} component="button" onClick={() => handleSelect(item.id)}>
+                    <ListItem key={item.id} component="button" onClick={() => handleSelect(item.id, item.name)}>
                         <ListItemText primary={item.name} sx={{ flexGrow: 1 }} />
                         <ListItemSecondaryAction sx={{ flexShrink: 1 }}>
-                            <Button variant="contained" color={isUnenrollPage ? "secondary" : "primary"} onClick={handleClick(item.id)} disabled={enrollmentStatus[item.id] === isUnenrollPage}>
-                                {isUnenrollPage ? "Unenroll" : "Enroll"}
-                            </Button>
+                            {!isUnenrollPage && <Button variant="contained" color="primary" onClick={handleClick(item.id)}>Enroll</Button>}
+                            {isUnenrollPage && <Button variant="contained" color="secondary" onClick={handleClick(item.id)}>Unenroll</Button>}
                         </ListItemSecondaryAction>
                     </ListItem>
                 ))}
@@ -125,4 +158,5 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
         </Box>
     );
 };
+
 export default SearchAndAddCourseOrTopic;

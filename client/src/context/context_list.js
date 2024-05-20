@@ -25,6 +25,7 @@ const ContextList = () => {
   const { courseId, topicId, noteId } = useParams();
   const navigate = useNavigate();
   const { user, checkingRefresh } = useAuth();
+  console.log(currentPage)
 
   const renderComponent = useMemo(() => {
     const baseRoute = currentPage.split('/')[0];
@@ -85,17 +86,16 @@ const ContextList = () => {
         );
       }
     }
-    if (courseId && !topicId && !noteId && (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll'))) {
-      return <SearchAndAddCourseOrTopic allNames={data.not_associated_topics} associatedTopics={data.associated_topics} courseId={courseId}
-        course_information={data.course_information
-        } type={'topics'} />;
+    if (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll')) {
+      return <SearchAndAddCourseOrTopic allNames={data?.not_associated_topics} associatedTopics={data?.associated_topics} courseId={courseId}
+        courseName={data?.course_information?.course_name} type={'topics'} />;
     }
 
-    if (!noteId && !topicId && courseId && currentPage.includes('edit') && data?.course?.id === Number(courseId)) {
+    if (!noteId && !topicId && courseId && currentPage.includes('courses/edit') && data?.course?.id === Number(courseId)) {
       return <CourseNewEdit key={data.course.id} data={data.course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />;
     }
 
-    if (!noteId && !topicId && !courseId && (currentPage.includes('enroll') || currentPage.includes('unenroll'))) {
+    if (currentPage.includes('courses/enroll') || currentPage.includes('courses/unenroll')) {
       return <SearchAndAddCourseOrTopic allNames={data.not_enrolled_courses} enrolledCourses={data.enrolled_courses} type='courses' />;
     }
 
