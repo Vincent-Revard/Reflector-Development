@@ -1,5 +1,5 @@
-import React from 'react';
-import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction, Pagination, ButtonBase, Autocomplete, Modal } from '@mui/material';
+import React, {useState, useEffect} from 'react';
+import { TextField, Button, Box, Typography, List, ListItem, ListItemText, Pagination, ButtonBase, Autocomplete, Modal } from '@mui/material';
 import { useProviderContext } from './ContextProvider';
 import { Link } from 'react-router-dom';
 
@@ -8,9 +8,9 @@ const ITEMS_PER_PAGE = 10;
 
 // Custom hook to manage enrollment status
 const useEnrollmentStatus = (isUnenrollPage, type, enrolledCourses, associatedTopics, allNames) => {
-    const [enrollmentStatus, setEnrollmentStatus] = React.useState({});
+    const [enrollmentStatus, setEnrollmentStatus] = useState({});
 
-    React.useEffect(() => {
+    useEffect(() => {
         let items = isUnenrollPage ? (type === 'courses' ? enrolledCourses : associatedTopics) : allNames;
         items?.forEach(item => {
             const isEnrolled = enrolledCourses?.some(course => course.id === item.id);
@@ -24,9 +24,9 @@ const useEnrollmentStatus = (isUnenrollPage, type, enrolledCourses, associatedTo
 
 // Custom hook to manage filtered items
 const useFilteredItems = (isUnenrollPage, type, enrolledCourses, associatedTopics, allNames, searchTerm) => {
-    const [filteredItems, setFilteredItems] = React.useState(isUnenrollPage ? enrolledCourses : allNames);
+    const [filteredItems, setFilteredItems] = useState(isUnenrollPage ? enrolledCourses : allNames);
 
-    React.useEffect(() => {
+    useEffect(() => {
         let items = isUnenrollPage ? (type === 'courses' ? enrolledCourses : associatedTopics) : allNames;
         setFilteredItems(items?.filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase())));
     }, [searchTerm, isUnenrollPage, type, enrolledCourses, associatedTopics, allNames]);
@@ -37,14 +37,14 @@ const useFilteredItems = (isUnenrollPage, type, enrolledCourses, associatedTopic
 const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, associatedTopics, courseName }) => {
     const { handleUnenroll, handleEnroll, showToast, currentPage } = useProviderContext();
     const isUnenrollPage = currentPage.includes('unenroll');
-    const [searchTerm, setSearchTerm] = React.useState('');
-    const [selectedId, setSelectedId] = React.useState(null);
-    const [page, setPage] = React.useState(1);
-    const [selectedName, setSelectedName] = React.useState(null);
-    const [enrollingTopics, setEnrollingTopics] = React.useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedId, setSelectedId] = useState(null);
+    const [page, setPage] = useState(1);
+    const [selectedName, setSelectedName] = useState(null);
+    const [enrollingTopics, setEnrollingTopics] = useState([]);
     const [enrollmentStatus, setEnrollmentStatus] = useEnrollmentStatus(isUnenrollPage, type, enrolledCourses, associatedTopics, allNames);
     const [filteredItems, setFilteredItems] = useFilteredItems(isUnenrollPage, type, enrolledCourses, associatedTopics, allNames, searchTerm);
-    const [openModal, setOpenModal] = React.useState(false);
+    const [openModal, setOpenModal] = useState(false);
 
 
     const handleChange = event => {
@@ -121,7 +121,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                 </Typography>
                 <Autocomplete
                     fullWidth
-                    options={allNames.map((option) => option.name)}
+                    options={allNames?.map((option) => option.name)}
                     renderInput={(params) => <TextField {...params} variant="outlined" placeholder={`Search for a ${type}`} />}
                     onInputChange={(event, newInputValue) => {
                         setSearchTerm(newInputValue);
