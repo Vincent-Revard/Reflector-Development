@@ -1,7 +1,8 @@
 import React from 'react';
-import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction, Pagination } from '@mui/material';
+import { TextField, Button, Box, Typography, List, ListItem, ListItemText, ListItemSecondaryAction, Pagination, ButtonBase } from '@mui/material';
 import { useProviderContext } from './ContextProvider';
 import { Link } from 'react-router-dom';
+
 
 const ITEMS_PER_PAGE = 10;
 
@@ -129,7 +130,7 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                     </Link>
                 </Box>
             )}
-            <List>
+            {/* <List>
                 {itemsOnPage?.map(item => (
                     <ListItem key={item.id} component="button" onClick={() => handleSelect(item.id, item.name)}>
                         <ListItemText primary={item.name} sx={{ flexGrow: 1 }} />
@@ -144,6 +145,24 @@ const SearchAndAddCourseOrTopic = ({ allNames, type, enrolledCourses, courseId, 
                 <Typography variant="h6">
                     Selected {type} name: {selectedName}
                 </Typography>
+            )} */}
+            <List>
+                {itemsOnPage?.map(item => (
+                    <ListItem key={item.id}>
+                        <ButtonBase onClick={() => handleSelect(item.id, item.name)}>
+                            <ListItemText primary={item.name} />
+                        </ButtonBase>
+                    </ListItem>
+                ))}
+            </List>
+            {selectedId && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                    <Typography variant="h6" sx={{ mr: 2 }}>
+                        Selected {type} name: {selectedName}
+                    </Typography>
+                    {!isUnenrollPage && <Button variant="contained" color="primary" onClick={handleClick(selectedId)}>Enroll</Button>}
+                    {isUnenrollPage && <Button variant="contained" color="secondary" onClick={handleClick(selectedId)}>Unenroll</Button>}
+                </Box>
             )}
             <Box sx={{ mt: 3 }}>
                 <Link to="/course">

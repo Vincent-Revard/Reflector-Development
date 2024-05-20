@@ -94,10 +94,6 @@ const ContextList = () => {
         );
       }
     }
-    // if (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll')) {
-    //   return <SearchAndAddCourseOrTopic allNames={data?.not_associated_topics} associatedTopics={data?.associated_topics} courseId={courseId}
-    //     courseName={data?.course_information?.course_name} type={'topics'} />;
-    // }
     if (currentPage.includes('topics/enroll') || currentPage.includes('topics/unenroll')) {
       return (
         <SearchAndAddCourseOrTopic
@@ -121,29 +117,31 @@ const ContextList = () => {
     if (courseId && !topicId && !noteId) {
       return <CourseCard key={data.id} data={data.course} courseId={courseId} />;
     }
-    return (
-      <div>
-        <Link to={`/course/enroll`}>
-          <StyledButton variant="contained" color="primary">
-            Add courses to your course list
-          </StyledButton>
-        </Link>
-        <Link to={`/course/unenroll`}>
-          <StyledButton variant="contained" color="primary">
-            Remove courses from your course list
-          </StyledButton>
-        </Link>
-        {data?.courses?.map(course => (
-          course?.id && <CourseCard key={course.id} data={course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />
-        ))}
-      </div>
-    );
+
+    if (!courseId && !topicId && !noteId) {
+      return (
+        <div>
+          <Link to={`/course/enroll`}>
+            <StyledButton variant="contained" color="primary">
+              Add courses to your course list
+            </StyledButton>
+          </Link>
+          <Link to={`/course/unenroll`}>
+            <StyledButton variant="contained" color="primary">
+              Remove courses from your course list
+            </StyledButton>
+          </Link>
+          {data?.courses?.map(course => (
+            course?.id && <CourseCard key={course.id} data={course} user={user} handlePatchContext={handlePatchContext} handleDeleteContext={handleDeleteContext} showToast={showToast} />
+          ))}
+        </div>
+      );
+    }
   }, [data, currentPage, handleDeleteContext, handlePatchContext, showToast, user, courseId, topicId, noteId,])
 
   if (isLoading) {
     return <CircularProgress />;
   }
-
   return (
     <Container className="user-profile-container">
       {user && data && !checkingRefresh ? renderComponent :
