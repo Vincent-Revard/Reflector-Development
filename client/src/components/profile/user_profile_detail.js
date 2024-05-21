@@ -224,7 +224,7 @@ const UserProfileDetail = ({ data }) => {
         )}
       </Box>
       <Box mt={2}>
-        <Button variant="contained" color="secondary" onClick={handleDeleteClick}>
+        <Button variant="contained" color="secondary" onClick={() => setDialogOpen(true)}>
           Delete Profile
         </Button>
       </Box>
@@ -241,7 +241,7 @@ const UserProfileDetail = ({ data }) => {
           <Button onClick={() => setDialogOpen(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteConfirm} color="primary" autoFocus>
+          <Button onClick={handleDeleteClick} color="primary" autoFocus>
             Delete
           </Button>
         </DialogActions>

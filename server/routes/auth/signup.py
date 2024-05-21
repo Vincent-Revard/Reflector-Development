@@ -75,7 +75,9 @@ class Signup(Resource):
                 user.id,
             )
 
-            verification_link = f"http://localhost:3000/verify/{token}"
+            verification_link = (
+                f"https://reflector-development-1.onrender.com/verify/{token}"
+            )
             # Send an email with the token
             send_email(
                 user.email,
