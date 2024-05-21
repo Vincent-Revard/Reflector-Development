@@ -29,7 +29,7 @@ api.add_resource(CheckSession, "/check_session")
 api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
 api.add_resource(Refresh, "/refresh")
-api.add_resource(Verify, "/verify/<token>")
+api.add_resource(Verify, "/verify/<token>", "/verify", endpoint='verify')
 api.add_resource(CoursesIndex, "/courses", "/courses/new", endpoint="courses")
 api.add_resource(UsersIndex, "/profiles", "/profiles/<int:id>", endpoint="profiles")
 api.add_resource(
