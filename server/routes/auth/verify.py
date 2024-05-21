@@ -7,30 +7,38 @@ import ipdb
 class Verify(Resource):
 
     def patch(self, token=None):
-        # Check if the token is provided
-        if token is None:
-            return {"message": "No token provided."}, 400
+        try:
+            # Check if the token is provided
+            if token is None:
+                return {"message": "No token provided."}, 400
 
-        # Use the token to look up the user's ID in Redis
+            # Use the token to look up the user's ID in Redis
+            user_id = redis_client.get(token)
+            if user_id is None:
+                return {
+                    "message": "The confirmation link is invalid or has expired."
+                }, 400
 
-        user_id = redis_client.get(token)
-        if user_id is None:
-            return {"message": "The confirmation link is invalid or has expired."}, 400
+            # Convert user_id to integer
+            user_id = int(user_id)
 
-        # Convert user_id to integer
-        user_id = int(user_id)
+            # Look up the user in the database
+            user = User.query.get(user_id)
+            if user is None:
+                return {"message": "User not found"}, 404
 
-        # Look up the user in the database
-        user = User.query.get(user_id)
-        if user is None:
-            return {"message": "User not found"}, 404
+            # Set the user's email_verified flag to True and save the changes
+            user.email_verified = True
+            db.session.commit()
 
-        # Set the user's email_verified flag to True and save the changes
-        user.email_verified = True
-        db.session.commit()
+            # Remove the token from Redis
+            redis_client.delete(token)
 
-        # Remove the token from Redis
-        redis_client.delete(token)
+            # Return a response
+            return {"message": "Email verified successfully"}, 200
 
-        # Return a response
-        return {"message": "Email verified successfully"}, 200
+        # except Exception as e:
+        #     app.logger.error(f"Error in Verify.patch: {str(e)}")
+        #     return {"message": "Internal Server Error"}, 500
+        except Exception as e:
+            return {"message": f"Internal Server Error: {str(e)}"}, 500
