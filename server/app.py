@@ -90,8 +90,8 @@ api.add_resource(
 
 
 @app.route("/")
-@app.route("/verify")
-@app.route("/verify/<token>")
+@app.route("/verifying")
+@app.route("/verifying/<token>")
 @app.route("/registration")
 @app.route("/profile")
 @app.route("/course")

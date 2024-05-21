@@ -167,7 +167,7 @@ const router = createBrowserRouter([
         element: <Registration />
       },
       {
-        path: "verify/:token",
+        path: "verifying/:token",
         element: <VerifyPage />
       },
       {
